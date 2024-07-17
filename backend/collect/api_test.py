@@ -127,3 +127,13 @@ def test_project_validation(db, user, client: Client):
     }, content_type='application/json')
 
     assert is_client_error(response.status_code)
+
+def test_collection_records(db, user, project, client: Client):
+    client.force_login(user)
+    create_response = post_collection(client, project.name)
+    collection_uri = create_response.data['uri']
+
+    records_url = '/api/collection-records/' + collection_uri + '/'
+
+    response = client.get(records_url)
+    assert is_success(response.status_code)
