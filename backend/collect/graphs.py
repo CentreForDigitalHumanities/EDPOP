@@ -1,20 +1,38 @@
 from typing import List
-from rdflib import URIRef, BNode, Graph, RDF, Literal
+from rdflib import Graph, RDF, IdentifiedNode
+from rdflib.term import Node
 
-from triplestore.constants import AS
+from triplestore.utils import Triples
 
-def as_collection_from_records(collection: URIRef, records: List[URIRef]) -> Graph:
+def list_from_graph_collection(graph: Graph, list_node: IdentifiedNode) -> List[Node]:
     '''
-    Wrap a list of records in an ActivityStreams Collection
+    Extract a list of nodes from an RDF collection in a graph
     '''
 
+    items = list(graph.objects(list_node, RDF.first))
+    rest_nodes = graph.objects(list_node, RDF.rest)
+    for rest in rest_nodes:
+        items += list_from_graph_collection(graph, rest)
+    return items
+
+
+def list_to_graph_collection(items: List[Node], items_node: IdentifiedNode) -> Graph:
+    '''
+    Return a list of items as an RDF collection
+    '''
+    
     g = Graph()
-    g.add((collection, RDF.type, AS.Collection))
-    g.add((collection, AS.totalItems, Literal(len(records))))
-
-    items_node = BNode()
-    items = g.collection(items_node)
-    for record in records:
-        items.append(record)
-    g.add((collection, AS.items, items_node))
+    collection = g.collection(items_node)
+    for item in items:
+        collection.append(item)
     return g
+
+
+def collection_triples(graph: Graph, list_node: IdentifiedNode) -> Triples:
+    triples = list(graph.triples((list_node, RDF.first, None)))
+    triples += list(graph.triples((list_node, RDF.rest, None)))
+
+    for rest in graph.objects(list_node, RDF.rest):
+        triples += collection_triples(graph, rest)
+
+    return triples

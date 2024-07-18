@@ -59,6 +59,5 @@ class CollectionRecordsView(RDFView):
         collection_obj = EDPOPCollection(collection_graph(collection_uri), collection_uri)
 
         g = Graph()
-        g += as_collection_from_records(collection_uri, collection_obj.records)
 
         return g
