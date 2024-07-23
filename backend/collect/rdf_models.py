@@ -10,6 +10,10 @@ from collect.graphs import (
 )
 
 class CollectionMembersField(RDFField):
+    '''
+    Field for the records that are contained in an EDPOP collection.
+    '''
+    
     def get(self, instance: RDFModel):
         g = self.get_graph(instance)
         items = next(g.objects(instance.uri, AS.items), None)
