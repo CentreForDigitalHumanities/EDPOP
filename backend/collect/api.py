@@ -11,7 +11,6 @@ from collect.utils import collection_exists, collection_graph
 from triplestore.constants import EDPOPCOL
 from collect.serializers import CollectionSerializer
 from collect.permissions import CollectionPermission
-from collect.graphs import as_collection_from_records
 
 class CollectionViewSet(ModelViewSet):
     '''
@@ -50,7 +49,7 @@ class CollectionRecordsView(RDFView):
     View the records inside a collection
     '''
 
-    def get_graph(self, request: Request, collection: str, **kwargs):
+    def get_graph(self, request: Request, collection: str, **kwargs) -> Graph:
         collection_uri = URIRef(collection)
 
         if not collection_exists(collection_uri):
@@ -59,5 +58,7 @@ class CollectionRecordsView(RDFView):
         collection_obj = EDPOPCollection(collection_graph(collection_uri), collection_uri)
 
         g = Graph()
+        g += collection_obj._class_triples()
+        g += EDPOPCollection.records._stored_triples(collection_obj)
 
         return g

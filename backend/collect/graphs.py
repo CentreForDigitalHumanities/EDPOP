@@ -23,8 +23,7 @@ def list_to_graph_collection(items: List[Node], items_node: IdentifiedNode) -> G
     
     g = Graph()
     collection = g.collection(items_node)
-    for item in items:
-        collection.append(item)
+    collection += items
     return g
 
 
