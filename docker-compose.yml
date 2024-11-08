@@ -11,8 +11,6 @@ services:
         volumes:
             - pgdata:/var/lib/postgresql/data
             - ./backend/create_db.sql:/docker-entrypoint-initdb.d/edpop.sql
-        ports:
-            - 127.0.0.1:5432:5432
     blazegraph:
         image: islandora/blazegraph:main
         healthcheck:
