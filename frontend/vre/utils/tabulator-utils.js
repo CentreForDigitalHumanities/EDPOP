@@ -73,7 +73,6 @@ const defaultColumnFeatures = {
 const columnProperties = {
     'edpoprec:title': {
         widthGrow: 5,
-        formatter: 'textarea',
     },
     'edpoprec:placeOfPublication': {},
     'edpoprec:dating': {
