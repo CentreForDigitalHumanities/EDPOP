@@ -1,3 +1,7 @@
+import _ from 'lodash';
+import {properties} from './record-ontology';
+import {getStringLiteral} from './jsonld.model';
+
 /**
  * A Tabulator menu to hide and show the available columns.
  * Adapted from: https://tabulator.info/examples/6.2#menu
@@ -57,3 +61,50 @@ export const columnChooseMenu = function(){
 
     return menu;
 };
+
+const defaultColumnFeatures = {
+    visible: false,
+    headerFilter: true,
+    headerContextMenu: columnChooseMenu,
+};
+
+const columnProperties = {
+    'edpoprec:title': {
+        visible: true,
+        widthGrow: 5,
+        formatter: 'textarea',
+    },
+    'edpoprec:placeOfPublication': {
+        visible: true,
+    },
+    'edpoprec:dating': {
+        visible: true,
+        widthGrow: 0.5,
+    },
+    'edpoprec:publisherOrPrinter': {
+        visible: true,
+    },
+    'edpoprec:contributor': {
+        visible: true,
+    },
+    'edpoprec:activity': {
+        visible: true,
+    },
+};
+
+function adjustDefinition(bareDefinition) {
+    const property = properties.get(bareDefinition.field);
+    const addedTitle = property ? {
+        title: getStringLiteral(property.get('skos:prefLabel')),
+    } : null;
+    const customProperties = columnProperties[bareDefinition.field];
+    return _.assign(
+        {},
+        bareDefinition,
+        defaultColumnFeatures,
+        addedTitle,
+        customProperties
+    );
+}
+
+export const adjustDefinitions = _.partial(_.map, _, adjustDefinition);
