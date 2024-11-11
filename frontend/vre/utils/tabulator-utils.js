@@ -1,4 +1,6 @@
 import _ from 'lodash';
+import {Model, Collection} from 'backbone';
+import {MappedCollection} from './mapped.collection.js';
 import {properties} from './record-ontology';
 import {getStringLiteral} from './jsonld.model';
 
@@ -70,41 +72,48 @@ const defaultColumnFeatures = {
 
 const columnProperties = {
     'edpoprec:title': {
-        visible: true,
         widthGrow: 5,
         formatter: 'textarea',
     },
-    'edpoprec:placeOfPublication': {
-        visible: true,
-    },
+    'edpoprec:placeOfPublication': {},
     'edpoprec:dating': {
-        visible: true,
         widthGrow: 0.5,
     },
-    'edpoprec:publisherOrPrinter': {
-        visible: true,
-    },
-    'edpoprec:contributor': {
-        visible: true,
-    },
-    'edpoprec:activity': {
-        visible: true,
-    },
+    'edpoprec:publisherOrPrinter': {},
+    'edpoprec:contributor': {},
+    'edpoprec:activity': {},
 };
 
-function adjustDefinition(bareDefinition) {
-    const property = properties.get(bareDefinition.field);
-    const addedTitle = property ? {
-        title: getStringLiteral(property.get('skos:prefLabel')),
-    } : null;
-    const customProperties = columnProperties[bareDefinition.field];
-    return _.assign(
-        {},
-        bareDefinition,
-        defaultColumnFeatures,
-        addedTitle,
-        customProperties
-    );
+const columnOrder = _.invert(_.keys(columnProperties));
+
+const ColumnDefinition = Model.extend({
+    idAttribute: 'field',
+});
+
+function byPreference(columnDef) {
+    const definedOrder = columnOrder[columnDef.id];
+    return definedOrder != null ? definedOrder : columnOrder.length;
 }
 
-export const adjustDefinitions = _.partial(_.map, _, adjustDefinition);
+function property2definition(property) {
+    return _.assign({
+        title: getStringLiteral(property.get('skos:prefLabel')),
+        field: property.id,
+    }, defaultColumnFeatures, columnProperties[property.id])
+}
+
+const standardColumns = new MappedCollection(
+    properties,
+    property2definition,
+    {model: ColumnDefinition, comparator: byPreference},
+);
+
+export function adjustDefinitions(autodetected) {
+    const customizedColumns = standardColumns.clone();
+    _.each(autodetected, autoColumn => {
+        if (!(autoColumn.field in columnProperties)) return;
+        const customColumn = customizedColumns.get(autoColumn.field);
+        customColumn && customColumn.set('visible', true);
+    });
+    return customizedColumns.toJSON();
+}
