@@ -3,6 +3,7 @@ import {Model, Collection} from 'backbone';
 import {MappedCollection} from './mapped.collection.js';
 import {properties} from './record-ontology';
 import {getStringLiteral} from './jsonld.model';
+import recordTypeIcon from '../record/record.type.icon.mustache';
 
 /**
  * A Tabulator menu to hide and show the available columns.
@@ -64,6 +65,11 @@ export const columnChooseMenu = function(){
     return menu;
 };
 
+const typeTranslation = {
+    'edpoprec:BibliographicalRecord': {isBibliographical: true},
+    'edpoprec:BiographicalRecord': {isBiographical: true},
+};
+
 const defaultColumnFeatures = {
     visible: false,
     headerFilter: true,
@@ -71,6 +77,7 @@ const defaultColumnFeatures = {
 };
 
 const columnProperties = {
+    type: {},
     'edpoprec:title': {
         widthGrow: 5,
     },
@@ -106,6 +113,18 @@ const standardColumns = new MappedCollection(
     property2definition,
     {model: ColumnDefinition, comparator: byPreference},
 );
+
+standardColumns.unshift({
+    field: 'type',
+    title: 'Type',
+    visible: true,
+    headerContextMenu: columnChooseMenu,
+    formatter: cell => recordTypeIcon(typeTranslation[cell.getValue()]),
+    hozAlign: 'right',
+    tooltip: (e, cell) => cell.getValue().slice(9, -6),
+    width: 48,
+    _ucid: {},
+}, {convert: false});
 
 export function adjustDefinitions(autodetected) {
     const customizedColumns = standardColumns.clone();
