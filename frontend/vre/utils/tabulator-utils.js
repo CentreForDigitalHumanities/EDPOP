@@ -65,6 +65,10 @@ export const columnChooseMenu = function(){
     return menu;
 };
 
+/**
+ * Translation table from compacted JSON-LD `@type` strings to payload objects
+ * suitable for decision making in a Mustache template.
+ */
 const typeTranslation = {
     'edpoprec:BibliographicalRecord': {isBibliographical: true},
     'edpoprec:BiographicalRecord': {isBiographical: true},
@@ -76,6 +80,11 @@ const defaultColumnFeatures = {
     headerContextMenu: columnChooseMenu,
 };
 
+/**
+ * Preferred columns, which are prioritized in the given order over other
+ * columns. Keys are field names, values are objects with any column definition
+ * overrides.
+ */
 const columnProperties = {
     type: {},
     'edpoprec:title': {
@@ -90,17 +99,40 @@ const columnProperties = {
     'edpoprec:activity': {},
 };
 
+/**
+ * Table of the form `{type: 0, 'edpoprec:title': 1, ...}`, derived from
+ * {@link columnProperties}.
+ */
 const columnOrder = _.invert(_.keys(columnProperties));
 
+/**
+ * Model wrapper for Tabulator's column definition schema.
+ * @class
+ */
 const ColumnDefinition = Model.extend({
     idAttribute: 'field',
 });
 
+/**
+ * Comparator function for {@link Collection#sort}. Columns that appear in
+ * {@link columnOrder} are sorted by their value in that table, all other
+ * columns after that.
+ * @param {ColumnDefinition} columnDef - Column definition model.
+ * @returns {number} Order of preference, with lower numbers indicating greater
+ * preference.
+ */
 function byPreference(columnDef) {
     const definedOrder = columnOrder[columnDef.id];
     return definedOrder != null ? definedOrder : columnOrder.length;
 }
 
+/**
+ * Given a property in the EDPOP Record Ontology, return the corresponding
+ * Tabulator column definition, taking special cases into account.
+ * @param {JsonLdModel} property - JSON-LD model of the ontology property.
+ * @returns {object} Tabulator column definition (suitable as payload for a
+ * {@link ColumnDefinition}).
+ */
 function property2definition(property) {
     return _.assign({
         title: getStringLiteral(property.get('skos:prefLabel')),
@@ -108,12 +140,20 @@ function property2definition(property) {
     }, defaultColumnFeatures, columnProperties[property.id])
 }
 
+/**
+ * Set of all available columns in the Tabulator results table. Contained as a
+ * Backbone.Collection for easy referencing and computation. Call the `.toJSON`
+ * method in order to extract the column definitions in the format that
+ * Tabulator understands.
+ */
 const standardColumns = new MappedCollection(
     properties,
     property2definition,
     {model: ColumnDefinition, comparator: byPreference},
 );
 
+// `@type` is not a property, so we add it as a special case. This enables the
+// person/book icons at the left end of every row.
 standardColumns.unshift({
     field: 'type',
     title: 'Type',
@@ -123,9 +163,19 @@ standardColumns.unshift({
     hozAlign: 'right',
     tooltip: (e, cell) => cell.getValue().slice(9, -6),
     width: 48,
+    // The `_ucid` is an implementation detail of `MappedCollection`. It appears
+    // here because mapped collections are not really intended for non-mapped
+    // additions or other modifications.
     _ucid: {},
 }, {convert: false});
 
+/**
+ * Callback for Tabulator's `autoColumnsDefinitions`. It always returns all
+ * columns defined in {@link standardColumns}, but leverages the autodetected
+ * columns to determine which columns should be visible. Columns that are both
+ * preferred and present in the data are visible, all other columns are
+ * invisible.
+ */
 export function adjustDefinitions(autodetected) {
     const customizedColumns = standardColumns.clone();
     _.each(autodetected, autoColumn => {
