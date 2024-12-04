@@ -11,7 +11,7 @@
   },
   "@graph": [
     {
-      "@id": "edpoprec:bibliographicalRecord",
+      "@id": "edpoprec:BibliographicalRecord",
       "rdfs:subClassOf": {
         "@id": "_:na743fb6ca02e49568bc2e2bb36208e43b2"
       }

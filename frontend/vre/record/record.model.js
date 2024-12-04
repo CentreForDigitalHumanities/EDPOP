@@ -29,6 +29,7 @@ export var Record = JsonLdModel.extend({
         const fields = new FlatFields(undefined, {record: this});
         const data = {
             model: this,
+            type: this.get('@type'),
         };
         fields.forEach((field) => {
             data[field.id] = field.getMainDisplay();
