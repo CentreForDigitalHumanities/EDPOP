@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { CompositeView } from '../core/view.js';
 import { vreChannel } from '../radio';
 import { FlatAnnotations } from '../annotation/annotation.model';
@@ -5,8 +6,16 @@ import { RecordFieldsView } from '../field/record.fields.view';
 import { RecordAnnotationsView } from '../field/record.annotations.view';
 import { FlatFields } from '../field/field.model';
 import { VRECollectionView } from '../collection/collection.view';
+import { typeTranslation } from '../utils/generic-functions.js';
 import { GlobalVariables } from '../globals/variables';
 import recordDetailTemplate from './record.detail.view.mustache';
+import typeIconTemplate from './record.type.icon.mustache';
+
+var renderOptions = {
+    partials: {
+        typeIcon: typeIconTemplate,
+    }
+};
 
 export var RecordDetailView = CompositeView.extend({
     template: recordDetailTemplate,
@@ -49,12 +58,12 @@ export var RecordDetailView = CompositeView.extend({
     },
 
     renderContainer: function() {
-        this.$el.html(this.template({
+        this.$el.html(this.template(_.assign({
             title: this.model.getMainDisplay(),
             uri: this.model.id,
             databaseId: this.model.get("edpoprec:identifier"),
             publicURL: this.model.get("edpoprec:publicURL"),
-        }));
+        }, typeTranslation(this.model)), renderOptions));
         return this;
     },
 
