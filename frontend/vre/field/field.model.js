@@ -1,6 +1,14 @@
 import Backbone from 'backbone';
-import { canonicalSort } from '../utils/generic-functions';
-import {fieldList, properties} from "../utils/record-ontology";
+import {
+    canonicalSort,
+    typeTranslation,
+} from '../utils/generic-functions';
+import {
+    fieldList,
+    properties,
+    biblioProperties,
+    bioProperties,
+} from "../utils/record-ontology";
 import {getStringLiteral} from "../utils/jsonld.model";
 
 // A single field of a single record.
@@ -52,9 +60,14 @@ export var FlatFields = Backbone.Collection.extend({
         this.listenTo(this.record, 'change', _.flow([this.toFlat, this.set]));
     },
     toFlat: function(record) {
-        const content = record.toJSON();
-        const fieldNames = Object.keys(content).filter((name) => fieldList.includes(content[name]["@type"]));
-        const fields = fieldNames.map((name) => ({key: name, value: content[name]}));
+        const properties = (
+            typeTranslation(record).isBibliographical ?
+            biblioProperties : bioProperties
+        );
+        const fields = properties.map(prop => ({
+            key: prop.id,
+            value: record.get(prop.id),
+        }));
         return fields;
     },
 });
