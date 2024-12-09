@@ -3,6 +3,7 @@ import {Model, Collection} from 'backbone';
 import {MappedCollection} from './mapped.collection.js';
 import {properties} from './record-ontology';
 import {getStringLiteral} from './jsonld.model';
+import {typeTranslation} from './generic-functions.js';
 import recordTypeIcon from '../record/record.type.icon.mustache';
 
 /**
@@ -63,15 +64,6 @@ export const columnChooseMenu = function(){
     }
 
     return menu;
-};
-
-/**
- * Translation table from compacted JSON-LD `@type` strings to payload objects
- * suitable for decision making in a Mustache template.
- */
-const typeTranslation = {
-    'edpoprec:BibliographicalRecord': {isBibliographical: true},
-    'edpoprec:BiographicalRecord': {isBiographical: true},
 };
 
 const defaultColumnFeatures = {
@@ -159,7 +151,7 @@ standardColumns.unshift({
     title: 'Type',
     visible: true,
     headerContextMenu: columnChooseMenu,
-    formatter: cell => recordTypeIcon(typeTranslation[cell.getValue()]),
+    formatter: cell => recordTypeIcon(typeTranslation(cell.getValue())),
     hozAlign: 'right',
     tooltip: (e, cell) => cell.getValue().slice(9, -6),
     width: 48,
