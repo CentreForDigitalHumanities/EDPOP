@@ -67,23 +67,30 @@ export var JsonLdCollection = APICollection.extend({
  * The subject passed to this function as an argument is not changed.
  * @param subjectsByID{Dictionary<JSONLDSubject>} - The full contents of the graph in JSON-LD
  * @param subject{JSONLDSubject} - The subject including its predicates and objects to create a nested version of
- * @param parentSubjectIDs{Array<String>} - For internal use of recursive function; leave at default value
  * @returns {Object}
  */
-export function nestSubject(subjectsByID, subject, parentSubjectIDs=[]) {
-    if (!_.has(subject, "@id")) return subject;
-    const id = subject["@id"];
-    const dereferenced = subjectsByID[id];
-    if (!dereferenced) return subject;
-    if (_.includes(parentSubjectIDs, id)) return subject;
-    parentSubjectIDs.push(id);
-    const nest = _.partial(nestSubject, subjectsByID, _, parentSubjectIDs);
-    const transformedSubject = _.mapValues(dereferenced, value => {
+export function nestSubject(subjectsByID, subject) {
+    const parentSubjectIDs = [];
+
+    function nest(subject) {
+        if (!_.has(subject, "@id")) return subject;
+        const id = subject["@id"];
+        const dereferenced = subjectsByID[id];
+        if (!dereferenced) return subject;
+        if (_.includes(parentSubjectIDs, id)) return subject;
+        parentSubjectIDs.push(id);
+        const nest = _.partial(nestSubject, subjectsByID, _, parentSubjectIDs);
+        const transformedSubject = _.mapValues(dereferenced, nestProperty);
+        parentSubjectIDs.pop();
+        return transformedSubject;
+    }
+
+    function nestProperty(value) {
         if (_.isArray(value)) return _.map(value, nest);
         return nest(value);
-    });
-    parentSubjectIDs.pop();
-    return transformedSubject;
+    }
+
+    return nest(subject);
 }
 
 /**
