@@ -2,15 +2,16 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import Request
 from rest_framework.exceptions import NotFound
 from rdf.views import RDFView
-from rdflib import URIRef, RDF, Graph, RDFS
+from rdflib import URIRef, RDF, Graph, BNode, Literal
 from django.conf import settings
 
 from projects.api import user_projects
 from collect.rdf_models import EDPOPCollection
 from collect.utils import collection_exists, collection_graph
-from triplestore.constants import EDPOPCOL
+from triplestore.constants import EDPOPCOL, AS
 from collect.serializers import CollectionSerializer
 from collect.permissions import CollectionPermission
+from collect.graphs import list_to_graph_collection
 
 class CollectionViewSet(ModelViewSet):
     '''
@@ -58,7 +59,12 @@ class CollectionRecordsView(RDFView):
         collection_obj = EDPOPCollection(collection_graph(collection_uri), collection_uri)
 
         g = Graph()
-        g += collection_obj._class_triples()
-        g += EDPOPCollection.records._stored_triples(collection_obj)
+        g.add((collection_obj.uri, RDF.type, EDPOPCOL.Collection))
+        g.add((collection_obj.uri, RDF.type, AS.Collection))
+
+        items_node = BNode()
+        g.add((collection_obj.uri, AS.items, items_node))
+        g.add((collection_obj.uri, AS.totalItems, Literal(len(collection_obj.records))))
+        g += list_to_graph_collection(collection_obj.records, items_node)
 
         return g
