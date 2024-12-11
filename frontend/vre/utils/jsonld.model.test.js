@@ -66,6 +66,16 @@ const exampleJsonLDGraph = [{
     "owl:sameAs": {
         "@id": "http://example.com/descForS7",
     },
+}, {
+    "@id": "http://example.com/s8",
+    "dc:title": "Title with nested array",
+    "dc:description": [{
+        "@id": "http://example.com/descForS2",
+    }, {
+        "@id": "http://example.com/descForS4",
+    }, {
+        "@id": "http://example.com/descForS7",
+    }],
 }];
 
 describe('nestSubject', () => {
@@ -105,6 +115,14 @@ describe('nestSubject', () => {
         const subject = subjectsByID["http://example.com/s7"];
         const ns = nestSubject(subjectsByID, subject);
         assert.equal("http://example.com/descForS7", ns["dc:description"]["owl:sameAs"]["owl:sameAs"]["@id"]);
+    });
+
+    it('can handle arrays of internal references', () => {
+        const subject = subjectsByID["http://example.com/s8"];
+        const ns = nestSubject(subjectsByID, subject);
+        assert.equal("Random description", ns["dc:description"][0]["example:value"]);
+        assert.equal("Random description", ns["dc:description"][1]["example:value"]["example:value"]);
+        assert.equal("http://example.com/descForS7", ns["dc:description"][2]["owl:sameAs"]["owl:sameAs"]["@id"]);
     });
 });
 
