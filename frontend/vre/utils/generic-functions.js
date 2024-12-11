@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { Model } from 'backbone';
 
 /**
  * Perform the following transformation:
@@ -31,3 +32,25 @@ var canonicalOrder = {
     'With Note': 48,
     'Subject Headings': 52,
 };
+
+/**
+ * Translate from compacted JSON-LD `@type` strings to payload objects suitable
+ * for decision making in a Mustache template.
+ * @param recordType {string|Model} recordType - a JSON-LD URI shorthand with
+ * the `edpoprec:` prefix, or a model that has such a string as its `'@type'`
+ * attribute.
+ * @returns {object} A newly created object with at most one own enumerable
+ * property. The key of the property is either `'isBibliographical'` or
+ * `'isBiographical'`, depending on the passed `recordType`. The value of the
+ * property is `true` in both cases.
+ */
+export function typeTranslation(recordType) {
+    if (recordType instanceof Model) recordType = recordType.get('@type');
+    switch (recordType) {
+    case 'edpoprec:BibliographicalRecord':
+        return {isBibliographical: true};
+    case 'edpoprec:BiographicalRecord':
+        return {isBiographical: true};
+    }
+    return {};
+}

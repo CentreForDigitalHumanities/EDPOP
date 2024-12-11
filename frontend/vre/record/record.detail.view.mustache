@@ -13,7 +13,10 @@
                 data-dismiss="modal"
                 aria-label="Close"
             ><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title">{{title}}</h4>
+            <h4 class="modal-title">
+                {{>typeIcon}}
+                {{title}}
+            </h4>
             <ul class="inline-list">
                 {{#databaseId}}<li>ID in database: {{databaseId}}</li>{{/databaseId}}
                 {{#publicURL}}<li><a href="{{publicURL}}" target="_blank">Show record in original database</a></li>{{/publicURL}}
