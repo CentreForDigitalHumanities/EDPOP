@@ -1,3 +1,4 @@
+import _ from "lodash";
 import {APICollection} from "./api.model";
 
 /**
@@ -70,20 +71,17 @@ export var JsonLdCollection = APICollection.extend({
  * @returns {Object}
  */
 export function nestSubject(subjectsByID, subject, parentSubjectIDs=[]) {
-    parentSubjectIDs.push(subject["@id"]);
-    const transformedSubject = _.clone(subject);
-    for (let property of Object.keys(subject)) {
-        if (subject[property].hasOwnProperty("@id")) {
-            // This is a reference to another subject
-            const refereedSubject = subjectsByID[subject[property]["@id"]];
-            if (refereedSubject && !(parentSubjectIDs.includes(refereedSubject["@id"]))) {
-                /* If the refereed subject was found in the graph, use it as replacement.
-                   Only do this if we have not visited the same subject before,
-                   to avoid an endless loop. (Alternative would be to create a circular reference) */
-                transformedSubject[property] = nestSubject(subjectsByID, refereedSubject, parentSubjectIDs);
-            }
-        }
-    }
+    if (!_.has(subject, "@id")) return subject;
+    const id = subject["@id"];
+    const dereferenced = subjectsByID[id];
+    if (!dereferenced) return subject;
+    if (_.includes(parentSubjectIDs, id)) return subject;
+    parentSubjectIDs.push(id);
+    const nest = _.partial(nestSubject, subjectsByID, _, parentSubjectIDs);
+    const transformedSubject = _.mapValues(dereferenced, value => {
+        if (_.isArray(value)) return _.map(value, nest);
+        return nest(value);
+    });
     parentSubjectIDs.pop();
     return transformedSubject;
 }
