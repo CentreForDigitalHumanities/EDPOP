@@ -28,7 +28,7 @@ var recordTypePattern = /^edpoprec:((Bi(?:bli)?o)graphical)?Record$/;
 
 /**
  * Determine whether the given domain matches the target class.
- * @param {string} target - Can be `'Biblo'` or `'Bio'`, to indicate which
+ * @param {string} target - Can be `'Biblio'` or `'Bio'`, to indicate which
  * record type is considered acceptable. Any other value effectively means that
  * only the more generic type `'edpoprec:Record'` is acceptable.
  * @param {object} domain - JSON-LD declaration of a single domain of a
