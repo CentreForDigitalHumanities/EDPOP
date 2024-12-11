@@ -23,7 +23,7 @@ def list_to_graph_collection(items: List[Node], items_node: IdentifiedNode) -> G
     
     g = Graph()
     collection = g.collection(items_node)
-    collection += items
+    collection += items # indirectly modifies g
     return g
 
 
@@ -32,7 +32,9 @@ def collection_triples(graph: Graph, list_node: IdentifiedNode) -> Triples:
     Select all triples that make up an RDF collection in a graph.
     
     This collects the chain of `rdf:first` / `rdf:rest` relations that make up the
-    collection.
+    collection. It collects what is actually stored in the graph, rather than a
+    normalised version, so this method should be used to select the current triples in
+    a delete or update operation.
     '''
     
     triples = list(graph.triples((list_node, RDF.first, None)))
