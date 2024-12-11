@@ -95,7 +95,7 @@ describe('nestSubject', () => {
         assert.equal("Random description", ns["dc:description"]["example:value"]["example:value"]);
     });
 
-    it('does not resolve a recursive reference', () => {
+    it('does not resolve a cyclical reference', () => {
         const subject = subjectsByID["http://example.com/s5"];
         const ns = nestSubject(subjectsByID, subject);
         assert.equal("http://example.com/s5", ns["owl:sameAs"]["owl:sameAs"]["@id"]);
