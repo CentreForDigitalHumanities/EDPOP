@@ -70,7 +70,7 @@ function domainFitsQualification(target, domain) {
 function appliesToSuitableDomains(criterion, property) {
     var domain = property.get('rdfs:domain');
     if (!domain) return false;
-    if (!domain.length) domain = [domain];
+    if (!_.isArray(domain)) domain = [domain];
     return _.find(domain, criterion);
 }
 
