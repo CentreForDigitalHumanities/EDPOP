@@ -37,6 +37,7 @@ services:
             - ./backend:/usr/src/app/backend
             - bapyca:/usr/src/app/backend/__pycache__
             - ./frontend/vre:/usr/src/app/frontend/vre
+            - ./backend/edpopx-data:/root/.local/share/edpop-explorer
         ports:
             - 127.0.0.1:8000:8000
     frontend:
