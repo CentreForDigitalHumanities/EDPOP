@@ -42,6 +42,18 @@ export var Field = Backbone.Model.extend({
 });
 
 /**
+ * Find the set of properties that apply to the given record.
+ * Mostly an implementation detail of {@link FlatFields} and
+ * {@link FlatterFields}.
+ */
+function selectProperties(record) {
+    return (
+        typeTranslation(record).isBibliographical ?
+        biblioProperties : bioProperties
+    );
+}
+
+/**
  * This is an alternative, flat representation of the fields in a given
  * option.record. Its purpose is to be easier to represent and manage from
  * a view.
@@ -66,14 +78,33 @@ export var FlatFields = Backbone.Collection.extend({
         this.listenTo(this.record, 'change', _.flow([this.toFlat, this.set]));
     },
     toFlat: function(record) {
-        const properties = (
-            typeTranslation(record).isBibliographical ?
-            biblioProperties : bioProperties
-        );
+        const properties = selectProperties(record);
         const fields = properties.map(prop => ({
             key: prop.id,
             value: record.get(prop.id),
         }));
         return fields;
+    },
+});
+
+/**
+ * Like {@link FlatFields}, but even flatter: if a field is repeated, every
+ * value is represented with a separate `{key, value}` pair.
+ * @class
+ */
+export var FlatterFields = FlatFields.extend({
+    modelId: function(fieldAttrs) {
+        const value = fieldAttrs.value;
+        const id = value && value['@id'];
+        return `${fieldAttrs.key} -- ${id}`;
+    },
+    toFlat: function(record) {
+        const properties = selectProperties(record);
+        return properties.reduce((fields, prop) => {
+            let value = record.get(prop.id);
+            if (!value) return fields.concat({key: prop.id, value: value});
+            if (!_.isArray(value)) value = [value];
+            return fields.concat(_.map(value, v => ({key: prop.id, value: v})));
+        }, []);
     },
 });

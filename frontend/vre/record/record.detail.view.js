@@ -4,7 +4,7 @@ import { vreChannel } from '../radio';
 import { FlatAnnotations } from '../annotation/annotation.model';
 import { RecordFieldsView } from '../field/record.fields.view';
 import { RecordAnnotationsView } from '../field/record.annotations.view';
-import { FlatFields } from '../field/field.model';
+import { FlatterFields } from '../field/field.model';
 import { VRECollectionView } from '../collection/collection.view';
 import { typeTranslation } from '../utils/generic-functions.js';
 import { GlobalVariables } from '../globals/variables';
@@ -44,7 +44,7 @@ export var RecordDetailView = CompositeView.extend({
     initialize: function(options) {
         var model = this.model;
         this.fieldsView = new RecordFieldsView({
-            collection: new FlatFields(null, {record: model}),
+            collection: new FlatterFields(null, {record: model}),
         }).render();
         this.annotationsView = new RecordAnnotationsView({
             collection: new FlatAnnotations(null, {record: model}),
