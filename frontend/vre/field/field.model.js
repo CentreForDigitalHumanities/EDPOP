@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import Backbone from 'backbone';
 import {
     canonicalSort,
@@ -21,7 +22,11 @@ export var Field = Backbone.Model.extend({
     getMainDisplay() {
         // Currently, only normalizedText is supported.
         const value = this.get('value');
-        return value && value['edpoprec:originalText'];
+        if (!value) return value;
+        if (_.isArray(value)) {
+            return _.map(value, 'edpoprec:originalText').join(' ; ');
+        }
+        return value['edpoprec:originalText'];
     },
     getFieldInfo() {
         const property = properties.get(this.id);
