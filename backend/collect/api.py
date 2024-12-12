@@ -1,18 +1,21 @@
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.views import Request
 from rest_framework.exceptions import NotFound
-from rdflib import URIRef, RDF, Graph
+from rdf.views import RDFView
+from rdflib import URIRef, RDF, Graph, BNode, Literal
 from django.conf import settings
 
 from projects.api import user_projects
 from collect.rdf_models import EDPOPCollection
 from collect.utils import collection_exists, collection_graph
-from triplestore.constants import EDPOPCOL
+from triplestore.constants import EDPOPCOL, AS
 from collect.serializers import CollectionSerializer
 from collect.permissions import CollectionPermission
+from collect.graphs import list_to_graph_collection
 
 class CollectionViewSet(ModelViewSet):
     '''
-    Viewset for listing or retrieving collections
+    Viewset for listing or retrieving collection metadata
     '''
 
     lookup_value_regex = '.+'
@@ -41,3 +44,27 @@ class CollectionViewSet(ModelViewSet):
         self.check_object_permissions(self.request, collection)
         return collection
 
+
+class CollectionRecordsView(RDFView):
+    '''
+    View the records inside a collection
+    '''
+
+    def get_graph(self, request: Request, collection: str, **kwargs) -> Graph:
+        collection_uri = URIRef(collection)
+
+        if not collection_exists(collection_uri):
+            raise NotFound('Collection does not exist')
+
+        collection_obj = EDPOPCollection(collection_graph(collection_uri), collection_uri)
+
+        g = Graph()
+        g.add((collection_obj.uri, RDF.type, EDPOPCOL.Collection))
+        g.add((collection_obj.uri, RDF.type, AS.Collection))
+
+        items_node = BNode()
+        g.add((collection_obj.uri, AS.items, items_node))
+        g.add((collection_obj.uri, AS.totalItems, Literal(len(collection_obj.records))))
+        g += list_to_graph_collection(collection_obj.records, items_node)
+
+        return g

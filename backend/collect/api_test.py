@@ -1,6 +1,6 @@
 from django.test import Client
 from rest_framework.status import is_success, is_client_error
-from rdflib import URIRef, RDF, Literal
+from rdflib import URIRef, RDF, Graph, Literal
 from django.conf import settings
 from urllib.parse import quote
 from typing import Dict
@@ -8,6 +8,8 @@ from typing import Dict
 from triplestore.constants import EDPOPCOL, AS
 from collect.utils import collection_uri
 from projects.models import Project
+from collect.rdf_models import EDPOPCollection
+from collect.utils import collection_graph
 
 def example_collection_data(project_name) -> Dict:
     return {
@@ -127,3 +129,54 @@ def test_project_validation(db, user, client: Client):
     }, content_type='application/json')
 
     assert is_client_error(response.status_code)
+
+def test_collection_records(db, user, project, client: Client):
+    client.force_login(user)
+    create_response = post_collection(client, project.name)
+    collection_uri = URIRef(create_response.data['uri'])
+
+    records_url = '/api/collection-records/' + str(collection_uri) + '/'
+
+    # check response with empty data
+    empty_response = client.get(records_url)
+    assert is_success(empty_response.status_code)
+    g = Graph().parse(empty_response.content)
+    result = g.query(f'''
+        ASK {{
+            <{collection_uri}> a edpopcol:Collection ;
+                a as:Collection ;
+                as:items ?items ;
+                as:totalItems 0 .
+            ?items rdf:rest rdf:nil .
+        }}
+        ''',
+        initNs={'as': AS, 'rdf': RDF, 'edpopcol': EDPOPCOL}
+    )
+    assert result.askAnswer
+
+    # add some records to the collection
+    collection_obj = EDPOPCollection(collection_graph(collection_uri), collection_uri)
+    collection_obj.records = [
+        URIRef('https://example.com/example1'), URIRef('https://example.com/example2')
+    ]
+    collection_obj.save()
+
+    # check response contains records
+    response = client.get(records_url)
+    assert is_success(response.status_code)
+    g = Graph().parse(response.content)
+    result = g.query(f'''
+        ASK {{
+            <{collection_uri}> a edpopcol:Collection ;
+                a as:Collection ;
+                as:items ?items ;
+                as:totalItems 2 .
+            ?items rdf:first <https://example.com/example1> ;
+                rdf:rest ?rest .
+            ?rest rdf:first <https://example.com/example2> ;
+                rdf:rest rdf:nil .
+        }}
+        ''',
+        initNs={'as': AS, 'rdf': RDF, 'edpopcol': EDPOPCOL}
+    )
+    assert result.askAnswer
