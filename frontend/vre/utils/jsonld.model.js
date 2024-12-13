@@ -1,3 +1,4 @@
+import _ from "lodash";
 import {APICollection} from "./api.model";
 
 /**
@@ -66,26 +67,29 @@ export var JsonLdCollection = APICollection.extend({
  * The subject passed to this function as an argument is not changed.
  * @param subjectsByID{Dictionary<JSONLDSubject>} - The full contents of the graph in JSON-LD
  * @param subject{JSONLDSubject} - The subject including its predicates and objects to create a nested version of
- * @param parentSubjectIDs{Array<String>} - For internal use of recursive function; leave at default value
  * @returns {Object}
  */
-export function nestSubject(subjectsByID, subject, parentSubjectIDs=[]) {
-    parentSubjectIDs.push(subject["@id"]);
-    const transformedSubject = _.clone(subject);
-    for (let property of Object.keys(subject)) {
-        if (subject[property].hasOwnProperty("@id")) {
-            // This is a reference to another subject
-            const refereedSubject = subjectsByID[subject[property]["@id"]];
-            if (refereedSubject && !(parentSubjectIDs.includes(refereedSubject["@id"]))) {
-                /* If the refereed subject was found in the graph, use it as replacement.
-                   Only do this if we have not visited the same subject before,
-                   to avoid an endless loop. (Alternative would be to create a circular reference) */
-                transformedSubject[property] = nestSubject(subjectsByID, refereedSubject, parentSubjectIDs);
-            }
-        }
+export function nestSubject(subjectsByID, subject) {
+    const parentSubjectIDs = [];
+
+    function nest(subject) {
+        if (!_.has(subject, "@id")) return subject;
+        const id = subject["@id"];
+        const dereferenced = subjectsByID[id];
+        if (!dereferenced) return subject;
+        if (_.includes(parentSubjectIDs, id)) return subject;
+        parentSubjectIDs.push(id);
+        const transformedSubject = _.mapValues(dereferenced, nestProperty);
+        parentSubjectIDs.pop();
+        return transformedSubject;
     }
-    parentSubjectIDs.pop();
-    return transformedSubject;
+
+    function nestProperty(value) {
+        if (_.isArray(value)) return _.map(value, nest);
+        return nest(value);
+    }
+
+    return nest(subject);
 }
 
 /**
