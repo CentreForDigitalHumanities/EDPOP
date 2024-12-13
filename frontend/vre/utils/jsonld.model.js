@@ -79,7 +79,6 @@ export function nestSubject(subjectsByID, subject) {
         if (!dereferenced) return subject;
         if (_.includes(parentSubjectIDs, id)) return subject;
         parentSubjectIDs.push(id);
-        const nest = _.partial(nestSubject, subjectsByID, _, parentSubjectIDs);
         const transformedSubject = _.mapValues(dereferenced, nestProperty);
         parentSubjectIDs.pop();
         return transformedSubject;
