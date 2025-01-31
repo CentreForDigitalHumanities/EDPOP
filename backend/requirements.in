@@ -10,4 +10,4 @@ sruthi
 rdflib
 restframework-rdf>=1.2.0,<2
 dj-rest-auth
-edpop-explorer>=0.9.0
+edpop-explorer @ git+https://github.com/CentreForDigitalHumanities/edpop-explorer@feature/reader-fixes2
