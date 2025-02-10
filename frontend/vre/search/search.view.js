@@ -51,7 +51,10 @@ export var SearchView = CompositeView.extend({
     alertError: function(collection, response, options) {
         const statusCode = response.status;
         const statusText = response.statusText;
-        const message = response.responseJSON["http://www.w3.org/2011/http#reasonPhrase"];
+        let message;
+        if (response.responseJSON) {
+            message = response.responseJSON["http://www.w3.org/2011/http#reasonPhrase"];
+        }
         this.alert = new AlertView({
             level: 'warning',
             message: failedSearchTemplate({
