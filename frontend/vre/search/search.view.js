@@ -24,10 +24,12 @@ export var SearchView = CompositeView.extend({
     },
     showPending: function() {
         this.$('form button').first().text('Searching...');
+        $("body").css("cursor", "progress");
         return this;
     },
     showIdle: function() {
         this.$('form button').first().text('Search');
+        $("body").css("cursor", "default");
         return this;
     },
     submitSearch: function(startRecord, number=50) {
