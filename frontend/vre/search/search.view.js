@@ -83,7 +83,11 @@ export var SearchView = CompositeView.extend({
         } else {
             $('#more-records').show();
         }
-        $('#search-feedback').text("Showing " + this.collection.length + " of " + this.collection.totalResults + " results");
+        if (this.collection.length > 0) {
+            $('#search-feedback').text("Showing " + this.collection.length + " of " + this.collection.totalResults + " results");
+        } else {
+            $('#search-feedback').text("No results found");
+        }
     },
     fill: function(fillText) {
         this.$('#query-input').val(fillText);
