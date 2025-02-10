@@ -9,7 +9,6 @@ window.DEBUGGING = true;
 
 import './record/record.opening.aspect';
 import { vreChannel } from './radio';
-import { BlankRecordButtonView } from './record/blank.record.button.view';
 import { VRECollections } from './collection/collection.model';
 import { CollectionSearchView } from './catalog/collection.search.view';
 import { BrowseCollectionView } from './collection/browse-collection.view';
@@ -28,7 +27,6 @@ import { WelcomeView } from './utils/welcome.view.js';
 GlobalVariables.myCollections = new VRECollections();
 
 // Regular global variables, only visible in this module.
-var blankRecordButton = new BlankRecordButtonView();
 var catalogs = new Catalogs([], {comparator: 'name'});
 var catalogDropdown = new SelectCatalogView({
     collection: catalogs
@@ -113,7 +111,6 @@ function startRouting() {
     $('.nav').first().append(
         catalogDropdown.el,
         collectionDropdown.el,
-        blankRecordButton.el,
     );
     Backbone.history.start({
         pushState: true,

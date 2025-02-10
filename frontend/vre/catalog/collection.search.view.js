@@ -19,6 +19,7 @@ export var CollectionSearchView = CompositeView.extend({
         });
         this.recordsManager = new RecordListManagingView({
             collection: this.collection,
+            type: "catalog",
         });
         this.render();
     },
