@@ -10,7 +10,7 @@ window.DEBUGGING = true;
 import './record/record.opening.aspect';
 import { vreChannel } from './radio';
 import { VRECollections } from './collection/collection.model';
-import { CollectionSearchView } from './catalog/collection.search.view';
+import { CatalogSearchView } from './catalog/catalog.search.view';
 import { BrowseCollectionView } from './collection/browse-collection.view';
 
 import { SelectCollectionView } from './collection/select-collection.view';
@@ -72,7 +72,7 @@ navigationState.on({
 // currently selected collection.
 catalogs.on({
     focus: catalog => navigationState.set(
-        'browser', new CollectionSearchView({model: catalog})),
+        'browser', new CatalogSearchView({model: catalog})),
 });
 
 function showCollection(vreCollection) {
