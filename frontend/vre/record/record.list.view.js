@@ -46,6 +46,9 @@ export var RecordListView = Backbone.View.extend({
     },
 
     updateTable: function() {
+        if (this.collection.length === 0) {
+            return;
+        }
         const data = this.collection.toTabularData();
         if (this.table === null) {
             this.createTable(data);
