@@ -47,9 +47,16 @@ export var SearchView = CompositeView.extend({
         return searchPromise;
     },
     alertError: function(collection, response, options) {
+        const statusCode = response.status;
+        const statusText = response.statusText;
+        const message = response.responseJSON["http://www.w3.org/2011/http#reasonPhrase"];
         this.alert = new AlertView({
             level: 'warning',
-            message: failedSearchTemplate(response),
+            message: failedSearchTemplate({
+                statusCode,
+                statusText,
+                message,
+            }),
         });
         this.alert.once('removed', this.deleteAlert, this);
         this.placeSubviews();
