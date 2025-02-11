@@ -31,6 +31,7 @@ var recordTypePattern = /^edpoprec:((Bi(?:bli)?o)graphical)?Record$/;
  * @param {string} target - Can be `'Biblio'` or `'Bio'`, to indicate which
  * record type is considered acceptable. Any other value effectively means that
  * only the more generic type `'edpoprec:Record'` is acceptable.
+ * If not given, both types as well as the generic type are accepted.
  * @param {object} domain - JSON-LD declaration of a single domain of a
  * property.
  * @returns {boolean} `true` if the domain matches `target` or if it is
@@ -39,9 +40,13 @@ var recordTypePattern = /^edpoprec:((Bi(?:bli)?o)graphical)?Record$/;
 function domainFitsQualification(target, domain) {
     var match = domain['@id'].match(recordTypePattern);
     if (!match) return false;
-    var qualified = match[1];
-    var qualifier = match[2];
-    return (!qualified || qualifier === target);
+    if (target) {
+        var qualified = match[1];
+        var qualifier = match[2];
+        return (!qualified || qualifier === target);
+    } else {
+        return true;
+    }
 }
 
 // The next comment only describes a type for JSDoc; it does not actually refer
@@ -78,10 +83,12 @@ function appliesToSuitableDomains(criterion, property) {
 // filtered collections that we will define next.
 var includesBiographical = _.partial(domainFitsQualification, 'Bio'),
     includesBibliographic = _.partial(domainFitsQualification, 'Biblio'),
+    includesAny = _.partial(domainFitsQualification, null),
     appliesToBiographies = _.partial(appliesToSuitableDomains,
                                      includesBiographical),
     appliesToBibliographs = _.partial(appliesToSuitableDomains,
-                                      includesBibliographic);
+                                      includesBibliographic),
+    appliesToAnyDomain = _.partial(appliesToSuitableDomains, includesAny);
 
 /**
  * Subset of {@link properties} containing only the properties that apply to
@@ -94,6 +101,8 @@ export var bioProperties = new FilteredCollection(properties, appliesToBiographi
  * bibliographical records.
  */
 export var biblioProperties = new FilteredCollection(properties, appliesToBibliographs);
+
+export var biblioAndBioProperties = new FilteredCollection(properties, appliesToAnyDomain);
 
 /**
  * A list of all field types according to the record ontology.

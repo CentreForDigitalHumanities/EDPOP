@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import {Model, Collection} from 'backbone';
 import {MappedCollection} from './mapped.collection.js';
-import {properties} from './record-ontology';
+import {biblioAndBioProperties} from './record-ontology';
 import {getStringLiteral} from './jsonld.model';
 import {typeTranslation} from './generic-functions.js';
 import recordTypeIcon from '../record/record.type.icon.mustache';
@@ -139,7 +139,7 @@ function property2definition(property) {
  * Tabulator understands.
  */
 const standardColumns = new MappedCollection(
-    properties,
+    biblioAndBioProperties,
     property2definition,
     {model: ColumnDefinition, comparator: byPreference},
 );
