@@ -1,3 +1,4 @@
+from edpop_explorer import ReaderError
 from typing import Optional
 
 from rdf.renderers import TurtleRenderer, JsonLdRenderer
@@ -18,7 +19,7 @@ class SearchView(RDFView):
         "edpoprec": str(EDPOPREC),
         "as": str(AS),
     }
-    
+
     def get_graph(self, request: views.Request, **kwargs) -> Graph:
         try:
             source = request.query_params["source"]
@@ -35,14 +36,17 @@ class SearchView(RDFView):
         start = int(start)
         if end is not None:
             end = int(end)
-        
+
         try:
             readerclass = get_reader_by_uriref(catalog_uriref)
         except KeyError:
             raise ParseError(f"Requested catalog does not exist: {catalog_uriref}")
         builder = SearchGraphBuilder(readerclass)
-        builder.set_query(query, start, end)
-        builder.perform_fetch()
+        try:
+            builder.set_query(query, start, end)
+            builder.perform_fetch()
+        except ReaderError as e:
+            raise ParseError(str(e))
         return builder.get_result_graph()
 
 
@@ -55,7 +59,7 @@ class CatalogsView(RDFView):
         "description": "schema:description",
         "identifier": "schema:identifier",
     }
-    
+
     def get_graph(self, request: views.Request, **kwargs) -> Graph:
         graph = get_catalogs_graph()
         return graph

@@ -3,6 +3,9 @@ import { VRECollectionView } from '../collection/collection.view';
 import { GlobalVariables } from '../globals/variables';
 import recordListManagingTemplate from './record.list.managing.view.mustache';
 import {RecordListView} from "./record.list.view";
+import {vreChannel} from "../radio";
+import {Record} from "./record.model";
+import _ from "lodash";
 
 export var RecordListManagingView = CompositeView.extend({
     tagName: 'form',
@@ -23,9 +26,11 @@ export var RecordListManagingView = CompositeView.extend({
         'click .500-more-records': 'load500More',
         'click .download-xlsx': 'downloadXLSX',
         'click .download-csv': 'downloadCSV',
+        'click .create-blank': 'createBlank',
     },
 
     initialize: function(options) {
+        _.assign(this, _.pick(options, ['type']));
         this.vreCollectionsSelect = new VRECollectionView({
             collection: GlobalVariables.myCollections
         }).render();
@@ -35,7 +40,8 @@ export var RecordListManagingView = CompositeView.extend({
     },
 
     renderContainer: function() {
-        this.$el.html(this.template({}));
+        const addBlankRecord = this.type === "collection";
+        this.$el.html(this.template({addBlankRecord}));
         return this;
     },
 
@@ -53,5 +59,11 @@ export var RecordListManagingView = CompositeView.extend({
 
     downloadCSV: function() {
         this.recordListView.downloadCSV();
+    },
+
+    createBlank: function() {
+        vreChannel.trigger('displayRecord', new Record({
+            content: {},
+        }));
     },
 });

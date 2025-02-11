@@ -24,10 +24,12 @@ export var SearchView = CompositeView.extend({
     },
     showPending: function() {
         this.$('form button').first().text('Searching...');
+        $("body").css("cursor", "progress");
         return this;
     },
     showIdle: function() {
         this.$('form button').first().text('Search');
+        $("body").css("cursor", "default");
         return this;
     },
     submitSearch: function(startRecord, number=50) {
@@ -47,9 +49,19 @@ export var SearchView = CompositeView.extend({
         return searchPromise;
     },
     alertError: function(collection, response, options) {
+        const statusCode = response.status;
+        const statusText = response.statusText;
+        let message;
+        if (response.responseJSON) {
+            message = response.responseJSON["http://www.w3.org/2011/http#reasonPhrase"];
+        }
         this.alert = new AlertView({
             level: 'warning',
-            message: failedSearchTemplate(response),
+            message: failedSearchTemplate({
+                statusCode,
+                statusText,
+                message,
+            }),
         });
         this.alert.once('removed', this.deleteAlert, this);
         this.placeSubviews();
@@ -76,7 +88,11 @@ export var SearchView = CompositeView.extend({
         } else {
             $('#more-records').show();
         }
-        $('#search-feedback').text("Showing " + this.collection.length + " of " + this.collection.totalResults + " results");
+        if (this.collection.length > 0) {
+            $('#search-feedback').text("Showing " + this.collection.length + " of " + this.collection.totalResults + " results");
+        } else {
+            $('#search-feedback').text("No results found");
+        }
     },
     fill: function(fillText) {
         this.$('#query-input').val(fillText);

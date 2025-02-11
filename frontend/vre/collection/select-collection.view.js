@@ -59,6 +59,10 @@ export var SelectCollectionView = AggregateView.extend({
     createCollection: function(event) {
         event.preventDefault();
         var project = vreChannel.request('projects:current');
+        if (!project) {
+            alert("Please select a project before adding a collection.");
+            return;
+        }
         var input = this.$('.dropdown-menu form input');
         var name = input.val();
         this.collection.create({
