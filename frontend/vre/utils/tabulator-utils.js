@@ -88,6 +88,8 @@ const columnProperties = {
     },
     'edpoprec:publisherOrPrinter': {},
     'edpoprec:contributor': {},
+    'edpoprec:name': {},
+    'edpoprec:placeOfActivity': {},
     'edpoprec:activity': {},
 };
 
