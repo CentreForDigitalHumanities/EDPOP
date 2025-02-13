@@ -421,7 +421,7 @@
       },
       "skos:prefLabel": {
         "@language": "en",
-        "@value": "Name"
+        "@value": "Variant name"
       }
     },
     {
