@@ -11,7 +11,7 @@ import { JsonLdNestedCollection } from './jsonld.model';
  */
 export var PropertyList = JsonLdNestedCollection.extend({
     url: "/static/edpop-record-ontology.json",
-    targetClass: "rdf:property",
+    targetClass: "rdf:Property",
 });
 
 export var properties = new PropertyList();
