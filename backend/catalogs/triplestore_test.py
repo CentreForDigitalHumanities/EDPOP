@@ -32,6 +32,7 @@ def stored_records(triplestore):
 def test_add_and_remove(working_data_graph, triplestore):
     records, graph = working_data_graph
     save_to_triplestore(graph)
+    assert len(stored_records(triplestore)) == 2
     remove_from_triplestore(records)
     assert len(list(triplestore.triples((None, None, None)))) == 0
 
