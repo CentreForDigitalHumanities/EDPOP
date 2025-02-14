@@ -24,6 +24,11 @@ def working_data_graph(working_data_records) -> tuple[list[Record], Graph]:
     return [record0, record1], graph
 
 
+def stored_records(triplestore):
+    """ Retrieve the records currently stored in `triplestore`. """
+    return list(triplestore.subjects(RDF.type, EDPOPREC.Record))
+
+
 def test_add_and_remove(working_data_graph, triplestore):
     records, graph = working_data_graph
     save_to_triplestore(graph)
@@ -35,7 +40,7 @@ def test_add_and_partial_remove(working_data_graph, triplestore):
     records, graph = working_data_graph
     save_to_triplestore(graph)
     remove_from_triplestore([records[0]])  # Only remove first record
-    remaining_subjects = list(triplestore.subjects(RDF.type, EDPOPREC.Record))
+    remaining_subjects = stored_records(triplestore)
     assert len(remaining_subjects) == 1
     # Remaining subject should be the IRI of the second record
     assert remaining_subjects[0] == URIRef(records[1].iri)
@@ -50,7 +55,7 @@ def test_add_and_partial_remove_with_field(working_data_records, triplestore):
     graph = record0.to_graph() + record1.to_graph()
     save_to_triplestore(graph)
     remove_from_triplestore([record0])
-    remaining_subjects = list(triplestore.subjects(RDF.type, EDPOPREC.Record))
+    remaining_subjects = stored_records(triplestore)
     assert len(remaining_subjects) == 1
     assert remaining_subjects[0] == URIRef(record1.iri)
 
