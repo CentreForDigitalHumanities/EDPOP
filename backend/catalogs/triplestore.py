@@ -1,5 +1,6 @@
 """Functions that deal with adding and updating catalog records in the
 triplestore."""
+from typing import Optional
 from itertools import chain
 import datetime as dt
 from django.conf import settings
@@ -17,6 +18,11 @@ RECORDS_GC_GRAPH_URI = settings.RDF_NAMESPACE_ROOT + "records-gc/"
 RECORDS_GC_GRAPH_IDENTIFIER = URIRef(RECORDS_GC_GRAPH_URI)
 SCHEMA = Namespace('https://schema.org/')
 
+# When we retrieve records from a catalog, they might be duplicates of records
+# that were retrieved before. The following query gets rid of the duplicates. It
+# is meant to be executed just before the newly retrieved records are added. The
+# net effect should be that all `obsolete_records` remain in the triplestore;
+# the query is not meant for permanently deleting records.
 purge_old_update = '''
 delete {{
   graph <{records_graph}> {{
@@ -36,6 +42,40 @@ where {{
     ?r ?p1 ?o1;
        ?pt ?f.
     optional {{?f ?p2 ?o2.}}
+  }}
+}}
+'''.format
+
+# The following update query identifies and removes records that are not in any
+# collection and that have not been retrieved since the given `cutoff_date`.
+garbage_collect_update = '''
+delete {{
+  graph <{records_graph}> {{
+    ?r ?p1 ?o1 .
+    ?f ?p2 ?o2 .
+  }}
+  graph <{gc_graph}> {{
+    ?r schema:uploadDate ?d ;
+       schema:upvoteCount 0 .
+  }}
+}}
+where {{
+  graph <{gc_graph}> {{
+    {{
+      ?r schema:uploadDate ?d ;
+         schema:upvoteCount 0 .
+    }}
+    union
+    {{
+      ?r schema:uploadDate ?d .
+      filter not exists {{ ?r schema:upvoteCount ?c }}
+    }}
+    filter ( ?d < {cutoff_date} )
+  }}
+  graph <{records_graph}> {{
+    ?r ?p1 ?o1 ;
+       ?pt ?f .
+    optional {{?f ?p2 ?o2 .}}
   }}
 }}
 '''.format
@@ -80,4 +120,19 @@ def save_to_triplestore(content_graph: Graph, records: list[Node]) -> None:
     now = Literal(dt.date.today())
     quads_gc = ((rec, SCHEMA.uploadDate, now, gc_graph) for rec in records)
     store.addN(chain(quads, quads_gc))
+    store.commit()
+
+
+def collect_garbage(until: Optional[dt.date]=None) -> None:
+    """Forget all unused records that were added before `until`.
+
+    `until` defaults to two weeks ago."""
+    if until is None:
+        until = dt.date.today() - dt.timedelta(weeks=2)
+    store = settings.RDFLIB_STORE
+    store.update(garbage_collect_update(
+        records_graph=RECORDS_GRAPH_URI,
+        gc_graph=RECORDS_GC_GRAPH_URI,
+        cutoff_date=Literal(until).n3(),
+    ), initNs={'schema': SCHEMA})
     store.commit()

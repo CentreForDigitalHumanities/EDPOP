@@ -1,9 +1,12 @@
 import pytest
+import datetime as dt
+
 from edpop_explorer import Record, EDPOPREC, BibliographicalRecord, Field
-from rdflib import Graph, RDF, URIRef
+from rdflib import Graph, RDF, URIRef, Literal
 
 from .graphs_test import MockReader
-from .triplestore import save_to_triplestore, remove_from_triplestore, SCHEMA
+from .triplestore import collect_garbage, save_to_triplestore, \
+    remove_from_triplestore, SCHEMA, RECORDS_GC_GRAPH_IDENTIFIER
 from operator import attrgetter
 
 
@@ -27,6 +30,14 @@ def working_data_graph(working_data_records) -> tuple[list[Record], Graph]:
 
 def record_nodes(record_instances):
     return map(attrgetter('subject_node'), record_instances)
+
+
+@pytest.fixture
+def working_data_saved(working_data_graph, triplestore):
+    records, graph = working_data_graph
+    nodes = list(record_nodes(records))
+    save_to_triplestore(graph, nodes)
+    return nodes, records, graph
 
 
 def stored_records(triplestore):
@@ -85,3 +96,50 @@ def test_remove_nonexistent_subject(working_data_graph):
     # Removing subjects that don't exist should not cause any problems
     records, _ = working_data_graph
     remove_from_triplestore(records)
+
+
+def test_gc_retain_recent(working_data_saved, triplestore):
+    cutoff = dt.date.today() - dt.timedelta(weeks=1)
+    collect_garbage(cutoff)
+    assert len(stored_records(triplestore)) == 2
+    assert stored_records_match_tracked_records(triplestore)
+
+
+def test_gc_remove_outdated(working_data_saved, triplestore):
+    cutoff = dt.date.today() + dt.timedelta(weeks=1)
+    collect_garbage(cutoff)
+    assert len(stored_records(triplestore)) == 0
+    assert stored_records_match_tracked_records(triplestore)
+
+
+def test_gc_retain_used(working_data_saved, triplestore):
+    cutoff = dt.date.today() + dt.timedelta(weeks=1)
+    nodes, _, _ = working_data_saved
+    chosen = nodes[0]
+    triplestore.addN([(
+        chosen,
+        SCHEMA.upvoteCount,
+        Literal(1),
+        Graph(identifier=RECORDS_GC_GRAPH_IDENTIFIER),
+    )])
+    collect_garbage(cutoff)
+    remaining_subjects = stored_records(triplestore)
+    assert len(remaining_subjects) == 1
+    assert remaining_subjects[0] == chosen
+    assert stored_records_match_tracked_records(triplestore)
+
+
+def test_gc_remove_obsolete(working_data_saved, triplestore):
+    cutoff = dt.date.today() + dt.timedelta(weeks=1)
+    nodes, _, _ = working_data_saved
+    chosen = nodes[0]
+    triplestore.addN([(
+        chosen,
+        SCHEMA.upvoteCount,
+        Literal(0),
+        Graph(identifier=RECORDS_GC_GRAPH_IDENTIFIER),
+    )])
+    collect_garbage(cutoff)
+    remaining_subjects = stored_records(triplestore)
+    assert len(remaining_subjects) == 0
+    assert stored_records_match_tracked_records(triplestore)
