@@ -31,7 +31,7 @@ export const columnChooseMenu = function(){
         const icon = document.createElement("i");
         icon.classList.add("fa");
         icon.classList.add("fa-fw");
-        if (column.isVisible) icon.classList.add("fa-check");
+        if (column.isVisible()) icon.classList.add("fa-check");
 
         // build label
         let label = document.createElement("span");
