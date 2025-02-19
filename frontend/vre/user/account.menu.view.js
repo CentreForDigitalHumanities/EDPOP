@@ -3,7 +3,7 @@ import accountMenuTemplate from './account.menu.view.mustache';
 
 export var AccountMenuView = View.extend({
     tagName: 'li',
-    className: 'dropdown',
+    className: 'nav-item dropdown',
     template: accountMenuTemplate,
 
     initialize: function(options) {

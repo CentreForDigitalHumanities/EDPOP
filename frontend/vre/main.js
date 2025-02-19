@@ -108,7 +108,7 @@ function prepareCollections() {
 // We want this code to run after prepareCollections has run and both
 // GlobalVariables.myCollections and all projects have fully loaded.
 function startRouting() {
-    $('.nav').first().append(
+    $('#navbar-left').append(
         catalogDropdown.el,
         collectionDropdown.el,
     );

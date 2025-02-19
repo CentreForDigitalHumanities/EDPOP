@@ -1,8 +1,9 @@
-<a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Logged in as <b>{{username}}<span class="caret"></b></a>
+<a href="#" role="button" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Logged in as <b>{{username}}<span class="caret"></b></a>
 <ul class="dropdown-menu">
     {{#is_staff}}
-    <li><a href="/admin/">Go to admin</a></li>
+    <li><a class="dropdown-item" href="/admin/">Go to admin</a></li>
+    <div role="separator" class="dropdown-divider"></div>
     {{/is_staff}}
-    <li><a href="/accounts/password_change/">Change password</a></li>
-    <li><a href="/accounts/logout/">Logout</a></li>
+    <li><a class="dropdown-item" href="/accounts/password_change/">Change password</a></li>
+    <li><a class="dropdown-item" href="/accounts/logout/">Logout</a></li>
 </ul>

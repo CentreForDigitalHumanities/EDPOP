@@ -6,7 +6,6 @@ import selectDBTemplate from './select-catalog.view.mustache';
 
 var CatalogOptionView = Backbone.View.extend({
     template: optionDBTemplate,
-    tagName: 'li',
     events: {
         'click': 'select',
     },
@@ -21,25 +20,24 @@ var CatalogOptionView = Backbone.View.extend({
         return this;
     },
     markSelected: function() {
-        this.$el.addClass('active');
+        this.$(".dropdown-item").addClass('active');
     },
     unmarkSelected: function() {
-        this.$el.removeClass('active');
+        this.$(".dropdown-item").removeClass('active');
     },
     select: function(event) {
         event.preventDefault();
         var href = $(event.target).attr('href');
         Backbone.history.navigate(href, true);
-        this.render();
     },
 });
 
 export var SelectCatalogView = AggregateView.extend({
     template: selectDBTemplate,
     tagName: 'li',
-    className: 'dropdown',
+    className: 'nav-item dropdown',
     subview: CatalogOptionView,
-    container: 'ul',
+    container: 'div',
     initialize: function() {
         this.initItems().render().initCollectionEvents();
     },
