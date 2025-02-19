@@ -46,9 +46,6 @@ export const columnChooseMenu = function(){
         menu.push({
             label: label,
             action: function(e){
-                // prevent menu closing
-                e.stopPropagation();
-
                 // toggle current column visibility
                 column.toggle();
 
