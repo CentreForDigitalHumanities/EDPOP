@@ -4,6 +4,7 @@ import { SearchResults } from '../search/search.model.js';
 import { SearchView } from '../search/search.view.js';
 import { RecordListManagingView } from '../record/record.list.managing.view.js';
 import collectionSearchTemplate from './collection.search.view.mustache';
+import {readerTypeToRecordClass} from "../utils/record-ontology";
 
 export var CatalogSearchView = CompositeView.extend({
     template: collectionSearchTemplate,
@@ -13,6 +14,7 @@ export var CatalogSearchView = CompositeView.extend({
     ],
     initialize: function() {
         this.collection = this.collection || new SearchResults;
+        this.recordClass = readerTypeToRecordClass[this.model.get('@type')];
         this.searchView = new SearchView({
             model: this.model,
             collection: this.collection,
@@ -20,6 +22,7 @@ export var CatalogSearchView = CompositeView.extend({
         this.recordsManager = new RecordListManagingView({
             collection: this.collection,
             type: "catalog",
+            recordClass: this.recordClass,
         });
         this.render();
     },

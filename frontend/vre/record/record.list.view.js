@@ -2,6 +2,7 @@ import Backbone from "backbone";
 import {vreChannel} from "../radio";
 import Tabulator from "tabulator";
 import {adjustDefinitions} from "../utils/tabulator-utils";
+import _ from "lodash";
 
 export var RecordListView = Backbone.View.extend({
     id: "record-list",
@@ -10,8 +11,14 @@ export var RecordListView = Backbone.View.extend({
      * @type {Tabulator}
      */
     table: null,
+    /**
+     * The record class (BIBLIOGRAPHICAL or BIOGRAPHICAL)
+     * @type {?string}
+     */
+    recordClass: null,
 
     initialize: function(options) {
+        _.assign(this, _.pick(options, ['recordClass']));
         this.collection.on("sync", () => {
             this.updateTable();
         });

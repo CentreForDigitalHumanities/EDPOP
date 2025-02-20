@@ -17,6 +17,14 @@ export var PropertyList = JsonLdNestedCollection.extend({
 export var properties = new PropertyList();
 properties.fetch();
 
+export const BIBLIOGRAPHICAL = "edpoprec:BibliographicalRecord";
+export const BIOGRAPHICAL = "edpoprec:BiographicalRecord";
+
+export const readerTypeToRecordClass = {
+    "edpoprec:BibliographicalCatalog": BIBLIOGRAPHICAL,
+    "edpoprec:BiographicalCatalog": BIOGRAPHICAL,
+}
+
 /**
  * Regular expression matching `'edpoprec:Record'`,
  * `'edpoprec:BiographicalRecord'` and `'edpoprec:BibliographicalRecord'`. The
