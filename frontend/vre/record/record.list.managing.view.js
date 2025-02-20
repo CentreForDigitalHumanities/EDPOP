@@ -10,6 +10,16 @@ import _ from "lodash";
 export var RecordListManagingView = CompositeView.extend({
     tagName: 'form',
     template: recordListManagingTemplate,
+    /**
+     * The kind of record list ("collection" or "catalog")
+     * @type {?string}
+     */
+    type: null,
+    /**
+     * The record class (BIBLIOGRAPHICAL or BIOGRAPHICAL)
+     * @type {?string}
+     */
+    recordClass: null,
 
     subviews: [
         {view: 'vreCollectionsSelect', method: 'prepend'},
@@ -30,11 +40,14 @@ export var RecordListManagingView = CompositeView.extend({
     },
 
     initialize: function(options) {
-        _.assign(this, _.pick(options, ['type']));
+        _.assign(this, _.pick(options, ['type', 'recordClass']));
         this.vreCollectionsSelect = new VRECollectionView({
             collection: GlobalVariables.myCollections
         }).render();
-        this.recordListView = new RecordListView({collection: this.collection});
+        this.recordListView = new RecordListView({
+            collection: this.collection,
+            recordClass: this.recordClass
+        });
         this.render();
         this.recordListView.render();
     },
