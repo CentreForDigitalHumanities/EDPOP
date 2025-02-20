@@ -153,22 +153,6 @@ const standardColumns = Object.fromEntries([BIBLIOGRAPHICAL, BIOGRAPHICAL].map((
         property2definition,
         {model: ColumnDefinition, comparator: byPreference},
     );
-    // `@type` is not a property, so we add it as a special case. This enables the
-    // person/book icons at the left end of every row.
-    columns.unshift({
-        field: 'type',
-        title: 'Type',
-        visible: true,
-        headerContextMenu: columnChooseMenu,
-        formatter: cell => recordTypeIcon(typeTranslation(cell.getValue())),
-        hozAlign: 'right',
-        tooltip: (e, cell) => cell.getValue().slice(9, -6),
-        width: 48,
-        // The `_ucid` is an implementation detail of `MappedCollection`. It appears
-        // here because mapped collections are not really intended for non-mapped
-        // additions or other modifications.
-        _ucid: {},
-    }, {convert: false});
     return [recordClass, columns];
 }));
 
