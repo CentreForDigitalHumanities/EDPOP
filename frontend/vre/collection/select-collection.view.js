@@ -8,7 +8,6 @@ import selectDBTemplate from './select-collection.view.mustache';
 
 var CollectionOptionView = Backbone.View.extend({
     template: optionDBTemplate,
-    tagName: 'li',
     events: {
         'click': 'select',
     },
@@ -23,25 +22,24 @@ var CollectionOptionView = Backbone.View.extend({
         return this;
     },
     markSelected: function() {
-        this.$el.addClass('active');
+        this.$(".dropdown-item").addClass('active');
     },
     unmarkSelected: function() {
-        this.$el.removeClass('active');
+        this.$(".dropdown-item").removeClass('active');
     },
     select: function(event) {
         event.preventDefault();
         var href = $(event.target).attr('href');
         Backbone.history.navigate(href, true);
-        this.render();
     },
 });
 
 export var SelectCollectionView = AggregateView.extend({
     template: selectDBTemplate,
     tagName: 'li',
-    className: 'dropdown',
+    className: 'nav-item dropdown',
     subview: CollectionOptionView,
-    container: 'ul',
+    container: 'div',
     events: {
         'submit .dropdown-menu form': 'createCollection',
     },

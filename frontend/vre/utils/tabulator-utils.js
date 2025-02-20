@@ -29,8 +29,9 @@ export const columnChooseMenu = function(){
         }
         // create checkbox element using font awesome icons
         const icon = document.createElement("i");
-        icon.classList.add("glyphicon");
-        icon.classList.add(column.isVisible() ? "glyphicon-check" : "glyphicon-unchecked");
+        icon.classList.add("fa");
+        icon.classList.add("fa-fw");
+        if (column.isVisible()) icon.classList.add("fa-check");
 
         // build label
         let label = document.createElement("span");
@@ -45,19 +46,14 @@ export const columnChooseMenu = function(){
         menu.push({
             label: label,
             action: function(e){
-                // prevent menu closing
-                e.stopPropagation();
-
                 // toggle current column visibility
                 column.toggle();
 
                 // change menu item icon
                 if (column.isVisible()) {
-                    icon.classList.remove("glyphicon-unchecked");
-                    icon.classList.add("glyphicon-check");
+                    icon.classList.add("fa-check");
                 } else {
-                    icon.classList.remove("glyphicon-check");
-                    icon.classList.add("glyphicon-unchecked");
+                    icon.classList.remove("fa-check");
                 }
             }
         });

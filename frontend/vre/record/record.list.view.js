@@ -19,7 +19,7 @@ export var RecordListView = Backbone.View.extend({
 
     createTable: function(initialData) {
         this.table = new Tabulator("#record-list", {
-            height: 650, // set height of table (in CSS or here), this enables the Virtual DOM and improves render speed dramatically (can be any valid css height value)
+            height: "calc(100vh - 360px)", // set height to table approximately to what is left of viewport height
             data: initialData,
             autoColumns: true,
             autoColumnsDefinitions: adjustDefinitions,
