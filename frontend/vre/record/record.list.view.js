@@ -47,6 +47,7 @@ export var RecordListView = Backbone.View.extend({
 
     updateTable: function() {
         if (this.collection.length === 0) {
+            this.removeTable();
             return;
         }
         const data = this.collection.toTabularData();
@@ -54,6 +55,13 @@ export var RecordListView = Backbone.View.extend({
             this.createTable(data);
         } else {
             this.table.replaceData(data);
+        }
+    },
+
+    removeTable: function() {
+        if (this.table) {
+            this.table.destroy();
+            this.table = null;
         }
     },
 
