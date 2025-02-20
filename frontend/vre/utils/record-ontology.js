@@ -95,7 +95,6 @@ function domainFitsQualification(target, domain) {
  * @returns {boolean} `true` if at least one domain of the property matches the criterion, `false` otherwise.
  */
 function appliesToSuitableDomains(criterion, property, onlyFields=true) {
-    console.log(criterion, property);
     var domain = property.get('rdfs:domain');
     var range = property.get('rdfs:range')?.['@id'];
     if (!domain) return false;
