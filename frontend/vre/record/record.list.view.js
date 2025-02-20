@@ -29,7 +29,7 @@ export var RecordListView = Backbone.View.extend({
             height: "calc(100vh - 360px)", // set height to table approximately to what is left of viewport height
             data: initialData,
             autoColumns: true,
-            autoColumnsDefinitions: adjustDefinitions,
+            autoColumnsDefinitions: (autodetected) => {return adjustDefinitions(autodetected, this.recordClass)},
             layout: "fitColumns",
             rowHeader: {
                 width: 50,
