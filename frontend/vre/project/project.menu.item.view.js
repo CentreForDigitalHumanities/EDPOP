@@ -2,7 +2,6 @@ import { View } from '../core/view.js';
 import projectMenuItemTemplate from './project.menu.item.view.mustache';
 
 export var ProjectMenuItemView = View.extend({
-    tagName: 'li',
     template: projectMenuItemTemplate,
 
     events: {
@@ -27,10 +26,10 @@ export var ProjectMenuItemView = View.extend({
     },
 
     activate: function (model) {
-        this.$el.addClass('active');
+        this.$(".dropdown-item").addClass('active');
     },
 
     deactivate: function (model) {
-        this.$el.removeClass('active');
+        this.$(".dropdown-item").removeClass('active');
     },
 });

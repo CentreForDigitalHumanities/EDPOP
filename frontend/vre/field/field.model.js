@@ -12,6 +12,18 @@ import {
 } from "../utils/record-ontology";
 import {getStringLiteral} from "../utils/jsonld.model";
 
+/**
+ * Get a default main display string of the `value` attribute of a
+ * field flattened using {@link FlatterFields}. Currently, this is
+ * the normalized "summary text" if available and otherwise the
+ * original text from the source database.
+ * @param {object} value
+ * @return {string}
+ */
+function getMainDisplayOfFieldValue(value) {
+    return value['edpoprec:summaryText'] || value['edpoprec:originalText'];
+}
+
 // A single field of a single record.
 export var Field = Backbone.Model.extend({
     idAttribute: 'key',
@@ -24,9 +36,9 @@ export var Field = Backbone.Model.extend({
         const value = this.get('value');
         if (!value) return value;
         if (_.isArray(value)) {
-            return _.map(value, 'edpoprec:originalText').join(' ; ');
+            return _.map(value, getMainDisplayOfFieldValue).join(' ; ');
         }
-        return value['edpoprec:originalText'];
+        return getMainDisplayOfFieldValue(value);
     },
     getFieldInfo() {
         const property = properties.get(this.id);

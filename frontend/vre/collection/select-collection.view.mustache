@@ -1,24 +1,22 @@
-<a href="" class="dropdown-toggle" data-toggle="dropdown"
-    id="collection-menu-title" aria-haspopup="true" aria-expanded="false">Collections <span class="caret"></span>
+<a href="" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"
+    id="collection-menu-title" aria-haspopup="true" aria-expanded="false">Collections
 </a>
-<ul class="dropdown-menu">
-    <li role=separator class="divider"></li>
-    <li>
-        <form class="form-inline">
-            <div class="form-group">
-                 <label for=collection-name-{{&cid}} class="sr-only">
-                      Name
-                 </label>
-                 <input
-                     type=text
-                     id=collection-name-{{&cid}}
-                     placeholder="Name"
-                     class="form-control"
-                 >
-            </div>
-            <button type=submit class="btn btn-primary btn-sm" aria-label="Create">
-                <span class="glyphicon glyphicon-plus" aria-hidden=true></span>
-            </button>
-        </form>
-    </li>
-</ul>
+<div class="dropdown-menu" aria-labelledby="collection-menu-title">
+    <div role="separator" class="dropdown-divider"></div>
+    <form class="form-inline">
+        <div class="form-group">
+             <label for=collection-name-{{&cid}} class="sr-only">
+                  Name
+             </label>
+             <input
+                 type=text
+                 id=collection-name-{{&cid}}
+                 placeholder="Name"
+                 class="form-control"
+             >
+        </div>
+        <button type=submit class="btn btn-primary btn-sm" aria-label="Create">
+            <span class="fa-solid fa-plus" aria-hidden=true></span>
+        </button>
+    </form>
+</div>

@@ -24,7 +24,7 @@ def _hash(input_str: str) -> str:
 def _get_activated_readers() -> list[type[Reader]]:
     """Get a list of all activated readers."""
     # Currently simply return all registered readers in settings.py, but
-    # we may want to dynamically register and deregister readers in the 
+    # we may want to dynamically register and deregister readers in the
     # future (e.g., to deactivate when a server is failing).
     return settings.CATALOG_READERS
 
@@ -41,7 +41,7 @@ def refresh_readers() -> None:
     for unit tests."""
     global READERS_BY_URIREF
     READERS_BY_URIREF = _get_reader_dict()
-    
+
 
 READERS_BY_URIREF = _get_reader_dict()
 
@@ -117,7 +117,11 @@ class SearchGraphBuilder:
         """Perform the fetch. This method is supposed to be called just
         once. After fetching, the requested records (and only those)
         are available in the ``records`` attribute, and ``get_result_graph()``
-        can be called to create the accompanying graph."""
+        can be called to create the accompanying graph.
+
+        During the fetch, a ReaderError may be raised that can be the
+        result of an unavailable service or a problem with the query.
+        The message of this exception may be passed to the end user."""
         # Reader objects are cached for a limited period of time because
         # certain queries may be expensive.
         # To identify caches, the `generate_identifier()` method of a reader
@@ -160,7 +164,7 @@ class SearchGraphBuilder:
         remove_from_triplestore(results)
         save_to_triplestore(content_graph)
         return content_graph
-    
+
     def _get_collection_graph(self) -> Graph:
         """Return a graph with an ActivityStreams Collection containing
         references to the requested records in the right order."""

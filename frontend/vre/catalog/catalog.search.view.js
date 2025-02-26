@@ -5,10 +5,10 @@ import { SearchView } from '../search/search.view.js';
 import { RecordListManagingView } from '../record/record.list.managing.view.js';
 import collectionSearchTemplate from './collection.search.view.mustache';
 
-export var CollectionSearchView = CompositeView.extend({
+export var CatalogSearchView = CompositeView.extend({
     template: collectionSearchTemplate,
     subviews: [
-        {view: 'searchView', selector: '.page-header'},
+        'searchView',
         'recordsManager',
     ],
     initialize: function() {
@@ -19,6 +19,7 @@ export var CollectionSearchView = CompositeView.extend({
         });
         this.recordsManager = new RecordListManagingView({
             collection: this.collection,
+            type: "catalog",
         });
         this.render();
     },
