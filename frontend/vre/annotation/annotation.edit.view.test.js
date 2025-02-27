@@ -1,6 +1,6 @@
 import assert from 'assert';
 import sinon from 'sinon';
-import { each } from 'lodash';
+import { each, after } from 'lodash';
 import { Model, $ } from 'backbone';
 import { AnnotationEditView } from './annotation.edit.view';
 
@@ -27,14 +27,18 @@ describe('AnnotationEditView', function() {
         assert(buttons[2].getAttribute('aria-label') === 'Delete');
     });
 
-    it('has a popover which is initially hidden', function() {
-        var detectShow = sinon.fake(), detectHide = sinon.fake();
+    it('has a popover which is initially hidden', function(done) {
+        var ready = after(1, () => {
+            assert(detectShow.called);
+            assert(detectHide.notCalled);
+            done();
+        });
+        var detectShow = sinon.fake(ready), detectHide = sinon.fake(ready);
         this.view.$el.on({
             'show.bs.popover': detectShow,
             'hide.bs.popover': detectHide,
-        }).popover('toggle');
-        assert(detectShow.called);
-        assert(detectHide.notCalled);
+        });
+        this.view.$el.popover('toggle');
     });
 
     describe('on submit', function() {
