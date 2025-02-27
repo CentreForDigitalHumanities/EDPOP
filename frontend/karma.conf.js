@@ -45,6 +45,7 @@ module.exports = function(config) {
             'backbone-fractal',
         ],
         plugins: [
+            require('@rollup/plugin-commonjs')(),
             require('rollup-plugin-node-polyfills')(),
             require('rollup-plugin-wontache')({precompile: true}),
             require('rollup-plugin-glob-import')({format: 'import'}),
@@ -52,7 +53,6 @@ module.exports = function(config) {
             require('@rollup/plugin-node-resolve').default({
                 preferBuiltins: true,
             }),
-            require('@rollup/plugin-commonjs')(),
             require('@rollup/plugin-babel').default({
                 presets: ['power-assert'],
                 babelHelpers: 'bundled',
