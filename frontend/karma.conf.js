@@ -15,7 +15,7 @@ module.exports = function(config) {
     files: [
         'node_modules/jquery/dist/jquery.js',
         'node_modules/lodash/lodash.js',
-        'node_modules/popper.js/dist/umd/popper.js',
+        'node_modules/@popperjs/core/dist/umd/popper.js',
         'node_modules/bootstrap/dist/js/bootstrap.js',
         'node_modules/select2/dist/js/select2.js',
         'node_modules/backbone/backbone.js',
