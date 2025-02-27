@@ -15,7 +15,7 @@ module.exports = function(config) {
     files: [
         'node_modules/jquery/dist/jquery.js',
         'node_modules/lodash/lodash.js',
-        'node_modules/popper.js/dist/umd/popper.js',
+        'node_modules/@popperjs/core/dist/umd/popper.js',
         'node_modules/bootstrap/dist/js/bootstrap.js',
         'node_modules/select2/dist/js/select2.js',
         'node_modules/backbone/backbone.js',
@@ -45,6 +45,7 @@ module.exports = function(config) {
             'backbone-fractal',
         ],
         plugins: [
+            require('@rollup/plugin-commonjs')(),
             require('rollup-plugin-node-polyfills')(),
             require('rollup-plugin-wontache')({precompile: true}),
             require('rollup-plugin-glob-import')({format: 'import'}),
@@ -52,7 +53,6 @@ module.exports = function(config) {
             require('@rollup/plugin-node-resolve').default({
                 preferBuiltins: true,
             }),
-            require('@rollup/plugin-commonjs')(),
             require('@rollup/plugin-babel').default({
                 presets: ['power-assert'],
                 babelHelpers: 'bundled',

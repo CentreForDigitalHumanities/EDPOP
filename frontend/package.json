@@ -40,17 +40,17 @@
     "sinon": "^14.0.1"
   },
   "dependencies": {
-    "@uu-cdh/backbone-collection-transformers": "github:CentreForDigitalHumanities/backbone-collection-transformers#release/0.1.0",
+    "@uu-cdh/backbone-collection-transformers": "^0.1.0",
     "@uu-cdh/backbone-util": "^0.1.1",
     "backbone": "^1.3.3",
     "backbone-fractal": "^1.1.1",
     "backbone.radio": "^2.0.0",
-    "bootstrap": "^3.4.1",
+    "bootstrap": "^5.3.3",
     "jquery": "^3.6.1",
     "jscookie": "^1.1.0",
     "karma-chrome-launcher": "^3.2.0",
     "lodash": "^4.17.21",
-    "popper.js": "^1.16.1",
+    "@popperjs/core": "^2.11.8",
     "select2": "^4.0.13",
     "wontache": "^0.2.0"
   }

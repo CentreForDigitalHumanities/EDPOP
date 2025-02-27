@@ -17,7 +17,7 @@ export var AnnotationEditView = View.extend({
             content: confirmDeletionTemplate(this),
             html: true,
             sanitize: false,
-            placement: 'auto top',
+            placement: 'top',
             selector: 'button[aria-label="Delete"]',
             title: 'Really delete?',
         });
@@ -40,7 +40,7 @@ export var AnnotationEditView = View.extend({
         return this;
     },
     remove: function() {
-        this.$el.popover('destroy');
+        this.$el.popover('dispose');
         this.trashConfirmer.off();
         this.trashCanceller.off();
         return View.prototype.remove.call(this);
@@ -58,11 +58,12 @@ export var AnnotationEditView = View.extend({
         this.trigger('cancel', this);
     },
     cancelTrash: function(event) {
-        $(event.target).parents('.popover').popover('hide');
+        event.preventDefault();
+        this.$('button[aria-label="Delete"]').popover('hide');
     },
     reallyTrash: function(event) {
         event.preventDefault();
-        $(event.target).parents('.popover').popover('hide');
+        this.$('button[aria-label="Delete"]').popover('hide');
         this.trigger('trash', this);
     },
 });
