@@ -17,6 +17,28 @@ export var PropertyList = JsonLdNestedCollection.extend({
 export var properties = new PropertyList();
 properties.fetch();
 
+export const BIBLIOGRAPHICAL = "edpoprec:BibliographicalRecord";
+export const BIOGRAPHICAL = "edpoprec:BiographicalRecord";
+
+export const readerTypeToRecordClass = {
+    "edpoprec:BibliographicalCatalog": BIBLIOGRAPHICAL,
+    "edpoprec:BiographicalCatalog": BIOGRAPHICAL,
+}
+
+/**
+ * A list of all field types according to the record ontology.
+ * This is hardcoded for now because there is no trivial way to infer this
+ * by reasoning from the ontology JSON-LD file.
+ * @type {string[]}
+ */
+export const fieldList = [
+    'edpoprec:Field',
+    'edpoprec:DatingField',
+    'edpoprec:LanguageField',
+    'edpoprec:LocationField',
+    'edpoprec:ContributorField',
+];
+
 /**
  * Regular expression matching `'edpoprec:Record'`,
  * `'edpoprec:BiographicalRecord'` and `'edpoprec:BibliographicalRecord'`. The
@@ -69,11 +91,18 @@ function domainFitsQualification(target, domain) {
  * @param {ldObjectPredicate} criterion - Predicate against which the domains of the property should be matched.
  * @param {Backbone.Model} property - Model-wrapped JSON-LD representation of an
  * RDF property.
+ * @param {boolean} onlyFields - if `true', only accept properties that have edpoprec:Field or a subclass
+ * as their range.
  * @returns {boolean} `true` if at least one domain of the property matches the criterion, `false` otherwise.
  */
-function appliesToSuitableDomains(criterion, property) {
+function appliesToSuitableDomains(criterion, property, onlyFields=true) {
     var domain = property.get('rdfs:domain');
+    var range = property.get('rdfs:range');
+    var rangeId;
+    if (range)
+        rangeId = range['@id'];
     if (!domain) return false;
+    if (onlyFields && !fieldList.includes(rangeId)) return false;
     if (!_.isArray(domain)) domain = [domain];
     return _.find(domain, criterion);
 }
@@ -102,16 +131,3 @@ export var bioProperties = new FilteredCollection(properties, appliesToBiographi
 export var biblioProperties = new FilteredCollection(properties, appliesToBibliographs);
 
 export var biblioAndBioProperties = new FilteredCollection(properties, appliesToAnyDomain);
-
-/**
- * A list of all field types according to the record ontology.
- * This is hardcoded for now because there is no trivial way to infer this
- * by reasoning from the ontology JSON-LD file.
- * @type {string[]}
- */
-export const fieldList = [
-    'edpoprec:Field',
-    'edpoprec:DatingField',
-    'edpoprec:LanguageField',
-    'edpoprec:LocationField',
-];

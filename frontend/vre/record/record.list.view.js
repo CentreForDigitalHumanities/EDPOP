@@ -2,6 +2,7 @@ import Backbone from "backbone";
 import {vreChannel} from "../radio";
 import Tabulator from "tabulator";
 import {adjustDefinitions} from "../utils/tabulator-utils";
+import _ from "lodash";
 
 export var RecordListView = Backbone.View.extend({
     id: "record-list",
@@ -10,8 +11,14 @@ export var RecordListView = Backbone.View.extend({
      * @type {Tabulator}
      */
     table: null,
+    /**
+     * The record class (BIBLIOGRAPHICAL or BIOGRAPHICAL)
+     * @type {?string}
+     */
+    recordClass: null,
 
     initialize: function(options) {
+        _.assign(this, _.pick(options, ['recordClass']));
         this.collection.on("sync", () => {
             this.updateTable();
         });
@@ -22,7 +29,7 @@ export var RecordListView = Backbone.View.extend({
             height: "calc(100vh - 360px)", // set height to table approximately to what is left of viewport height
             data: initialData,
             autoColumns: true,
-            autoColumnsDefinitions: adjustDefinitions,
+            autoColumnsDefinitions: (autodetected) => {return adjustDefinitions(autodetected, this.recordClass)},
             layout: "fitColumns",
             rowHeader: {
                 width: 50,
@@ -47,6 +54,7 @@ export var RecordListView = Backbone.View.extend({
 
     updateTable: function() {
         if (this.collection.length === 0) {
+            this.removeTable();
             return;
         }
         const data = this.collection.toTabularData();
@@ -54,6 +62,13 @@ export var RecordListView = Backbone.View.extend({
             this.createTable(data);
         } else {
             this.table.replaceData(data);
+        }
+    },
+
+    removeTable: function() {
+        if (this.table) {
+            this.table.destroy();
+            this.table = null;
         }
     },
 

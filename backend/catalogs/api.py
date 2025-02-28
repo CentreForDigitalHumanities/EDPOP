@@ -54,6 +54,7 @@ class CatalogsView(RDFView):
     """Return a graph containing all activated catalogs."""
     renderer_classes = (JsonLdRenderer,)
     json_ld_context = {
+        "edpoprec": str(EDPOPREC),
         "schema": "https://schema.org/",
         "name": "schema:name",
         "description": "schema:description",

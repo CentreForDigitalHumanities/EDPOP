@@ -1,7 +1,12 @@
 import _ from 'lodash';
 import {Model, Collection} from 'backbone';
 import {MappedCollection} from './mapped.collection.js';
-import {biblioAndBioProperties} from './record-ontology';
+import {
+    BIBLIOGRAPHICAL,
+    biblioProperties,
+    BIOGRAPHICAL,
+    bioProperties
+} from './record-ontology';
 import {getStringLiteral} from './jsonld.model';
 import {typeTranslation} from './generic-functions.js';
 import recordTypeIcon from '../record/record.type.icon.mustache';
@@ -136,28 +141,16 @@ function property2definition(property) {
  * method in order to extract the column definitions in the format that
  * Tabulator understands.
  */
-const standardColumns = new MappedCollection(
-    biblioAndBioProperties,
-    property2definition,
-    {model: ColumnDefinition, comparator: byPreference},
-);
-
-// `@type` is not a property, so we add it as a special case. This enables the
-// person/book icons at the left end of every row.
-standardColumns.unshift({
-    field: 'type',
-    title: 'Type',
-    visible: true,
-    headerContextMenu: columnChooseMenu,
-    formatter: cell => recordTypeIcon(typeTranslation(cell.getValue())),
-    hozAlign: 'right',
-    tooltip: (e, cell) => cell.getValue().slice(9, -6),
-    width: 48,
-    // The `_ucid` is an implementation detail of `MappedCollection`. It appears
-    // here because mapped collections are not really intended for non-mapped
-    // additions or other modifications.
-    _ucid: {},
-}, {convert: false});
+const standardColumns = _.mapValues({
+    [BIBLIOGRAPHICAL]: biblioProperties,
+    [BIOGRAPHICAL]: bioProperties,
+}, (propertyList) => {
+    return new MappedCollection(
+        propertyList,
+        property2definition,
+        {model: ColumnDefinition, comparator: byPreference},
+    );
+});
 
 /**
  * Callback for Tabulator's `autoColumnsDefinitions`. It always returns all
@@ -165,9 +158,11 @@ standardColumns.unshift({
  * columns to determine which columns should be visible. Columns that are both
  * preferred and present in the data are visible, all other columns are
  * invisible.
+ * @param autodetected - list of automatically detected columns by Tabulator
+ * @param {string} recordClass - the value of BIBLIOGRAPHICAL or BIOGRAPHICAL
  */
-export function adjustDefinitions(autodetected) {
-    const customizedColumns = standardColumns.clone();
+export function adjustDefinitions(autodetected, recordClass) {
+    const customizedColumns = standardColumns[recordClass].clone();
     _.each(autodetected, autoColumn => {
         if (!(autoColumn.field in columnProperties)) return;
         const customColumn = customizedColumns.get(autoColumn.field);
