@@ -97,9 +97,12 @@ function domainFitsQualification(target, domain) {
  */
 function appliesToSuitableDomains(criterion, property, onlyFields=true) {
     var domain = property.get('rdfs:domain');
-    var range = property.get('rdfs:range')?.['@id'];
+    var range = property.get('rdfs:range');
+    var rangeId;
+    if (range)
+        rangeId = range['@id'];
     if (!domain) return false;
-    if (onlyFields && !fieldList.includes(range)) return false;
+    if (onlyFields && !fieldList.includes(rangeId)) return false;
     if (!_.isArray(domain)) domain = [domain];
     return _.find(domain, criterion);
 }
