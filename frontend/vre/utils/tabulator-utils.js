@@ -141,20 +141,16 @@ function property2definition(property) {
  * method in order to extract the column definitions in the format that
  * Tabulator understands.
  */
-const standardColumns = Object.fromEntries([BIBLIOGRAPHICAL, BIOGRAPHICAL].map((recordClass) => {
-    let propertyList;
-    if (recordClass === BIBLIOGRAPHICAL) {
-        propertyList = biblioProperties;
-    } else if (recordClass === BIOGRAPHICAL) {
-        propertyList = bioProperties;
-    }
-    const columns = new MappedCollection(
+const standardColumns = _.mapValues({
+    [BIBLIOGRAPHICAL]: biblioProperties,
+    [BIOGRAPHICAL]: bioProperties,
+}, (propertyList) => {
+    return new MappedCollection(
         propertyList,
         property2definition,
         {model: ColumnDefinition, comparator: byPreference},
     );
-    return [recordClass, columns];
-}));
+});
 
 /**
  * Callback for Tabulator's `autoColumnsDefinitions`. It always returns all
