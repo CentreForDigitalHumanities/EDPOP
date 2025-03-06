@@ -1,5 +1,5 @@
 import pytest
-from rdflib import URIRef, RDF
+from rdflib import URIRef, RDF, RDFS
 from django.conf import settings
 
 from triplestore.constants import AS, EDPOPCOL
@@ -32,7 +32,7 @@ def test_collection_model(project):
 
     assert any(store.triples((collection.uri, RDF.type, EDPOPCOL.Collection)))
     assert any(store.triples((collection.uri, AS.context, project.uri)))
-    assert any(store.triples((collection.uri, AS.items, None)))
+    assert any(store.triples((collection.uri, RDFS.member, None)))
 
     collection.refresh_from_store()
     assert collection.records == [
@@ -44,4 +44,4 @@ def test_collection_model(project):
 
     assert not any(store.triples((collection.uri, RDF.type, EDPOPCOL.Collection)))
     assert not any(store.triples((collection.uri, AS.context, project.uri)))
-    assert not any(store.triples((collection.uri, AS.items, None)))
+    assert not any(store.triples((collection.uri, RDFS.member, None)))
