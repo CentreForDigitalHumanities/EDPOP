@@ -1,6 +1,7 @@
 from typing import Iterator, Tuple, Callable, Dict, Any, Iterable
 from rdflib import Graph, URIRef, RDF
 from functools import reduce
+from operator import methodcaller
 
 from rdflib.term import Node, BNode
 
@@ -122,3 +123,10 @@ def replace_quads(stored_quads: Quads, quads_to_store: Quads):
     
     for s, p, o, g in to_add:
         g.add((s, p, o))
+
+
+n3 = methodcaller('n3')
+
+def sparql_multivalues(values: Iterable[Node]) -> str:
+    """Format a bunch of values for insertion as x in VALUES ?v { x }."""
+    return ' '.join(map(n3, values))
