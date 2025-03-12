@@ -117,24 +117,30 @@ class CollectionMembersField(RDFField):
         g = self.get_graph(instance)
         return list(g.objects(instance.uri, RDFS.member))
 
-    def add(self, instance: RDFModel, value: Iterable[IdentifiedNode]) -> None:
-        g = self.get_graph(instance)
-        store = settings.RDFLIB_STORE
+    def _add(self, value, store, g):
         store.update(add_records_update(
             added_records=sparql_multivalues(value),
             collection=g.identifier,
             gc_graph=RECORDS_GC_GRAPH_URI,
         ), initNs=USE_SCHEMA)
-        store.commit()
 
-    def remove(self, instance: RDFModel, value: Iterable[IdentifiedNode]) -> None:
+    def add(self, instance: RDFModel, value: Iterable[IdentifiedNode]) -> None:
         g = self.get_graph(instance)
         store = settings.RDFLIB_STORE
+        self._add(value, store, g)
+        store.commit()
+
+    def _remove(self, value, store, g):
         store.update(remove_records_update(
             removed_records=sparql_multivalues(value),
             collection=g.identifier,
             gc_graph=RECORDS_GC_GRAPH_URI,
         ), initNs=USE_SCHEMA)
+
+    def remove(self, instance: RDFModel, value: Iterable[IdentifiedNode]) -> None:
+        g = self.get_graph(instance)
+        store = settings.RDFLIB_STORE
+        self._remove(value, store, g)
         store.commit()
 
     def set(self, instance: RDFModel, value: Iterable[IdentifiedNode]) -> None:
@@ -144,16 +150,8 @@ class CollectionMembersField(RDFField):
         override = set(value)
         added = override - existing
         removed = existing - override
-        store.update(remove_records_update(
-            removed_records=sparql_multivalues(removed),
-            collection=g.identifier,
-            gc_graph=RECORDS_GC_GRAPH_URI,
-        ), initNs=USE_SCHEMA)
-        store.update(add_records_update(
-            added_records=sparql_multivalues(added),
-            collection=g.identifier,
-            gc_graph=RECORDS_GC_GRAPH_URI,
-        ), initNs=USE_SCHEMA)
+        self._remove(removed, store, g)
+        self._add(added, store, g)
         store.commit()
 
     def clear(self, instance: RDFModel) -> None:
