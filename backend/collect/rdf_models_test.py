@@ -8,21 +8,33 @@ from projects.rdf_models import RDFProject
 from collect.rdf_models import EDPOPCollection
 from collect.utils import collection_graph, collection_uri
 
+
 @pytest.fixture()
 def project(db):
     project = Project.objects.create(name='test', display_name='Test')
     rdf_project = RDFProject(project.graph(), project.identifier())
     return rdf_project
 
-def test_collection_model(project):
+
+@pytest.fixture()
+def collection(project):
     uri = collection_uri('Test collection')
     collection = EDPOPCollection(collection_graph(uri), uri)
     collection.name = 'Test collection'
     collection.project = project.uri
-    collection.records = [
+    return collection
+
+
+@pytest.fixture()
+def records():
+    return [
         URIRef('https://example.org/example1'),
         URIRef('https://example.org/example2')
     ]
+
+
+def test_collection_model(project, collection, records):
+    collection.records = records
     collection.save()
 
     store = settings.RDFLIB_STORE
@@ -35,10 +47,7 @@ def test_collection_model(project):
     assert any(store.triples((collection.uri, RDFS.member, None)))
 
     collection.refresh_from_store()
-    assert collection.records == [
-        URIRef('https://example.org/example1'),
-        URIRef('https://example.org/example2')
-    ]
+    assert collection.records == records
 
     collection.delete()
 
