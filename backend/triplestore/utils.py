@@ -15,7 +15,7 @@ def union_graphs(graphs: Iterator[Graph]) -> Graph:
     '''
     Return the union of a collection of graphs
 
-    `union_graphs([g1, g2, g3])` is equivalent to `g1 + g2 + g3` 
+    `union_graphs([g1, g2, g3])` is equivalent to `g1 + g2 + g3`
     '''
     return reduce(Graph.__iadd__, graphs, Graph())
 
@@ -33,7 +33,7 @@ def find_subject_by_class(graph: Graph, rdf_class: URIRef) -> URIRef:
 
     Returns `None` if no match exists.
     '''
-    
+
     subjects = graph.subjects(RDF.type, rdf_class)
     return next(subjects, None)
 
@@ -54,13 +54,13 @@ def objects_to_graph(convert: Callable, to_key: Callable, objects: Iterator[Any]
     of the subject node for the object, and the graph it has created.
     - `to_id`: a function that transforms an object to a key that can be used to look up its URI in a dict.
     - `objects`: a list of objects to be converted.
-    
+
     Returns:
     A tuple of
     - object URIs: a dict that maps objects to their URI
     - a graph containing the representation of all objects
     '''
-    
+
     objects = list(objects)
     result = map(convert, objects)
     uris, graphs = zip(*result)
@@ -107,7 +107,7 @@ def replace_triples(graph: Graph, stored_triples: Triples, triples_to_store: Tri
 
     for triple in to_delete:
         graph.remove(triple)
-    
+
     quads = triples_to_quads(to_add, graph)
     graph.addN(quads)
 
@@ -120,7 +120,7 @@ def replace_quads(stored_quads: Quads, quads_to_store: Quads):
 
     for s, p, o, g in to_delete:
         g.remove((s, p, o))
-    
+
     for s, p, o, g in to_add:
         g.add((s, p, o))
 
