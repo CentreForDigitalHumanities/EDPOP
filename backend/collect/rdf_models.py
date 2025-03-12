@@ -1,10 +1,12 @@
-from rdflib import RDFS, IdentifiedNode, RDF
 from typing import Iterable
+from django.conf import settings
+from rdflib import RDFS, IdentifiedNode, RDF
 
-from triplestore.utils import Triples
+from triplestore.utils import Triples, sparql_multivalues
 from triplestore.constants import EDPOPCOL, AS
 from triplestore.rdf_model import RDFModel
 from triplestore.rdf_field import RDFField, RDFUniquePropertyField
+from catalogs.triplestore import RECORDS_GC_GRAPH_URI, SCHEMA
 
 
 # SPARQL update queries for modifying the contents of a collection. There is
@@ -98,24 +100,70 @@ where {{{{
 }}}}
 '''.format
 
+# Common parameter to all store.update calls below.
+USE_SCHEMA = {'schema': SCHEMA}
+
 
 class CollectionMembersField(RDFField):
     '''
     Field for the records that are contained in an EDPOP collection.
+
+    This field class extends the common interface with add and remove
+    operations. These need to execute only one SPARQL update, while the set
+    method needs to execute three.
     '''
 
     def get(self, instance: RDFModel):
         g = self.get_graph(instance)
         return list(g.objects(instance.uri, RDFS.member))
 
-
-    def _stored_triples(self, instance: RDFModel) -> Triples:
+    def add(self, instance: RDFModel, value: Iterable[IdentifiedNode]) -> None:
         g = self.get_graph(instance)
-        return list(g.triples((instance.uri, RDFS.member, None)))
+        store = settings.RDFLIB_STORE
+        store.update(add_records_update(
+            added_records=sparql_multivalues(value),
+            collection=g.identifier,
+            gc_graph=RECORDS_GC_GRAPH_URI,
+        ), initNs=USE_SCHEMA)
+        store.commit()
 
+    def remove(self, instance: RDFModel, value: Iterable[IdentifiedNode]) -> None:
+        g = self.get_graph(instance)
+        store = settings.RDFLIB_STORE
+        store.update(remove_records_update(
+            removed_records=sparql_multivalues(value),
+            collection=g.identifier,
+            gc_graph=RECORDS_GC_GRAPH_URI,
+        ), initNs=USE_SCHEMA)
+        store.commit()
 
-    def _triples_to_store(self, instance: RDFModel, value: Iterable[IdentifiedNode]) -> Triples:
-        return [(instance.uri, RDFS.member, item) for item in value]
+    def set(self, instance: RDFModel, value: Iterable[IdentifiedNode]) -> None:
+        g = self.get_graph(instance)
+        store = settings.RDFLIB_STORE
+        existing = set(self.get(instance))
+        override = set(value)
+        added = override - existing
+        removed = existing - override
+        store.update(remove_records_update(
+            removed_records=sparql_multivalues(removed),
+            collection=g.identifier,
+            gc_graph=RECORDS_GC_GRAPH_URI,
+        ), initNs=USE_SCHEMA)
+        store.update(add_records_update(
+            added_records=sparql_multivalues(added),
+            collection=g.identifier,
+            gc_graph=RECORDS_GC_GRAPH_URI,
+        ), initNs=USE_SCHEMA)
+        store.commit()
+
+    def clear(self, instance: RDFModel) -> None:
+        g = self.get_graph(instance)
+        store = settings.RDFLIB_STORE
+        store.update(clear_records_update(
+            collection=g.identifier,
+            gc_graph=RECORDS_GC_GRAPH_URI,
+        ), initNs=USE_SCHEMA)
+        store.commit()
 
 
 class EDPOPCollection(RDFModel):
@@ -128,3 +176,13 @@ class EDPOPCollection(RDFModel):
     summary = RDFUniquePropertyField(AS.summary)
     project = RDFUniquePropertyField(AS.context)
     records = CollectionMembersField()
+
+    def add_records(self, records):
+        self.__class__.records.add(self, records)
+        added = set(records) - set(self.records)
+        self.records.extend(added)
+
+    def remove_records(self, records):
+        self.__class__.records.remove(self, records)
+        remaining = set(self.records) - set(records)
+        self.records = list(remaining)
