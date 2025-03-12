@@ -95,7 +95,6 @@ class RDFField(ABC):
         for triple in self._stored_triples(instance):
             g.remove(triple)
 
-    @abstractmethod
     def _stored_triples(self, instance) -> utils.Triples:
         '''
         Extract the set of relevant triples from a graph representation
@@ -106,8 +105,8 @@ class RDFField(ABC):
         Returns:
             an iterable of RDF triples, based on the graph
         '''
+        raise NotImplementedError('Override either this method or set and clear.')
 
-    @abstractmethod
     def _triples_to_store(self, instance, value) -> utils.Triples:
         '''
         Triples that should be stored to represent the modelled value
@@ -118,6 +117,7 @@ class RDFField(ABC):
         Returns:
             an iterable of RDF triples, based on the modelled value
         '''
+        raise NotImplementedError('Override either this method or set and clear.')
 
 
 class RDFPredicateField(RDFField):
