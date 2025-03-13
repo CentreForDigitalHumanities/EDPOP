@@ -1,7 +1,7 @@
 import { View } from '../core/view.js';
 import { AlertView } from '../alert/alert.view';
 import { AdditionsToCollections } from '../additions/additions-to-collections';
-import { GlobalVariables } from '../globals/variables';
+import { vreChannel } from '../radio.js';
 import collectionTemplate from './collection.view.mustache';
 
 /**
@@ -17,8 +17,7 @@ export var VRECollectionView = View.extend({
         this.render();
     },
     render: function() {
-        var shownCollections = this.collection.clone();
-        shownCollections.remove(GlobalVariables.currentVRECollection);
+        var shownCollections = vreChannel.request('unsalientcollections');
         this.$('select').select2('destroy');
         this.$el.html(this.template({
             models: shownCollections.toJSON(),

@@ -27,6 +27,7 @@ import { WelcomeView } from './utils/welcome.view.js';
 GlobalVariables.myCollections = new VRECollections();
 
 // Regular global variables, only visible in this module.
+var unsalientCollections; // not currently selected
 var catalogs = new Catalogs([], {comparator: 'name'});
 var catalogDropdown = new SelectCatalogView({
     collection: catalogs
@@ -76,16 +77,20 @@ catalogs.on({
 });
 
 function showCollection(vreCollection) {
-    GlobalVariables.currentVRECollection = vreCollection;
+    unsalientCollections.remove(vreCollection);
     // The next line is not very MVC, but it works for now.
     vreChannel.request('projects:select', vreCollection.get('project'));
     navigationState.set(
         'browser', new BrowseCollectionView({model: vreCollection}));
 }
 
+function hideCollection(vreCollection) {
+    unsalientCollections.add(vreCollection);
+}
+
 GlobalVariables.myCollections.on({
     focus: showCollection,
-    blur: () => GlobalVariables.currentVRECollection = null,
+    blur: hideCollection,
 });
 
 // We want this code to run after two conditions are met:
@@ -108,6 +113,8 @@ function prepareCollections() {
 // We want this code to run after prepareCollections has run and both
 // GlobalVariables.myCollections and all projects have fully loaded.
 function startRouting() {
+    unsalientCollections = GlobalVariables.myCollections.clone();
+    vreChannel.reply('unsalientcollections', _.constant(unsalientCollections));
     $('#navbar-left').append(
         catalogDropdown.el,
         collectionDropdown.el,
