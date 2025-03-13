@@ -10,11 +10,6 @@ from .serializers import *
 from .models import *
 from .sru_query import SRUError, sru_fetch, SRU_INFO
 
-ERROR_MESSAGE_500 = (
-    'The server doesn\'t feel too well right now. '
-    'If the problem persists, please contact the maintainer.'
-)
-
 
 class ListMineMixin(object):
     """
