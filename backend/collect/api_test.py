@@ -1,3 +1,6 @@
+import json
+from operator import attrgetter
+
 from django.test import Client
 from rest_framework.status import is_success, is_client_error
 from rdflib import URIRef, RDF, Graph, Literal
@@ -180,3 +183,42 @@ def test_collection_records(db, user, project, client: Client):
         initNs={'as': AS, 'rdf': RDF, 'edpopcol': EDPOPCOL}
     )
     assert result.askAnswer
+
+
+def test_add_single_record_preexisting(client, records, collection):
+    collection_uri = str(collection.uri)
+    payload = {
+        'records': [str(records[0])],
+        'collections': [collection_uri],
+    }
+    response = client.post('/api/add-selection/',
+        data=json.dumps(payload),
+        content_type='application/json',
+    )
+    assert response.status_code is 200
+    assert response.json() == {collection_uri: 1}
+    collection.refresh_from_store()
+    assert collection.records == records[:1]
+
+
+def test_add_multi_record_multi_collection(client, records, collections):
+    record_uris = list(map(str, records))
+    collection_urirefs = map(attrgetter('uri'), collections)
+    collection_uris = list(map(str, collection_urirefs))
+    payload = {
+        'records': record_uris,
+        'collections': collection_uris
+    }
+    response = client.post('/api/add-selection/',
+        data=json.dumps(payload),
+        content_type='application/json',
+    )
+    assert response.status_code is 200
+    assert response.json() == {
+        uri: 2
+        for uri in collection_uris
+    }
+    records_set = set(records)
+    for collection in collections:
+        collection.refresh_from_store()
+        assert set(collection.records) == records_set

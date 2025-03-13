@@ -1,5 +1,7 @@
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.views import Request
+from rest_framework import status
+from rest_framework.viewsets import ModelViewSet, ViewSetMixin
+from rest_framework.views import APIView, Request
+from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from rdf.views import RDFView
 from rdflib import URIRef, RDF, Graph, BNode, Literal
@@ -68,3 +70,21 @@ class CollectionRecordsView(RDFView):
         g += list_to_graph_collection(collection_obj.records, items_node)
 
         return g
+
+
+class AddRecordsViewSet(ViewSetMixin, APIView):
+    def create(self, request, pk=None):
+        collections = request.data['collections']
+        if not collections:
+            return Response("No collection selected!", status=status.HTTP_400_BAD_REQUEST)
+        records = request.data['records']
+        if not records:
+            return Response("No records selected!", status=status.HTTP_400_BAD_REQUEST)
+        record_uris = list(map(URIRef, records))
+        response_dict = {}
+        for collection in collections:
+            collection_uri = URIRef(collection)
+            collection_obj = EDPOPCollection(collection_graph(collection_uri), collection_uri)
+            record_counter = collection_obj.add_records(record_uris)
+            response_dict[collection] = record_counter
+        return Response(response_dict)
