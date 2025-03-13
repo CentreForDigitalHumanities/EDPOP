@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 import { View } from '../core/view.js';
 import { AlertView } from '../alert/alert.view';
 import { AdditionsToCollections } from '../additions/additions-to-collections';
@@ -52,7 +54,7 @@ export var VRECollectionView = View.extend({
         selected_records = selected_records || [];
         if (this.model) {
             // adding to array as the api expects an array.
-            selected_records.push(this.model.toJSON());
+            selected_records.push(this.model.id);
         }
         var selected_collections = this.$('select').val();
         var records_and_collections = new AdditionsToCollections({
@@ -64,11 +66,13 @@ export var VRECollectionView = View.extend({
             this.showError.bind(this),
         );
     },
+    reportAddition: function(amount, uri) {
+        var name = this.collection.get(uri).get('name');
+        return 'Added ' + amount + ' record(s) to ' + name + '.';
+    },
     showSuccess: function(response) {
-        var feedbackString = '';
-        $.each(response, function(key, value) {
-            feedbackString = feedbackString.concat('Added ', value, ' record(s) to ', key, ". ");
-        });
+        var feedback = _.map(response, this.reportAddition.bind(this));
+        var feedbackString = feedback.join(' ');
         this.showAlert('success', feedbackString);
     },
     showError: function(response) {
