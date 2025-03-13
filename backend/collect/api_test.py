@@ -57,13 +57,13 @@ def test_list_collections(db, user, project, client: Client):
     client.force_login(user)
 
     response = client.get('/api/collections/')
-    assert is_success(response.status_code)    
+    assert is_success(response.status_code)
     assert len(response.data) == 0
 
     response = post_collection(client, project.name)
 
     response = client.get('/api/collections/')
-    assert is_success(response.status_code)    
+    assert is_success(response.status_code)
     assert len(response.data) == 1
     assert response.data[0]['uri'] == settings.RDF_NAMESPACE_ROOT + 'collections/my_collection'
     assert response.data[0]['name'] == 'My collection'
@@ -77,7 +77,7 @@ def test_retrieve_collection(db, user, project, client: Client):
     client.force_login(user)
     create_response = post_collection(client, project.name)
 
-    
+
     correct_url = collection_detail_url(create_response.data['uri'])
     nonexistent_uri = collection_uri('does not exist')
 
