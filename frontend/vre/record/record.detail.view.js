@@ -52,8 +52,7 @@ export var RecordDetailView = CompositeView.extend({
         this.annotationsView.listenTo(this.fieldsView, 'edit', this.annotationsView.edit);
         this.vreCollectionsSelect = new VRECollectionView({
             collection: GlobalVariables.myCollections,
-            model: model,
-        });
+        }).on('addRecords', this.submitToCollections, this);
         this.render();
     },
 
@@ -71,6 +70,10 @@ export var RecordDetailView = CompositeView.extend({
         this.$el.modal('hide');
         RecordDetailView.__super__.remove.call(this);
         return this.trigger('remove');
+    },
+
+    submitToCollections: function() {
+        this.vreCollectionsSelect.submitForm([this.model.id]);
     },
 
     display: function() {

@@ -10,9 +10,10 @@ import collectionTemplate from './collection.view.mustache';
  * View to add a record to a specific collection.
  */
 export var VRECollectionView = View.extend({
+    tagName: 'form',
     template: collectionTemplate,
     events: {
-        'click button': 'submitForm',
+        'submit': 'addRecords',
         'change select': 'activateButton',
     },
     initialize: function() {
@@ -32,10 +33,6 @@ export var VRECollectionView = View.extend({
         this.$('select').select2('destroy');
         return VRECollectionView.__super__.remove.call(this);
     },
-    setRecord: function(model) {
-        this.model = model;
-        return this;
-    },
     clear: function() {
         this.$el.val(null).trigger('change');
         return this;
@@ -49,14 +46,14 @@ export var VRECollectionView = View.extend({
             this.$('button').addClass("disabled");
         }
     },
-    submitForm: function(event, selected_records) {
+    addRecords: function(event) {
         event.preventDefault();
-        selected_records = selected_records || [];
-        if (this.model) {
-            // adding to array as the api expects an array.
-            selected_records.push(this.model.id);
-        }
+        this.trigger('addRecords', this);
+    },
+    submitForm: function(selected_records) {
+        if (!selected_records.length) return;
         var selected_collections = this.$('select').val();
+        if (!selected_collections.length) return;
         var records_and_collections = new AdditionsToCollections({
             'records': selected_records,
             'collections': selected_collections,
