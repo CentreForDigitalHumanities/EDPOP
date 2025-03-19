@@ -93,6 +93,48 @@ export function nestSubject(subjectsByID, subject) {
 }
 
 /**
+ * Return a nested version of each given subject by adding to it the objects it
+ * refers to if they are found in the graph.
+ * The subjects passed to this function as an argument are not changed.
+ * The name of this function refers to the opposite of "deforestation".
+ * @param {JSONLDSubject[]} subjects - The subjects to create nested versions of
+ * @param {boolean} [toplevelOnly=false] - Indicates whether to return nested
+ * versions of all subjects (false, default), or only the ones that are not
+ * contained in other subjects (true).
+ * @returns {JSONLDSubject[]} Nested versions of the subjects that were passed
+ * in.
+ */
+export function enforest(subjects, toplevelOnly) {
+    // TODO substitute _.indexBy for Underscore
+    const subjectsByID = _.keyBy(subjects, '@id');
+    const nested = {}, internal = {};
+
+    function nest(subject) {
+        if (!_.has(subject, '@id')) return subject;
+        const id = subject['@id'];
+        if (!(id in nested) && (id in subjectsByID)) {
+            nested[id] = subject; // this prevents infinite recursion
+            nested[id] = _.mapValues(subjectsByID[id], nestProperty);
+        }
+        return nested[id] || subject;
+    }
+
+    function nestProperty(value) {
+        if (_.isArray(value)) return _.map(value, nestProperty);
+        if (_.has(value, '@list')) return _.mapValues(value, nestProperty);
+        if (_.has(value, '@id')) internal[value['@id']] = true;
+        return nest(value);
+    }
+
+    const completeSubjects = _.map(subjects, nest);
+    if (toplevelOnly) {
+        const isToplevel = subject => !(subject['@id'] in internal);
+        return _.filter(completeSubjects, isToplevel);
+    }
+    return completeSubjects;
+}
+
+/**
  * Generic subclass of APICollection that parses incoming compacted JSON-LD to an
  * array of subjects that are of RDF class `targetClass`. If these subjects
  * refer to other objects, these are nested
