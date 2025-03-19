@@ -133,7 +133,7 @@ def test_project_validation(db, user, client: Client):
 
     assert is_client_error(response.status_code)
 
-def test_collection_records(db, user, project, client: Client):
+def test_collection_records(db, user, project, client: Client, saved_records):
     client.force_login(user)
     create_response = post_collection(client, project.name)
     collection_uri = URIRef(create_response.data['uri'])
@@ -146,22 +146,15 @@ def test_collection_records(db, user, project, client: Client):
     g = Graph().parse(empty_response.content)
     result = g.query(f'''
         ASK {{
-            <{collection_uri}> a edpopcol:Collection ;
-                a as:Collection ;
-                as:items ?items ;
-                as:totalItems 0 .
-            ?items rdf:rest rdf:nil .
+            FILTER NOT EXISTS {{ ?s ?p ?o }}
         }}
         ''',
-        initNs={'as': AS, 'rdf': RDF, 'edpopcol': EDPOPCOL}
     )
     assert result.askAnswer
 
     # add some records to the collection
     collection_obj = EDPOPCollection(collection_graph(collection_uri), collection_uri)
-    collection_obj.records = [
-        URIRef('https://example.com/example1'), URIRef('https://example.com/example2')
-    ]
+    collection_obj.records = saved_records
     collection_obj.save()
 
     # check response contains records
@@ -170,17 +163,10 @@ def test_collection_records(db, user, project, client: Client):
     g = Graph().parse(response.content)
     result = g.query(f'''
         ASK {{
-            <{collection_uri}> a edpopcol:Collection ;
-                a as:Collection ;
-                as:items ?items ;
-                as:totalItems 2 .
-            ?items rdf:first <https://example.com/example1> ;
-                rdf:rest ?rest .
-            ?rest rdf:first <https://example.com/example2> ;
-                rdf:rest rdf:nil .
+            <https://example.org/example1> ?p1 ?o1 .
+            <https://example.org/example2> ?p2 ?o2 .
         }}
         ''',
-        initNs={'as': AS, 'rdf': RDF, 'edpopcol': EDPOPCOL}
     )
     assert result.askAnswer
 
