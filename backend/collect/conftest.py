@@ -1,10 +1,12 @@
 import pytest
 
 from django.contrib.auth.models import User
-from rdflib import URIRef
+from rdflib import URIRef, Graph, RDF
 
+from triplestore.constants import EDPOPREC
 from projects.models import Project
 from projects.rdf_models import RDFProject
+from catalogs.triplestore import save_to_triplestore
 from collect.rdf_models import EDPOPCollection
 from collect.utils import collection_graph, collection_uri
 
@@ -58,3 +60,11 @@ def records():
         URIRef('https://example.org/example1'),
         URIRef('https://example.org/example2')
     ]
+
+@pytest.fixture()
+def saved_records(records):
+    record_contents = Graph()
+    for rec in records:
+        record_contents.add((rec, RDF.type, EDPOPREC.BibliographicalRecord))
+    save_to_triplestore(record_contents, records)
+    return records
