@@ -143,7 +143,7 @@ def test_collection_records(db, user, project, client: Client, saved_records):
     # check response with empty data
     empty_response = client.get(records_url)
     assert is_success(empty_response.status_code)
-    g = Graph().parse(empty_response.content)
+    g = Graph().parse(empty_response.content, format='json-ld')
     result = g.query(f'''
         ASK {{
             FILTER NOT EXISTS {{ ?s ?p ?o }}
@@ -160,7 +160,7 @@ def test_collection_records(db, user, project, client: Client, saved_records):
     # check response contains records
     response = client.get(records_url)
     assert is_success(response.status_code)
-    g = Graph().parse(response.content)
+    g = Graph().parse(response.content, format='json-ld')
     result = g.query(f'''
         ASK {{
             <https://example.org/example1> ?p1 ?o1 .

@@ -3,12 +3,13 @@ from rest_framework.viewsets import ModelViewSet, ViewSetMixin
 from rest_framework.views import APIView, Request
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
+from rdf.renderers import TurtleRenderer, JsonLdRenderer
 from rdf.views import RDFView
 from rdf.utils import graph_from_triples
 from rdflib import URIRef, RDF, RDFS, Graph, BNode, Literal
 from django.conf import settings
 
-from triplestore.constants import EDPOPCOL
+from triplestore.constants import EDPOPCOL, EDPOPREC
 from projects.api import user_projects
 from catalogs.triplestore import RECORDS_GRAPH_IDENTIFIER
 from collect.rdf_models import EDPOPCollection
@@ -72,6 +73,12 @@ class CollectionRecordsView(RDFView):
     '''
     View the records inside a collection
     '''
+
+    renderer_classes = (JsonLdRenderer, TurtleRenderer)
+    json_ld_context = {
+        'rdfs': str(RDFS),
+        'edpoprec': str(EDPOPREC),
+    }
 
     def get_graph(self, request: Request, collection: str, **kwargs) -> Graph:
         collection_uri = URIRef(collection)
