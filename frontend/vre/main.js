@@ -27,7 +27,7 @@ import { WelcomeView } from './utils/welcome.view.js';
 GlobalVariables.myCollections = new VRECollections();
 
 // Regular global variables, only visible in this module.
-var unsalientCollections; // not currently selected
+var unsalientCollections = new VRECollections(); // not currently selected
 var catalogs = new Catalogs([], {comparator: 'name'});
 var catalogDropdown = new SelectCatalogView({
     collection: catalogs
@@ -93,6 +93,14 @@ GlobalVariables.myCollections.on({
     blur: hideCollection,
 });
 
+// We ensure that unsalientCollections stays in sync with myCollections and that
+// it is available via the radio.
+unsalientCollections.listenTo(GlobalVariables.myCollections, {
+    add: unsalientCollections.add,
+    remove: unsalientCollections.remove,
+});
+vreChannel.reply('unsalientcollections', _.constant(unsalientCollections));
+
 // We want this code to run after two conditions are met:
 // 1. The DOM has fully loaded;
 // 2. the CSRF cookie has been obtained.
@@ -113,8 +121,6 @@ function prepareCollections() {
 // We want this code to run after prepareCollections has run and both
 // GlobalVariables.myCollections and all projects have fully loaded.
 function startRouting() {
-    unsalientCollections = GlobalVariables.myCollections.clone();
-    vreChannel.reply('unsalientcollections', _.constant(unsalientCollections));
     $('#navbar-left').append(
         catalogDropdown.el,
         collectionDropdown.el,
