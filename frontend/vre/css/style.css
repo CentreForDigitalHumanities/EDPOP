@@ -58,6 +58,10 @@ form.form-inline.inline-editor {
     width: max-content;
 }
 
+.select2-container .select2-dropdown {
+    z-index: 1060;
+}
+
 @media (prefers-color-scheme: dark) {
     html {
         filter: invert(1) hue-rotate(180deg) contrast(0.9) brightness(0.9);
