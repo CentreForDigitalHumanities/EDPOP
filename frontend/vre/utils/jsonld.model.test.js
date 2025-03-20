@@ -1,6 +1,6 @@
 import assert from 'assert';
 import sinon from 'sinon';
-import {getStringLiteral, nestSubject, enforest} from "./jsonld.model";
+import {getStringLiteral, enforest} from "./jsonld.model";
 
 function findById(graph, id) {
     return graph.find((subject) => subject["@id"] === id);
@@ -87,54 +87,6 @@ const exampleJsonLDGraph = [{
         "@id": "http://example.com/s5",
     }]},
 }];
-
-describe('nestSubject', () => {
-    const subjectsByID = _.keyBy(exampleJsonLDGraph, "@id");
-
-    it('does not change anything if there are no references', () => {
-        const subject = subjectsByID["http://example.com/s1"];
-        const ns = nestSubject(subjectsByID, subject);
-        assert.equal(ns["dc:title"], "Title without references");
-    });
-
-    it('correctly handles internal references', () => {
-        const subject = subjectsByID["http://example.com/s2"];
-        const ns = nestSubject(subjectsByID, subject);
-        assert.equal("Random description", ns["dc:description"]["example:value"]);
-    });
-
-    it('does not alter external references', () => {
-        const subject = subjectsByID["http://example.com/s3"];
-        const ns = nestSubject(subjectsByID, subject);
-        assert.equal(subject["dc:description"], ns["dc:description"]);
-    });
-
-    it('correctly handles a nested internal reference', () => {
-        const subject = subjectsByID["http://example.com/s4"];
-        const ns = nestSubject(subjectsByID, subject);
-        assert.equal("Random description", ns["dc:description"]["example:value"]["example:value"]);
-    });
-
-    it('does not resolve a cyclical reference', () => {
-        const subject = subjectsByID["http://example.com/s5"];
-        const ns = nestSubject(subjectsByID, subject);
-        assert.equal("http://example.com/s5", ns["owl:sameAs"]["owl:sameAs"]["@id"]);
-    });
-
-    it('detects cycles even if the root subject is not involved', () => {
-        const subject = subjectsByID["http://example.com/s7"];
-        const ns = nestSubject(subjectsByID, subject);
-        assert.equal("http://example.com/descForS7", ns["dc:description"]["owl:sameAs"]["owl:sameAs"]["@id"]);
-    });
-
-    it('can handle arrays of internal references', () => {
-        const subject = subjectsByID["http://example.com/s8"];
-        const ns = nestSubject(subjectsByID, subject);
-        assert.equal("Random description", ns["dc:description"][0]["example:value"]);
-        assert.equal("Random description", ns["dc:description"][1]["example:value"]["example:value"]);
-        assert.equal("http://example.com/descForS7", ns["dc:description"][2]["owl:sameAs"]["owl:sameAs"]["@id"]);
-    });
-});
 
 describe('enforest', () => {
     const enforestedSubjects = enforest(exampleJsonLDGraph);

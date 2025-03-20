@@ -62,37 +62,6 @@ export var JsonLdCollection = APICollection.extend({
 });
 
 /**
- * Return a nested version of a given subject by adding to it the objects
- * it refers to if they are found in the graph.
- * The subject passed to this function as an argument is not changed.
- * @param subjectsByID{Dictionary<JSONLDSubject>} - The full contents of the graph in JSON-LD
- * @param subject{JSONLDSubject} - The subject including its predicates and objects to create a nested version of
- * @returns {Object}
- */
-export function nestSubject(subjectsByID, subject) {
-    const parentSubjectIDs = [];
-
-    function nest(subject) {
-        if (!_.has(subject, "@id")) return subject;
-        const id = subject["@id"];
-        const dereferenced = subjectsByID[id];
-        if (!dereferenced) return subject;
-        if (_.includes(parentSubjectIDs, id)) return subject;
-        parentSubjectIDs.push(id);
-        const transformedSubject = _.mapValues(dereferenced, nestProperty);
-        parentSubjectIDs.pop();
-        return transformedSubject;
-    }
-
-    function nestProperty(value) {
-        if (_.isArray(value)) return _.map(value, nest);
-        return nest(value);
-    }
-
-    return nest(subject);
-}
-
-/**
  * Return a nested version of each given subject by adding to it the objects it
  * refers to if they are found in the graph.
  * The subjects passed to this function as an argument are not changed.
