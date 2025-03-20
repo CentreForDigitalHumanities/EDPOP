@@ -142,8 +142,10 @@ export function enforest(subjects, toplevelOnly) {
 export var JsonLdNestedCollection = APICollection.extend({
     model: JsonLdModel,
     /**
-     * The RDF class (as it is named in JSON-LD) of which nested subjects have to be
-     * put in the collection array when incoming data is parsed.
+     * The RDF class (as it is named in JSON-LD) of which nested subjects have
+     * to be put in the collection array when incoming data is parsed. If left
+     * undefined, all top-level subjects are included and all internal resources
+     * are omitted.
      * @type {string}
      */
     targetClass: undefined,
@@ -151,13 +153,10 @@ export var JsonLdNestedCollection = APICollection.extend({
         if (!response.hasOwnProperty("@graph")) {
             throw "Response has no @graph key, is this JSON-LD in compacted form?";
         }
-        if (typeof this.targetClass === "undefined") {
-            throw "targetClass should not be undefined"
-        }
         const allSubjects = response["@graph"];
-        const subjectsByID = _.keyBy(allSubjects, '@id'); // NOTE: change to indexBy when migrating to underscore
-        const targetedSubjectIDs = allSubjects.filter(subject => subject["@type"] === this.targetClass).map(subject => subject["@id"]);
-        return targetedSubjectIDs.map(subjectID => nestSubject(subjectsByID, subjectsByID[subjectID]));
+        const completeSubjects = enforest(allSubjects, !this.targetClass);
+        if (!this.targetClass) return completeSubjects;
+        return _.filter(completeSubjects, {'@type': this.targetClass});
     }
 })
 
@@ -189,21 +188,12 @@ export var JsonLdWithOCCollection = APICollection.extend({
             throw "Response has no @graph key, is this JSON-LD in compacted form?";
         }
         const allSubjects = response["@graph"];
-        const ocType = `${this.activityStreamsPrefix}OrderedCollection`;
-        const orderedCollection = _.find(allSubjects, {"@type": ocType});
-        this.totalResults = orderedCollection[`${this.activityStreamsPrefix}totalItems`];
-        const orderedItems = orderedCollection[`${this.activityStreamsPrefix}orderedItems`]["@list"]
-        let result;
-        if (typeof orderedItems === "undefined") {
-            // @list is not present; the list is empty
-            result = [];
-        } else {
-            const subjectsByID = _.keyBy(allSubjects, '@id'); // NOTE: change to indexBy when migrating to underscore
-            result = orderedItems.map((subject) => {
-                const orderedSubject = subjectsByID[subject["@id"]];
-                return nestSubject(subjectsByID, orderedSubject);
-            });
-        }
-        return result;
+        const completeSubjects = enforest(allSubjects);
+        const as = this.activityStreamsPrefix;
+        const ocType = `${as}OrderedCollection`;
+        const orderedCollection = _.find(completeSubjects, {"@type": ocType});
+        this.totalResults = orderedCollection[`${as}totalItems`];
+        const orderedItems = orderedCollection[`${as}orderedItems`]["@list"]
+        return orderedItems || [];
     }
 });
