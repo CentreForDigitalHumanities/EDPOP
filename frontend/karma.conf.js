@@ -38,7 +38,7 @@ module.exports = function(config) {
             'jquery',
             'lodash',
             'underscore',
-            'popper.js',
+            '@popperjs/core',
             'bootstrap',
             'select2',
             'backbone',
