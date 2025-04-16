@@ -27,7 +27,9 @@ import { WelcomeView } from './utils/welcome.view.js';
 GlobalVariables.myCollections = new VRECollections();
 
 // Regular global variables, only visible in this module.
-var unsalientCollections = new VRECollections(); // not currently selected
+
+// All collections except for the one currently selected.
+var unsalientCollections = new VRECollections();
 var catalogs = new Catalogs([], {comparator: 'name'});
 var catalogDropdown = new SelectCatalogView({
     collection: catalogs
