@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 import { View } from '../core/view.js';
 import { AlertView } from '../alert/alert.view';
-import { AdditionsToCollections } from '../additions/additions-to-collections';
+import { AdditionsToCollections } from '../collection/additions-to-collections';
 import { vreChannel } from '../radio.js';
 import collectionTemplate from './collection.view.mustache';
 
