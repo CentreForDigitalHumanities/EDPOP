@@ -20,7 +20,8 @@ module.exports = function(config) {
         'node_modules/select2/dist/js/select2.js',
         'node_modules/backbone/backbone.js',
         'node_modules/backbone-fractal/backbone-fractal.js',
-        'vre/test-index.js'
+        {pattern: 'vre/edpop-record-ontology.json', included: false},
+        'vre/test-index.js',
     ],
 
     // list of files / patterns to exclude
@@ -38,7 +39,7 @@ module.exports = function(config) {
             'jquery',
             'lodash',
             'underscore',
-            'popper.js',
+            '@popperjs/core',
             'bootstrap',
             'select2',
             'backbone',
@@ -80,6 +81,9 @@ module.exports = function(config) {
 
     // web server port
     port: 9876,
+    proxies: {
+        '/static/': '/base/vre/',
+    },
 
     // enable / disable colors in the output (reporters and logs)
     colors: true,
