@@ -18,8 +18,8 @@ from django.contrib import admin
 from rest_framework import routers
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
-from vre.api import RecordViewSet, AnnotationViewSet, SearchViewSet, AddRecordsViewSet
-from collect.api import CollectionViewSet
+from vre.api import RecordViewSet, AnnotationViewSet, SearchViewSet
+from collect.api import CollectionViewSet, AddRecordsViewSet
 
 api_router = routers.DefaultRouter()
 api_router.register(r'records', RecordViewSet)

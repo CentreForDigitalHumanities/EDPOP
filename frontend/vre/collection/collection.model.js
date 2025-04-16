@@ -7,18 +7,11 @@ import { Records } from '../record/record.model.js';
  */
 export var VRECollection = APIModel.extend({
     idAttribute: 'uri',
-    getRecords: function(records) {
-        if (!records) {
-            if (this.records) return this.records;
-            records = this.records = new Records();
-        }
-        records.query({
-            params: {collection__id: this.id},
-            // records could be either a Results or a Records. The next two
-            // options ensure behavior consistent with a Records.
-            url: Records.prototype.url,
-            parse: false,
-        }).then(function() {
+    getRecords: function() {
+        if (this.records) return this.records;
+        var records = this.records = new Records();
+        records.url = `/api/collection-records/${this.id}/`;
+        records.fetch().then(function() {
             records.trigger('complete');
         });
         return records;

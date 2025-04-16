@@ -1,7 +1,7 @@
 import { APIModel } from '../utils/api.model';
 import { Annotations } from '../annotation/annotation.model';
-import {JsonLdModel, JsonLdWithOCCollection} from "../utils/jsonld.model";
-import {FlatFields} from "../field/field.model";
+import { JsonLdModel, JsonLdNestedCollection } from "../utils/jsonld.model";
+import { FlatFields } from "../field/field.model";
 
 export var Record = JsonLdModel.extend({
     urlRoot: '/api/records',
@@ -47,6 +47,9 @@ export var Record = JsonLdModel.extend({
     },
 });
 
-export var Records = JsonLdWithOCCollection.extend({
+export var Records = JsonLdNestedCollection.extend({
     model: Record,
+    toTabularData: function() {
+        return _.invokeMap(this.models, 'toTabularData');
+    },
 });

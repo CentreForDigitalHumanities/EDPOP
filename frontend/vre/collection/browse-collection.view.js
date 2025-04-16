@@ -21,7 +21,7 @@ export var BrowseCollectionView = CompositeView.extend({
     ],
 
     initialize: function() {
-        this.collection = this.collection || new SearchResults;
+        this.collection = this.collection || this.model.getRecords();
         this.searchView = new SearchView({
             model: this.model,
             collection: this.collection,
@@ -30,7 +30,6 @@ export var BrowseCollectionView = CompositeView.extend({
             collection: this.collection,
             type: "collection",
         });
-        this.model.getRecords(this.collection);
         var editor = new EditSummaryView({model: this.model});
         var overlay = this.editOverlay = new OverlayView({
             root: this.el,

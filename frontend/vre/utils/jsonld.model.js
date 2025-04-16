@@ -62,34 +62,45 @@ export var JsonLdCollection = APICollection.extend({
 });
 
 /**
- * Return a nested version of a given subject by adding to it the objects
- * it refers to if they are found in the graph.
- * The subject passed to this function as an argument is not changed.
- * @param subjectsByID{Dictionary<JSONLDSubject>} - The full contents of the graph in JSON-LD
- * @param subject{JSONLDSubject} - The subject including its predicates and objects to create a nested version of
- * @returns {Object}
+ * Return a nested version of each given subject by adding to it the objects it
+ * refers to if they are found in the graph.
+ * The subjects passed to this function as an argument are not changed.
+ * The name of this function refers to the opposite of "deforestation".
+ * @param {JSONLDSubject[]} subjects - The subjects to create nested versions of
+ * @param {boolean} [toplevelOnly=false] - Indicates whether to return nested
+ * versions of all subjects (false, default), or only the ones that are not
+ * contained in other subjects (true).
+ * @returns {JSONLDSubject[]} Nested versions of the subjects that were passed
+ * in.
  */
-export function nestSubject(subjectsByID, subject) {
-    const parentSubjectIDs = [];
+export function enforest(subjects, toplevelOnly) {
+    // TODO substitute _.indexBy for Underscore
+    const subjectsByID = _.keyBy(subjects, '@id');
+    const nested = {}, internal = {};
 
     function nest(subject) {
-        if (!_.has(subject, "@id")) return subject;
-        const id = subject["@id"];
-        const dereferenced = subjectsByID[id];
-        if (!dereferenced) return subject;
-        if (_.includes(parentSubjectIDs, id)) return subject;
-        parentSubjectIDs.push(id);
-        const transformedSubject = _.mapValues(dereferenced, nestProperty);
-        parentSubjectIDs.pop();
-        return transformedSubject;
+        if (!_.has(subject, '@id')) return subject;
+        const id = subject['@id'];
+        if (!(id in nested) && (id in subjectsByID)) {
+            nested[id] = subject; // this prevents infinite recursion
+            nested[id] = _.mapValues(subjectsByID[id], nestProperty);
+        }
+        return nested[id] || subject;
     }
 
     function nestProperty(value) {
-        if (_.isArray(value)) return _.map(value, nest);
+        if (_.isArray(value)) return _.map(value, nestProperty);
+        if (_.has(value, '@list')) return _.mapValues(value, nestProperty);
+        if (_.has(value, '@id')) internal[value['@id']] = true;
         return nest(value);
     }
 
-    return nest(subject);
+    const completeSubjects = _.map(subjects, nest);
+    if (toplevelOnly) {
+        const isToplevel = subject => !(subject['@id'] in internal);
+        return _.filter(completeSubjects, isToplevel);
+    }
+    return completeSubjects;
 }
 
 /**
@@ -100,8 +111,10 @@ export function nestSubject(subjectsByID, subject) {
 export var JsonLdNestedCollection = APICollection.extend({
     model: JsonLdModel,
     /**
-     * The RDF class (as it is named in JSON-LD) of which nested subjects have to be
-     * put in the collection array when incoming data is parsed.
+     * The RDF class (as it is named in JSON-LD) of which nested subjects have
+     * to be put in the collection array when incoming data is parsed. If left
+     * undefined, all top-level subjects are included and all internal resources
+     * are omitted.
      * @type {string}
      */
     targetClass: undefined,
@@ -109,13 +122,10 @@ export var JsonLdNestedCollection = APICollection.extend({
         if (!response.hasOwnProperty("@graph")) {
             throw "Response has no @graph key, is this JSON-LD in compacted form?";
         }
-        if (typeof this.targetClass === "undefined") {
-            throw "targetClass should not be undefined"
-        }
         const allSubjects = response["@graph"];
-        const subjectsByID = _.keyBy(allSubjects, '@id'); // NOTE: change to indexBy when migrating to underscore
-        const targetedSubjectIDs = allSubjects.filter(subject => subject["@type"] === this.targetClass).map(subject => subject["@id"]);
-        return targetedSubjectIDs.map(subjectID => nestSubject(subjectsByID, subjectsByID[subjectID]));
+        const completeSubjects = enforest(allSubjects, !this.targetClass);
+        if (!this.targetClass) return completeSubjects;
+        return _.filter(completeSubjects, {'@type': this.targetClass});
     }
 })
 
@@ -147,21 +157,12 @@ export var JsonLdWithOCCollection = APICollection.extend({
             throw "Response has no @graph key, is this JSON-LD in compacted form?";
         }
         const allSubjects = response["@graph"];
-        const ocType = `${this.activityStreamsPrefix}OrderedCollection`;
-        const orderedCollection = _.find(allSubjects, {"@type": ocType});
-        this.totalResults = orderedCollection[`${this.activityStreamsPrefix}totalItems`];
-        const orderedItems = orderedCollection[`${this.activityStreamsPrefix}orderedItems`]["@list"]
-        let result;
-        if (typeof orderedItems === "undefined") {
-            // @list is not present; the list is empty
-            result = [];
-        } else {
-            const subjectsByID = _.keyBy(allSubjects, '@id'); // NOTE: change to indexBy when migrating to underscore
-            result = orderedItems.map((subject) => {
-                const orderedSubject = subjectsByID[subject["@id"]];
-                return nestSubject(subjectsByID, orderedSubject);
-            });
-        }
-        return result;
+        const completeSubjects = enforest(allSubjects);
+        const as = this.activityStreamsPrefix;
+        const ocType = `${as}OrderedCollection`;
+        const orderedCollection = _.find(completeSubjects, {"@type": ocType});
+        this.totalResults = orderedCollection[`${as}totalItems`];
+        const orderedItems = orderedCollection[`${as}orderedItems`]["@list"]
+        return orderedItems || [];
     }
 });

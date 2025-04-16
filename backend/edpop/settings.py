@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'accounts',
     'rdf',
     'projects',
+    'collect',
 ]
 
 MIDDLEWARE = [

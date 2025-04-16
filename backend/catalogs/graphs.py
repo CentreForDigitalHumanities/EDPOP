@@ -1,4 +1,5 @@
 from typing import Optional
+from operator import attrgetter
 
 from django.conf import settings
 from django.core.cache import cache
@@ -159,10 +160,11 @@ class SearchGraphBuilder:
         """Return a graph containing the information of all requested
         records."""
         results = self.records
+        record_nodes = map(attrgetter('subject_node'), results)
         graphs = [x.to_graph() for x in results if isinstance(x, Record)]
         content_graph = sum(graphs, Graph())
         remove_from_triplestore(results)
-        save_to_triplestore(content_graph)
+        save_to_triplestore(content_graph, record_nodes)
         return content_graph
 
     def _get_collection_graph(self) -> Graph:

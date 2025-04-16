@@ -24,7 +24,7 @@ class RDFField(ABC):
         field; that is, a subset of the graph that the field is modelling.
     - `_triples_to_store`: returns a collection of triples that represents the modelled
         value.
-    
+
     An `RDFModel` will use the `get`, `set`, and `clear` endpoints. `set` and `clear` have
     default implementations based on `_stored_triples` and `_triples_to_store`.
     Alternatively, you could implement `set` and `clear` directly; in that case, it's not
@@ -53,7 +53,7 @@ class RDFField(ABC):
         You can override this method to choose a graph dynamically.
         '''
         return self.graph or instance.graph
-    
+
     @abstractmethod
     def get(self, instance):
         '''
@@ -85,7 +85,7 @@ class RDFField(ABC):
     def clear(self, instance) -> None:
         '''
         Clear the field's data in a graph for a given instance of the model.
-        
+
         This is used as cleanup when deleting the model instance.
 
         Parameters:
@@ -95,7 +95,6 @@ class RDFField(ABC):
         for triple in self._stored_triples(instance):
             g.remove(triple)
 
-    @abstractmethod
     def _stored_triples(self, instance) -> utils.Triples:
         '''
         Extract the set of relevant triples from a graph representation
@@ -106,18 +105,19 @@ class RDFField(ABC):
         Returns:
             an iterable of RDF triples, based on the graph
         '''
+        raise NotImplementedError('Override either this method or set and clear.')
 
-    @abstractmethod
     def _triples_to_store(self, instance, value) -> utils.Triples:
         '''
         Triples that should be stored to represent the modelled value
 
         Parameters:
             instance: the RDFModel instance
-        
+
         Returns:
             an iterable of RDF triples, based on the modelled value
         '''
+        raise NotImplementedError('Override either this method or set and clear.')
 
 
 class RDFPredicateField(RDFField):
@@ -126,9 +126,9 @@ class RDFPredicateField(RDFField):
     `s`, the triple `(s, p, o)` exists in the graph. This is represented as a boolean.
 
     For instance, you could write a field like this:
-    
+
     `knows_alice = RDFPredicateField(FOAF.knows, URIRef('https://example.com/alice'))`
-    
+
     Note that unlike the RDFPropertyField (and derivatives), this field does not model all
     triples with the provided property. That is, if `A` is an instance of a model with
     `RDFPredicateField(B, C)`, the value of the field represents whether the triple
@@ -148,7 +148,7 @@ class RDFPredicateField(RDFField):
         g = self.get_graph(instance)
         subject = instance.uri
         return g.triples((subject, self.property, self.object))
-    
+
     def _triples_to_store(self, instance, value):
         if value:
             subject = instance.uri
@@ -271,7 +271,7 @@ class RDFQuadField(RDFField):
     def clear(self, instance) -> None:
         '''
         Clear the field's data in a graph for a given instance of the model.
-        
+
         This is used as cleanup when deleting the model instance.
 
         Parameters:
@@ -303,6 +303,6 @@ class RDFQuadField(RDFField):
 
     def _stored_triples(self, instance) -> utils.Triples:
         return []
-    
+
     def _triples_to_store(self, instance, value) -> utils.Triples:
         return []

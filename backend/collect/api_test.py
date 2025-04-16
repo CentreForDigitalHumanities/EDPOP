@@ -1,3 +1,6 @@
+import json
+from operator import attrgetter
+
 from django.test import Client
 from rest_framework.status import is_success, is_client_error
 from rdflib import URIRef, RDF, Graph, Literal
@@ -57,13 +60,13 @@ def test_list_collections(db, user, project, client: Client):
     client.force_login(user)
 
     response = client.get('/api/collections/')
-    assert is_success(response.status_code)    
+    assert is_success(response.status_code)
     assert len(response.data) == 0
 
     response = post_collection(client, project.name)
 
     response = client.get('/api/collections/')
-    assert is_success(response.status_code)    
+    assert is_success(response.status_code)
     assert len(response.data) == 1
     assert response.data[0]['uri'] == settings.RDF_NAMESPACE_ROOT + 'collections/my_collection'
     assert response.data[0]['name'] == 'My collection'
@@ -77,7 +80,7 @@ def test_retrieve_collection(db, user, project, client: Client):
     client.force_login(user)
     create_response = post_collection(client, project.name)
 
-    
+
     correct_url = collection_detail_url(create_response.data['uri'])
     nonexistent_uri = collection_uri('does not exist')
 
@@ -130,7 +133,7 @@ def test_project_validation(db, user, client: Client):
 
     assert is_client_error(response.status_code)
 
-def test_collection_records(db, user, project, client: Client):
+def test_collection_records(db, user, project, client: Client, saved_records):
     client.force_login(user)
     create_response = post_collection(client, project.name)
     collection_uri = URIRef(create_response.data['uri'])
@@ -140,43 +143,68 @@ def test_collection_records(db, user, project, client: Client):
     # check response with empty data
     empty_response = client.get(records_url)
     assert is_success(empty_response.status_code)
-    g = Graph().parse(empty_response.content)
+    g = Graph().parse(empty_response.content, format='json-ld')
     result = g.query(f'''
         ASK {{
-            <{collection_uri}> a edpopcol:Collection ;
-                a as:Collection ;
-                as:items ?items ;
-                as:totalItems 0 .
-            ?items rdf:rest rdf:nil .
+            FILTER NOT EXISTS {{ ?s ?p ?o }}
         }}
         ''',
-        initNs={'as': AS, 'rdf': RDF, 'edpopcol': EDPOPCOL}
     )
     assert result.askAnswer
 
     # add some records to the collection
     collection_obj = EDPOPCollection(collection_graph(collection_uri), collection_uri)
-    collection_obj.records = [
-        URIRef('https://example.com/example1'), URIRef('https://example.com/example2')
-    ]
+    collection_obj.records = saved_records
     collection_obj.save()
 
     # check response contains records
     response = client.get(records_url)
     assert is_success(response.status_code)
-    g = Graph().parse(response.content)
+    g = Graph().parse(response.content, format='json-ld')
     result = g.query(f'''
         ASK {{
-            <{collection_uri}> a edpopcol:Collection ;
-                a as:Collection ;
-                as:items ?items ;
-                as:totalItems 2 .
-            ?items rdf:first <https://example.com/example1> ;
-                rdf:rest ?rest .
-            ?rest rdf:first <https://example.com/example2> ;
-                rdf:rest rdf:nil .
+            <https://example.org/example1> ?p1 ?o1 .
+            <https://example.org/example2> ?p2 ?o2 .
         }}
         ''',
-        initNs={'as': AS, 'rdf': RDF, 'edpopcol': EDPOPCOL}
     )
     assert result.askAnswer
+
+
+def test_add_single_record_preexisting(client, records, collection):
+    collection_uri = str(collection.uri)
+    payload = {
+        'records': [str(records[0])],
+        'collections': [collection_uri],
+    }
+    response = client.post('/api/add-selection/',
+        data=json.dumps(payload),
+        content_type='application/json',
+    )
+    assert response.status_code is 200
+    assert response.json() == {collection_uri: 1}
+    collection.refresh_from_store()
+    assert collection.records == records[:1]
+
+
+def test_add_multi_record_multi_collection(client, records, collections):
+    record_uris = list(map(str, records))
+    collection_urirefs = map(attrgetter('uri'), collections)
+    collection_uris = list(map(str, collection_urirefs))
+    payload = {
+        'records': record_uris,
+        'collections': collection_uris
+    }
+    response = client.post('/api/add-selection/',
+        data=json.dumps(payload),
+        content_type='application/json',
+    )
+    assert response.status_code is 200
+    assert response.json() == {
+        uri: 2
+        for uri in collection_uris
+    }
+    records_set = set(records)
+    for collection in collections:
+        collection.refresh_from_store()
+        assert set(collection.records) == records_set

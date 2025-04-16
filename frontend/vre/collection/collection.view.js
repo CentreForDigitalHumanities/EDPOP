@@ -1,24 +1,26 @@
+import _ from 'lodash';
+
 import { View } from '../core/view.js';
 import { AlertView } from '../alert/alert.view';
 import { AdditionsToCollections } from '../additions/additions-to-collections';
-import { GlobalVariables } from '../globals/variables';
+import { vreChannel } from '../radio.js';
 import collectionTemplate from './collection.view.mustache';
 
 /**
  * View to add a record to a specific collection.
  */
 export var VRECollectionView = View.extend({
+    tagName: 'form',
     template: collectionTemplate,
     events: {
-        'click button': 'submitForm',
+        'submit': 'addRecords',
         'change select': 'activateButton',
     },
     initialize: function() {
         this.render();
     },
     render: function() {
-        var shownCollections = this.collection.clone();
-        shownCollections.remove(GlobalVariables.currentVRECollection);
+        var shownCollections = vreChannel.request('unsalientcollections');
         this.$('select').select2('destroy');
         this.$el.html(this.template({
             models: shownCollections.toJSON(),
@@ -30,10 +32,6 @@ export var VRECollectionView = View.extend({
     remove: function() {
         this.$('select').select2('destroy');
         return VRECollectionView.__super__.remove.call(this);
-    },
-    setRecord: function(model) {
-        this.model = model;
-        return this;
     },
     clear: function() {
         this.$el.val(null).trigger('change');
@@ -48,14 +46,14 @@ export var VRECollectionView = View.extend({
             this.$('button').addClass("disabled");
         }
     },
-    submitForm: function(event, selected_records) {
+    addRecords: function(event) {
         event.preventDefault();
-        selected_records = selected_records || [];
-        if (this.model) {
-            // adding to array as the api expects an array.
-            selected_records.push(this.model.toJSON());
-        }
+        this.trigger('addRecords', this);
+    },
+    submitForm: function(selected_records) {
+        if (!selected_records.length) return;
         var selected_collections = this.$('select').val();
+        if (!selected_collections.length) return;
         var records_and_collections = new AdditionsToCollections({
             'records': selected_records,
             'collections': selected_collections,
@@ -65,11 +63,13 @@ export var VRECollectionView = View.extend({
             this.showError.bind(this),
         );
     },
+    reportAddition: function(amount, uri) {
+        var name = this.collection.get(uri).get('name');
+        return 'Added ' + amount + ' record(s) to ' + name + '.';
+    },
     showSuccess: function(response) {
-        var feedbackString = '';
-        $.each(response, function(key, value) {
-            feedbackString = feedbackString.concat('Added ', value, ' record(s) to ', key, ". ");
-        });
+        var feedback = _.map(response, this.reportAddition.bind(this));
+        var feedbackString = feedback.join(' ');
         this.showAlert('success', feedbackString);
     },
     showError: function(response) {

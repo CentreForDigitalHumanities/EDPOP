@@ -27,11 +27,6 @@ export var RecordListManagingView = CompositeView.extend({
     ],
 
     events: {
-        'submit': function(event) {
-            event.preventDefault();
-            var selection = this.recordListView.currentSelection();
-            this.vreCollectionsSelect.submitForm(event, selection);
-        },
         'click .more-records': 'loadMore',
         'click .500-more-records': 'load500More',
         'click .download-xlsx': 'downloadXLSX',
@@ -43,7 +38,7 @@ export var RecordListManagingView = CompositeView.extend({
         _.assign(this, _.pick(options, ['type', 'recordClass']));
         this.vreCollectionsSelect = new VRECollectionView({
             collection: GlobalVariables.myCollections
-        }).render();
+        }).render().on('addRecords', this.submitToCollections, this);
         this.recordListView = new RecordListView({
             collection: this.collection,
             recordClass: this.recordClass
@@ -56,6 +51,11 @@ export var RecordListManagingView = CompositeView.extend({
         const addBlankRecord = this.type === "collection";
         this.$el.html(this.template({addBlankRecord}));
         return this;
+    },
+
+    submitToCollections: function() {
+        var selection = this.recordListView.currentSelection();
+        this.vreCollectionsSelect.submitForm(selection);
     },
 
     loadMore: function(event) {

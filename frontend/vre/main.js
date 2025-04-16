@@ -27,6 +27,9 @@ import { WelcomeView } from './utils/welcome.view.js';
 GlobalVariables.myCollections = new VRECollections();
 
 // Regular global variables, only visible in this module.
+
+// All collections except for the one currently selected.
+var unsalientCollections = new VRECollections();
 var catalogs = new Catalogs([], {comparator: 'name'});
 var catalogDropdown = new SelectCatalogView({
     collection: catalogs
@@ -76,17 +79,29 @@ catalogs.on({
 });
 
 function showCollection(vreCollection) {
-    GlobalVariables.currentVRECollection = vreCollection;
+    unsalientCollections.remove(vreCollection);
     // The next line is not very MVC, but it works for now.
     vreChannel.request('projects:select', vreCollection.get('project'));
     navigationState.set(
         'browser', new BrowseCollectionView({model: vreCollection}));
 }
 
+function hideCollection(vreCollection) {
+    unsalientCollections.add(vreCollection);
+}
+
 GlobalVariables.myCollections.on({
     focus: showCollection,
-    blur: () => GlobalVariables.currentVRECollection = null,
+    blur: hideCollection,
 });
+
+// We ensure that unsalientCollections stays in sync with myCollections and that
+// it is available via the radio.
+GlobalVariables.myCollections.on({
+    add: collection => unsalientCollections.add(collection),
+    remove: collection => unsalientCollections.remove(collection),
+});
+vreChannel.reply('unsalientcollections', _.constant(unsalientCollections));
 
 // We want this code to run after two conditions are met:
 // 1. The DOM has fully loaded;

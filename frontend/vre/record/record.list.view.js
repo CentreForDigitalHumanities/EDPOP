@@ -1,8 +1,13 @@
+import _ from 'lodash';
 import Backbone from "backbone";
-import {vreChannel} from "../radio";
 import Tabulator from "tabulator";
+
+import {vreChannel} from "../radio";
 import {adjustDefinitions} from "../utils/tabulator-utils";
-import _ from "lodash";
+
+function getModelId(rowData) {
+    return rowData.model.id;
+}
 
 export var RecordListView = Backbone.View.extend({
     id: "record-list",
@@ -70,6 +75,10 @@ export var RecordListView = Backbone.View.extend({
             this.table.destroy();
             this.table = null;
         }
+    },
+
+    currentSelection: function() {
+        return _.map(this.table.getSelectedData(), getModelId);
     },
 
     downloadXLSX: function() {

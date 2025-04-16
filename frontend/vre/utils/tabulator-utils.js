@@ -5,7 +5,8 @@ import {
     BIBLIOGRAPHICAL,
     biblioProperties,
     BIOGRAPHICAL,
-    bioProperties
+    bioProperties,
+    biblioAndBioProperties,
 } from './record-ontology';
 import {getStringLiteral} from './jsonld.model';
 import {typeTranslation} from './generic-functions.js';
@@ -144,6 +145,7 @@ function property2definition(property) {
 const standardColumns = _.mapValues({
     [BIBLIOGRAPHICAL]: biblioProperties,
     [BIOGRAPHICAL]: bioProperties,
+    [null]: biblioAndBioProperties,
 }, (propertyList) => {
     return new MappedCollection(
         propertyList,

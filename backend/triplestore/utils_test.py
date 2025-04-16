@@ -2,7 +2,7 @@ from rdflib import BNode, Graph, URIRef, Literal
 from rdflib.namespace import RDF
 
 from .utils import union_graphs, replace_blank_node, \
-    replace_blank_nodes_in_triples, triples_to_quads
+    replace_blank_nodes_in_triples, triples_to_quads, sparql_multivalues
 
 
 def blank_triple():
@@ -85,3 +85,14 @@ def test_triples_to_quads():
         assert quad[1] == URIRef("http://example.com/name")
         assert quad[2] in [Literal("test"), Literal("test2")]
         assert isinstance(quad[3], Graph)
+
+
+def test_sparql_multivalues():
+    values = [
+        URIRef('http://example.com/uri'),
+        URIRef('https://example.com/name'),
+        Literal('banana'),
+    ]
+    formatted = sparql_multivalues(values)
+    expected = '<http://example.com/uri> <https://example.com/name> "banana"'
+    assert formatted == expected
