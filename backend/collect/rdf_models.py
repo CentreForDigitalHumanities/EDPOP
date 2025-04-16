@@ -36,6 +36,7 @@ graphs_values = '''
   values ?gc {{ <{gc_graph}> }}
 '''
 
+# One positional parameter: '' or 'not'.
 existing_membership_filter = '''
   graph ?collection {{{{
     filter {} exists {{{{ ?collection rdfs:member ?r }}}}
@@ -49,6 +50,7 @@ decrementing_count = '''
   bind (?count - 1 as ?count_upd)
 '''
 
+# Parameters: collection, gc_graph, added_records.
 add_records_update = f'''
 delete {{{{
   {gc_existing_count}
@@ -69,6 +71,7 @@ where {{{{
 }}}}
 '''.format
 
+# Parameters: collection, gc_graph, removed_records.
 remove_records_update = f'''
 delete {{{{
   {gc_existing_count}
@@ -85,6 +88,7 @@ where {{{{
 }}}}
 '''.format
 
+# Parameters: collection, gc_graph.
 clear_records_update = f'''
 delete {{{{
   {gc_existing_count}
