@@ -19,7 +19,7 @@ from rest_framework import routers
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 from vre.api import RecordViewSet, AnnotationViewSet, SearchViewSet
-from collect.api import CollectionViewSet, AddRecordsViewSet
+from collect.api import CollectionViewSet, AddRecordsViewSet, RemoveRecordsViewSet
 
 api_router = routers.DefaultRouter()
 api_router.register(r'records', RecordViewSet)
@@ -28,6 +28,9 @@ api_router.register(r'search', SearchViewSet, basename='search')
 api_router.register(r'add-selection',
                     AddRecordsViewSet,
                     basename='add-selection')
+api_router.register(r'remove-selection',
+                    RemoveRecordsViewSet,
+                    basename='remove-selection')
 api_router.register('collections', CollectionViewSet, basename='collections')
 
 urlpatterns = [

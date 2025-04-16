@@ -111,3 +111,19 @@ class AddRecordsViewSet(ViewSetMixin, APIView):
             record_counter = collection_obj.add_records(record_uris)
             response_dict[collection] = record_counter
         return Response(response_dict)
+
+
+class RemoveRecordsViewSet(ViewSetMixin, APIView):
+    def create(self, request, pk=None):
+        """POST method to *delete* records from a collection."""
+        collection = request.data['collection']
+        if not collection:
+            return Response("No collection selected!", status=status.HTTP_400_BAD_REQUEST)
+        records = request.data['records']
+        if not records:
+            return Response("No records selected!", status=status.HTTP_400_BAD_REQUEST)
+        record_uris = list(map(URIRef, records))
+        collection_uri = URIRef(collection)
+        collection_obj = EDPOPCollection(collection_graph(collection_uri), collection_uri)
+        collection_obj.remove_records(record_uris)
+        return Response({'ok': True})
