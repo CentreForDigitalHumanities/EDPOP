@@ -95,9 +95,9 @@ GlobalVariables.myCollections.on({
 
 // We ensure that unsalientCollections stays in sync with myCollections and that
 // it is available via the radio.
-unsalientCollections.listenTo(GlobalVariables.myCollections, {
-    add: unsalientCollections.add,
-    remove: unsalientCollections.remove,
+GlobalVariables.myCollections.on({
+    add: collection => unsalientCollections.add(collection),
+    remove: collection => unsalientCollections.remove(collection),
 });
 vreChannel.reply('unsalientcollections', _.constant(unsalientCollections));
 
