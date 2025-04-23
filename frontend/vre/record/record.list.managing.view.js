@@ -1,5 +1,6 @@
 import { CompositeView } from '../core/view.js';
 import { AddToCollectionView } from '../collection/add-to-collection.view';
+import { RemoveFromCollectionView } from '../collection/remove-from-collection.view.js';
 import { GlobalVariables } from '../globals/variables';
 import recordListManagingTemplate from './record.list.managing.view.mustache';
 import {RecordListView} from "./record.list.view";
@@ -22,6 +23,7 @@ export var RecordListManagingView = CompositeView.extend({
     recordClass: null,
 
     subviews: [
+        {view: 'removeButton', method: 'prepend', place: 'isCollection'},
         {view: 'vreCollectionsSelect', method: 'prepend'},
         'recordListView',
     ],
@@ -39,6 +41,11 @@ export var RecordListManagingView = CompositeView.extend({
         this.vreCollectionsSelect = new AddToCollectionView({
             collection: GlobalVariables.myCollections
         }).render().on('addRecords', this.submitToCollections, this);
+        if (this.isCollection()) {
+            this.removeButton = new RemoveFromCollectionView({
+                collection: GlobalVariables.myCollections,
+            }).on('removeRecords', this.removeFromCollection, this);
+        }
         this.recordListView = new RecordListView({
             collection: this.collection,
             recordClass: this.recordClass
@@ -53,9 +60,21 @@ export var RecordListManagingView = CompositeView.extend({
         return this;
     },
 
+    isCollection: function() {
+        return this.type === 'collection';
+    },
+
     submitToCollections: function() {
         var selection = this.recordListView.currentSelection();
         this.vreCollectionsSelect.submitForm(selection);
+    },
+
+    removeFromCollection: function() {
+        var selection = this.recordListView.currentSelection();
+        this.removeButton.submitForm({
+            records: selection,
+            collection: this.model.get('uri'),
+        });
     },
 
     loadMore: function(event) {
