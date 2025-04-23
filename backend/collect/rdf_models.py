@@ -186,6 +186,8 @@ class EDPOPCollection(RDFModel):
         return len(added)
 
     def remove_records(self, records):
+        initial_size = len(self.records)
         self.__class__.records.remove(self, records)
         remaining = set(self.records) - set(records)
         self.records = list(remaining)
+        return initial_size - len(self.records)

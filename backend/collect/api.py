@@ -125,5 +125,5 @@ class RemoveRecordsViewSet(ViewSetMixin, APIView):
         record_uris = list(map(URIRef, records))
         collection_uri = URIRef(collection)
         collection_obj = EDPOPCollection(collection_graph(collection_uri), collection_uri)
-        collection_obj.remove_records(record_uris)
-        return Response({'ok': True})
+        removed_count = collection_obj.remove_records(record_uris)
+        return Response({collection: removed_count})
