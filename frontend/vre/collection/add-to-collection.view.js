@@ -4,14 +4,14 @@ import { View } from '../core/view.js';
 import { AlertView } from '../alert/alert.view';
 import { AdditionsToCollections } from '../collection/additions-to-collections';
 import { vreChannel } from '../radio.js';
-import collectionTemplate from './collection.view.mustache';
+import additionTemplate from './add-to-collection.view.mustache';
 
 /**
  * View to add a record to a specific collection.
  */
-export var VRECollectionView = View.extend({
+export var AddToCollectionView = View.extend({
     tagName: 'form',
-    template: collectionTemplate,
+    template: additionTemplate,
     events: {
         'submit': 'addRecords',
         'change select': 'activateButton',
@@ -31,7 +31,7 @@ export var VRECollectionView = View.extend({
     },
     remove: function() {
         this.$('select').select2('destroy');
-        return VRECollectionView.__super__.remove.call(this);
+        return AddToCollectionView.__super__.remove.call(this);
     },
     clear: function() {
         this.$el.val(null).trigger('change');

@@ -1,5 +1,5 @@
 import { CompositeView } from '../core/view.js';
-import { VRECollectionView } from '../collection/collection.view';
+import { AddToCollectionView } from '../collection/add-to-collection.view';
 import { GlobalVariables } from '../globals/variables';
 import recordListManagingTemplate from './record.list.managing.view.mustache';
 import {RecordListView} from "./record.list.view";
@@ -36,7 +36,7 @@ export var RecordListManagingView = CompositeView.extend({
 
     initialize: function(options) {
         _.assign(this, _.pick(options, ['type', 'recordClass']));
-        this.vreCollectionsSelect = new VRECollectionView({
+        this.vreCollectionsSelect = new AddToCollectionView({
             collection: GlobalVariables.myCollections
         }).render().on('addRecords', this.submitToCollections, this);
         this.recordListView = new RecordListView({

@@ -5,7 +5,7 @@ import { FlatAnnotations } from '../annotation/annotation.model';
 import { RecordFieldsView } from '../field/record.fields.view';
 import { RecordAnnotationsView } from '../field/record.annotations.view';
 import { FlatterFields } from '../field/field.model';
-import { VRECollectionView } from '../collection/collection.view';
+import { AddToCollectionView } from '../collection/add-to-collection.view';
 import { typeTranslation } from '../utils/generic-functions.js';
 import { GlobalVariables } from '../globals/variables';
 import recordDetailTemplate from './record.detail.view.mustache';
@@ -50,7 +50,7 @@ export var RecordDetailView = CompositeView.extend({
             collection: new FlatAnnotations(null, {record: model}),
         }).render();
         this.annotationsView.listenTo(this.fieldsView, 'edit', this.annotationsView.edit);
-        this.vreCollectionsSelect = new VRECollectionView({
+        this.vreCollectionsSelect = new AddToCollectionView({
             collection: GlobalVariables.myCollections,
         }).on('addRecords', this.submitToCollections, this);
         this.render();
