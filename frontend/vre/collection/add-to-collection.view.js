@@ -40,10 +40,10 @@ export var AddToCollectionView = View.extend({
     activateButton: function(event) {
         event.preventDefault();
         if (this.$('select').val().length) {
-            this.$('button').removeClass("disabled");
+            this.$('button').prop("disabled", false);
         }
         else {
-            this.$('button').addClass("disabled");
+            this.$('button').prop("disabled", true);
         }
     },
     addRecords: function(event) {
