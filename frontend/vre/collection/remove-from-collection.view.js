@@ -1,5 +1,6 @@
 import _ from 'lodash';
 
+import { vreChannel } from '../radio.js';
 import { View } from '../core/view.js';
 import { AlertView } from '../alert/alert.view';
 import { RemovalsFromCollection } from '../collection/removals-from-collection';
@@ -18,7 +19,9 @@ export var RemoveFromCollectionView = View.extend({
         this.render();
     },
     render: function() {
-        this.$el.html(this.template());
+        if (vreChannel.request('browsingType') === 'collection') {
+            this.$el.html(this.template());
+        }
         return this;
     },
     removeRecords: function(event) {

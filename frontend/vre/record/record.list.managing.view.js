@@ -23,7 +23,7 @@ export var RecordListManagingView = CompositeView.extend({
     recordClass: null,
 
     subviews: [
-        {view: 'removeButton', method: 'prepend', place: 'isCollection'},
+        {view: 'removeButton', method: 'prepend'},
         {view: 'vreCollectionsSelect', method: 'prepend'},
         'recordListView',
     ],
@@ -42,11 +42,9 @@ export var RecordListManagingView = CompositeView.extend({
         this.vreCollectionsSelect = new AddToCollectionView({
             collection: GlobalVariables.myCollections
         }).render().on('addRecords', this.submitToCollections, this);
-        if (this.isCollection()) {
-            this.removeButton = new RemoveFromCollectionView({
-                collection: GlobalVariables.myCollections,
-            }).on('removeRecords', this.removeFromCollection, this);
-        }
+        this.removeButton = new RemoveFromCollectionView({
+            collection: GlobalVariables.myCollections,
+        }).on('removeRecords', this.removeFromCollection, this);
         this.recordListView = new RecordListView({
             collection: this.collection,
             recordClass: this.recordClass
