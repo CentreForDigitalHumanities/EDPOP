@@ -6,6 +6,7 @@ import { RecordFieldsView } from '../field/record.fields.view';
 import { RecordAnnotationsView } from '../field/record.annotations.view';
 import { FlatterFields } from '../field/field.model';
 import { AddToCollectionView } from '../collection/add-to-collection.view';
+import { RemoveFromCollectionView } from '../collection/remove-from-collection.view.js';
 import { typeTranslation } from '../utils/generic-functions.js';
 import { GlobalVariables } from '../globals/variables';
 import recordDetailTemplate from './record.detail.view.mustache';
@@ -27,11 +28,15 @@ export var RecordDetailView = CompositeView.extend({
     subviews: [{
         view: 'fieldsView',
         selector: '.modal-body'
-    },{
+    }, {
         view: 'annotationsView',
         selector: '.modal-body'
-    },{
-        view: 'vreCollectionsSelect',
+    }, {
+        view: 'removeButton',
+        selector: '.modal-footer',
+        method: 'prepend',
+    }, {
+        view: 'addSelect',
         selector: '.modal-footer',
         method: 'prepend'
     }],
@@ -50,9 +55,12 @@ export var RecordDetailView = CompositeView.extend({
             collection: new FlatAnnotations(null, {record: model}),
         }).render();
         this.annotationsView.listenTo(this.fieldsView, 'edit', this.annotationsView.edit);
-        this.vreCollectionsSelect = new AddToCollectionView({
+        this.addSelect = new AddToCollectionView({
             collection: GlobalVariables.myCollections,
         }).on('addRecords', this.submitToCollections, this);
+        this.removeButton = new RemoveFromCollectionView({
+            collection: GlobalVariables.myCollections,
+        }).on('removeRecords', this.removeFromCollection, this);
         this.render();
     },
 
@@ -73,7 +81,19 @@ export var RecordDetailView = CompositeView.extend({
     },
 
     submitToCollections: function() {
-        this.vreCollectionsSelect.submitForm([this.model.id]);
+        this.addSelect.submitForm([this.model.id]);
+    },
+
+    removeFromCollection: function() {
+        this.removeButton.submitForm({
+            records: [this.model.id],
+            collection: vreChannel.request('browsingContext').get('uri'),
+        }).then(this.handleRemoval.bind(this));
+    },
+
+    handleRemoval: function() {
+        this.next();
+        this.model.collection.remove(this.model);
     },
 
     display: function() {
@@ -82,7 +102,7 @@ export var RecordDetailView = CompositeView.extend({
     },
 
     next: function(event) {
-        event.preventDefault();
+        event && event.preventDefault();
         vreChannel.trigger('displayNextRecord');
     },
 
