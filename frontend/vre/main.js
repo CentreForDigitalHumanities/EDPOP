@@ -55,10 +55,14 @@ var router = new VRERouter();
 // Firstly, route changes should lead to different models moving to the center
 // of attention.
 router.on({
-    'route:showCollection': id => navigationState.set(
-        'browsingContext', GlobalVariables.myCollections.find({name: id})),
-    'route:showCatalog': id => navigationState.set(
-        'browsingContext', catalogs.findWhere({identifier: id})),
+    'route:showCollection': id => navigationState.set({
+        browsingType: 'collection',
+        browsingContext: GlobalVariables.myCollections.find({name: id})
+    }),
+    'route:showCatalog': id => navigationState.set({
+        browsingType: 'catalog',
+        browsingContext: catalogs.findWhere({identifier: id})
+    }),
 });
 
 // Focus/blur semantics for the catalog or collection currently being viewed.
@@ -102,6 +106,9 @@ GlobalVariables.myCollections.on({
     remove: collection => unsalientCollections.remove(collection),
 });
 vreChannel.reply('unsalientcollections', _.constant(unsalientCollections));
+
+// Make current browsing type available to all views via the radio.
+vreChannel.reply('browsingType', () => navigationState.get('browsingType'));
 
 // We want this code to run after two conditions are met:
 // 1. The DOM has fully loaded;

@@ -37,7 +37,8 @@ export var RecordListManagingView = CompositeView.extend({
     },
 
     initialize: function(options) {
-        _.assign(this, _.pick(options, ['type', 'recordClass']));
+        _.assign(this, _.pick(options, ['recordClass']));
+        this.type = vreChannel.request('browsingType');
         this.vreCollectionsSelect = new AddToCollectionView({
             collection: GlobalVariables.myCollections
         }).render().on('addRecords', this.submitToCollections, this);

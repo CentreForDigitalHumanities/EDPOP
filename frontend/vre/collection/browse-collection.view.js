@@ -29,7 +29,6 @@ export var BrowseCollectionView = CompositeView.extend({
         this.recordsManager = new RecordListManagingView({
             model: this.model,
             collection: this.collection,
-            type: "collection",
         });
         var editor = new EditSummaryView({model: this.model});
         var overlay = this.editOverlay = new OverlayView({
