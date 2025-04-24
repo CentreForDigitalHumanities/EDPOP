@@ -55,8 +55,11 @@ export var RecordListManagingView = CompositeView.extend({
     },
 
     renderContainer: function() {
-        const addBlankRecord = this.type === "collection";
-        this.$el.html(this.template({addBlankRecord}));
+        // If it weren't for wontache#84, we could just pass `this` to the
+        // template and use the isCollection method directly from the template.
+        // TODO: remove this workaround when wontache#84 is fixed.
+        const isCollection = this.isCollection();
+        this.$el.html(this.template({isCollection}));
         return this;
     },
 
