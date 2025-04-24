@@ -31,10 +31,9 @@ export var RemoveFromCollectionView = View.extend({
     submitForm: function(selection) {
         if (!selection.records.length) return;
         var records_and_collections = new RemovalsFromCollection(selection);
-        records_and_collections.save().then(
-            this.showSuccess.bind(this),
-            this.showError.bind(this),
-        );
+        var promise = records_and_collections.save();
+        promise.then(this.showSuccess.bind(this), this.showError.bind(this));
+        return promise;
     },
     reportRemoval: function(amount, uri) {
         var name = this.collection.get(uri).get('name');
