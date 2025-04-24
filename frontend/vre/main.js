@@ -107,8 +107,9 @@ GlobalVariables.myCollections.on({
 });
 vreChannel.reply('unsalientcollections', _.constant(unsalientCollections));
 
-// Make current browsing type available to all views via the radio.
+// Make current browsing type and context available to all views via the radio.
 vreChannel.reply('browsingType', () => navigationState.get('browsingType'));
+vreChannel.reply('browsingContext', () => navigationState.get('browsingContext'));
 
 // We want this code to run after two conditions are met:
 // 1. The DOM has fully loaded;
