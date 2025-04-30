@@ -2,16 +2,16 @@ import _ from 'lodash';
 
 import { View } from '../core/view.js';
 import { AlertView } from '../alert/alert.view';
-import { AdditionsToCollections } from '../additions/additions-to-collections';
+import { AdditionsToCollections } from '../collection/additions-to-collections';
 import { vreChannel } from '../radio.js';
-import collectionTemplate from './collection.view.mustache';
+import additionTemplate from './add-to-collection.view.mustache';
 
 /**
  * View to add a record to a specific collection.
  */
-export var VRECollectionView = View.extend({
+export var AddToCollectionView = View.extend({
     tagName: 'form',
-    template: collectionTemplate,
+    template: additionTemplate,
     events: {
         'submit': 'addRecords',
         'change select': 'activateButton',
@@ -31,7 +31,7 @@ export var VRECollectionView = View.extend({
     },
     remove: function() {
         this.$('select').select2('destroy');
-        return VRECollectionView.__super__.remove.call(this);
+        return AddToCollectionView.__super__.remove.call(this);
     },
     clear: function() {
         this.$el.val(null).trigger('change');
@@ -40,10 +40,10 @@ export var VRECollectionView = View.extend({
     activateButton: function(event) {
         event.preventDefault();
         if (this.$('select').val().length) {
-            this.$('button').removeClass("disabled");
+            this.$('button').prop("disabled", false);
         }
         else {
-            this.$('button').addClass("disabled");
+            this.$('button').prop("disabled", true);
         }
     },
     addRecords: function(event) {

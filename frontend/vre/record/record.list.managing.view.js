@@ -1,5 +1,6 @@
 import { CompositeView } from '../core/view.js';
-import { VRECollectionView } from '../collection/collection.view';
+import { AddToCollectionView } from '../collection/add-to-collection.view';
+import { RemoveFromCollectionView } from '../collection/remove-from-collection.view.js';
 import { GlobalVariables } from '../globals/variables';
 import recordListManagingTemplate from './record.list.managing.view.mustache';
 import {RecordListView} from "./record.list.view";
@@ -22,6 +23,7 @@ export var RecordListManagingView = CompositeView.extend({
     recordClass: null,
 
     subviews: [
+        {view: 'removeButton', method: 'prepend'},
         {view: 'vreCollectionsSelect', method: 'prepend'},
         'recordListView',
     ],
@@ -35,10 +37,14 @@ export var RecordListManagingView = CompositeView.extend({
     },
 
     initialize: function(options) {
-        _.assign(this, _.pick(options, ['type', 'recordClass']));
-        this.vreCollectionsSelect = new VRECollectionView({
+        _.assign(this, _.pick(options, ['recordClass']));
+        this.type = vreChannel.request('browsingType');
+        this.vreCollectionsSelect = new AddToCollectionView({
             collection: GlobalVariables.myCollections
         }).render().on('addRecords', this.submitToCollections, this);
+        this.removeButton = new RemoveFromCollectionView({
+            collection: GlobalVariables.myCollections,
+        }).on('removeRecords', this.removeFromCollection, this);
         this.recordListView = new RecordListView({
             collection: this.collection,
             recordClass: this.recordClass
@@ -48,14 +54,33 @@ export var RecordListManagingView = CompositeView.extend({
     },
 
     renderContainer: function() {
-        const addBlankRecord = this.type === "collection";
-        this.$el.html(this.template({addBlankRecord}));
+        // If it weren't for wontache#84, we could just pass `this` to the
+        // template and use the isCollection method directly from the template.
+        // TODO: remove this workaround when wontache#84 is fixed.
+        const isCollection = this.isCollection();
+        this.$el.html(this.template({isCollection}));
         return this;
+    },
+
+    isCollection: function() {
+        return this.type === 'collection';
     },
 
     submitToCollections: function() {
         var selection = this.recordListView.currentSelection();
         this.vreCollectionsSelect.submitForm(selection);
+    },
+
+    removeFromCollection: function() {
+        var selection = this.recordListView.currentSelection();
+        this.removeButton.submitForm({
+            records: selection,
+            collection: this.model.get('uri'),
+        }).then(this.purgeRemoved.bind(this, selection));
+    },
+
+    purgeRemoved: function(records) {
+        this.collection.remove(records);
     },
 
     loadMore: function(event) {
