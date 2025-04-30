@@ -24,7 +24,7 @@ export var RecordListView = Backbone.View.extend({
 
     initialize: function(options) {
         _.assign(this, _.pick(options, ['recordClass']));
-        this.updateTable().listenTo(this.collection, 'update', this.updateTable);
+        this.render().listenTo(this.collection, 'update', this.render);
     },
 
     createTable: function(initialData) {
@@ -56,7 +56,7 @@ export var RecordListView = Backbone.View.extend({
         return this;
     },
 
-    updateTable: function() {
+    render: function() {
         if (this.collection.length === 0) return this.removeTable();
         const data = this.collection.toTabularData();
         if (this.table === null) return this.createTable(data);
