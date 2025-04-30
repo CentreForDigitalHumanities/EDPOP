@@ -50,7 +50,6 @@ export var RecordListManagingView = CompositeView.extend({
             recordClass: this.recordClass
         });
         this.render();
-        this.recordListView.render();
     },
 
     renderContainer: function() {
