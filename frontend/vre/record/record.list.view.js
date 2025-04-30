@@ -53,19 +53,15 @@ export var RecordListView = Backbone.View.extend({
             const model = row.getData().model;
             vreChannel.trigger('displayRecord', model);
         });
+        return this;
     },
 
     updateTable: function() {
-        if (this.collection.length === 0) {
-            this.removeTable();
-            return;
-        }
+        if (this.collection.length === 0) return this.removeTable();
         const data = this.collection.toTabularData();
-        if (this.table === null) {
-            this.createTable(data);
-        } else {
-            this.table.replaceData(data);
-        }
+        if (this.table === null) return this.createTable(data);
+        this.table.replaceData(data);
+        return this;
     },
 
     removeTable: function() {
@@ -73,6 +69,7 @@ export var RecordListView = Backbone.View.extend({
             this.table.destroy();
             this.table = null;
         }
+        return this;
     },
 
     currentSelection: function() {
@@ -81,9 +78,11 @@ export var RecordListView = Backbone.View.extend({
 
     downloadXLSX: function() {
         this.table.download("xlsx", "edpop.xlsx", {sheetName: "EDPOP"});
+        return this;
     },
 
     downloadCSV: function() {
         this.table.download("csv", "edpop.csv");
+        return this;
     },
 });
