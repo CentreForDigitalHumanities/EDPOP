@@ -48,6 +48,9 @@ export var RecordDetailView = CompositeView.extend({
 
     initialize: function(options) {
         var model = this.model;
+        var index = model.collection.indexOf(model);
+        this.isFirst = (index === 0);
+        this.isLast = (index === model.collection.length - 1);
         this.fieldsView = new RecordFieldsView({
             collection: new FlatterFields(null, {record: model}),
         }).render();
@@ -66,6 +69,8 @@ export var RecordDetailView = CompositeView.extend({
 
     renderContainer: function() {
         this.$el.html(this.template(_.assign({
+            first: this.isFirst,
+            last: this.isLast,
             title: this.model.getMainDisplay(),
             uri: this.model.id,
             databaseId: this.model.get("edpoprec:identifier"),
