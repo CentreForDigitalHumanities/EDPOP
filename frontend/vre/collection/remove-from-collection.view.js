@@ -29,7 +29,7 @@ export var RemoveFromCollectionView = View.extend({
         this.trigger('removeRecords', this);
     },
     submitForm: function(selection) {
-        if (!selection.records.length) return;
+        if (!selection.records.length) return Promise.resolve(null);
         var records_and_collections = new RemovalsFromCollection(selection);
         var promise = records_and_collections.save();
         promise.then(this.showSuccess.bind(this), this.showError.bind(this));
