@@ -28,7 +28,7 @@ export var RecordListView = Backbone.View.extend({
     },
 
     createTable: function(initialData) {
-        this.table = new Tabulator("#record-list", {
+        this.table = new Tabulator(this.el, {
             height: "calc(100vh - 360px)", // set height to table approximately to what is left of viewport height
             data: initialData,
             autoColumns: true,
