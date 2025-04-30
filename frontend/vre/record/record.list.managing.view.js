@@ -39,9 +39,8 @@ export var RecordListManagingView = CompositeView.extend({
     initialize: function(options) {
         _.assign(this, _.pick(options, ['recordClass']));
         this.type = vreChannel.request('browsingType');
-        this.vreCollectionsSelect = new AddToCollectionView({
-            collection: GlobalVariables.myCollections
-        }).render().on('addRecords', this.submitToCollections, this);
+        this.vreCollectionsSelect = new AddToCollectionView()
+            .render().on('addRecords', this.submitToCollections, this);
         this.removeButton = new RemoveFromCollectionView({
             collection: GlobalVariables.myCollections,
         }).on('removeRecords', this.removeFromCollection, this);
