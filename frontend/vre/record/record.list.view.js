@@ -24,7 +24,7 @@ export var RecordListView = Backbone.View.extend({
 
     initialize: function(options) {
         _.assign(this, _.pick(options, ['recordClass']));
-        this.listenTo(this.collection, 'update', this.updateTable);
+        this.updateTable().listenTo(this.collection, 'update', this.updateTable);
     },
 
     createTable: function(initialData) {
