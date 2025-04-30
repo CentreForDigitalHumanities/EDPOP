@@ -27,6 +27,14 @@ export var RecordListView = Backbone.View.extend({
         this.render().listenTo(this.collection, 'update', this.render);
     },
 
+    render: function() {
+        if (this.collection.length === 0) return this.removeTable();
+        const data = this.collection.toTabularData();
+        if (this.table === null) return this.createTable(data);
+        this.table.replaceData(data);
+        return this;
+    },
+
     createTable: function(initialData) {
         this.table = new Tabulator(this.el, {
             height: "calc(100vh - 360px)", // set height to table approximately to what is left of viewport height
@@ -53,14 +61,6 @@ export var RecordListView = Backbone.View.extend({
             const model = row.getData().model;
             vreChannel.trigger('displayRecord', model);
         });
-        return this;
-    },
-
-    render: function() {
-        if (this.collection.length === 0) return this.removeTable();
-        const data = this.collection.toTabularData();
-        if (this.table === null) return this.createTable(data);
-        this.table.replaceData(data);
         return this;
     },
 
