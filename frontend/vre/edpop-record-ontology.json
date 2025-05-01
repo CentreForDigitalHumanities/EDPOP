@@ -371,6 +371,20 @@
       }
     },
     {
+      "@id": "edpoprec:digitization",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BibliographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:Field"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Digitization"
+      }
+    },
+    {
       "@id": "edpoprec:BibliographicalRecord",
       "rdfs:subClassOf": {
         "@id": "edpoprec:Record"
