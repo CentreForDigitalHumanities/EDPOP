@@ -1,0 +1,17 @@
+<div class="card">
+    {{#iiif}}
+        <img src="{{thumbnailUrl}}" alt="Digitization preview" class="card-img-top">
+        <div class="card-body">
+            <p class="card-text"><a href="{{manifestUrl}}">Get IIIF manifest</a></p>
+            <button data-manifest="{{manifestUrl}}" class="btn btn-primary show-mirador">Show in Mirador</button>
+        </div>
+        <div id="mirador">
+
+        </div>
+    {{/iiif}}
+    {{#empty}}
+        <div class="card-body">
+            <p class="card-text">No digitization available</p>
+        </div>
+    {{/empty}}
+</div>
