@@ -208,3 +208,41 @@ def test_add_multi_record_multi_collection(client, records, collections):
     for collection in collections:
         collection.refresh_from_store()
         assert set(collection.records) == records_set
+
+
+def test_remove_records(client, records, collection):
+    collection_uri = str(collection.uri)
+    record_uris = list(map(str, records))
+    collection.records = records
+    collection.save()
+    payload = {
+        'records': record_uris,
+        'collection': collection_uri,
+    }
+    response = client.post(
+        '/api/remove-selection/',
+        data=json.dumps(payload),
+        content_type='application/json'
+    )
+    assert response.status_code is 200
+    collection.refresh_from_store()
+    assert collection.records == []
+
+
+def test_remove_single_record(client, records, collection):
+    collection_uri = str(collection.uri)
+    record_uris = list(map(str, records))
+    collection.records = records
+    collection.save()
+    payload = {
+        'records': record_uris[:1],
+        'collection': collection_uri,
+    }
+    response = client.post(
+        '/api/remove-selection/',
+        data=json.dumps(payload),
+        content_type='application/json'
+    )
+    assert response.status_code is 200
+    collection.refresh_from_store()
+    assert collection.records == records[1:]

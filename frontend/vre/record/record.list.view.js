@@ -24,13 +24,19 @@ export var RecordListView = Backbone.View.extend({
 
     initialize: function(options) {
         _.assign(this, _.pick(options, ['recordClass']));
-        this.collection.on("sync", () => {
-            this.updateTable();
-        });
+        this.render().listenTo(this.collection, 'update', this.render);
+    },
+
+    render: function() {
+        if (this.collection.length === 0) return this.removeTable();
+        const data = this.collection.toTabularData();
+        if (this.table === null) return this.createTable(data);
+        this.table.replaceData(data);
+        return this;
     },
 
     createTable: function(initialData) {
-        this.table = new Tabulator("#record-list", {
+        this.table = new Tabulator(this.el, {
             height: "calc(100vh - 360px)", // set height to table approximately to what is left of viewport height
             data: initialData,
             autoColumns: true,
@@ -55,19 +61,7 @@ export var RecordListView = Backbone.View.extend({
             const model = row.getData().model;
             vreChannel.trigger('displayRecord', model);
         });
-    },
-
-    updateTable: function() {
-        if (this.collection.length === 0) {
-            this.removeTable();
-            return;
-        }
-        const data = this.collection.toTabularData();
-        if (this.table === null) {
-            this.createTable(data);
-        } else {
-            this.table.replaceData(data);
-        }
+        return this;
     },
 
     removeTable: function() {
@@ -75,6 +69,7 @@ export var RecordListView = Backbone.View.extend({
             this.table.destroy();
             this.table = null;
         }
+        return this;
     },
 
     currentSelection: function() {
@@ -83,9 +78,11 @@ export var RecordListView = Backbone.View.extend({
 
     downloadXLSX: function() {
         this.table.download("xlsx", "edpop.xlsx", {sheetName: "EDPOP"});
+        return this;
     },
 
     downloadCSV: function() {
         this.table.download("csv", "edpop.csv");
+        return this;
     },
 });

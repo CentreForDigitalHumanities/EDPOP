@@ -4,8 +4,9 @@ import { vreChannel } from '../radio';
 import { FlatAnnotations } from '../annotation/annotation.model';
 import { RecordFieldsView } from '../field/record.fields.view';
 import { RecordAnnotationsView } from '../field/record.annotations.view';
-import {Field, FlatterFields} from '../field/field.model';
-import { VRECollectionView } from '../collection/collection.view';
+import { Field, FlatterFields } from '../field/field.model';
+import { AddToCollectionView } from '../collection/add-to-collection.view';
+import { RemoveFromCollectionView } from '../collection/remove-from-collection.view.js';
 import { typeTranslation } from '../utils/generic-functions.js';
 import { GlobalVariables } from '../globals/variables';
 import recordDetailTemplate from './record.detail.view.mustache';
@@ -31,10 +32,13 @@ export var RecordDetailView = CompositeView.extend({
     },{
         view: 'annotationsView',
         selector: '#main-content'
-    },{
-        view: 'vreCollectionsSelect',
+    }, {
+        view: 'removeButton',
         selector: '.modal-footer',
-        method: 'prepend'
+        method: 'prepend',
+    }, {
+        view: 'addSelect',
+        selector: '.modal-footer'
     },{
         view: 'digitizationsView',
         selector: '#side-content',
@@ -47,6 +51,9 @@ export var RecordDetailView = CompositeView.extend({
 
     initialize: function(options) {
         var model = this.model;
+        var index = model.collection.indexOf(model);
+        this.isFirst = (index === 0);
+        this.isLast = (index === model.collection.length - 1);
         var fields = new FlatterFields(null, {record: model});
         var digitizations = new Backbone.Collection(fields.filter(function(field) {
             return field.id === 'edpoprec:digitization';
@@ -63,14 +70,19 @@ export var RecordDetailView = CompositeView.extend({
             collection: new FlatAnnotations(null, {record: model}),
         }).render();
         this.annotationsView.listenTo(this.fieldsView, 'edit', this.annotationsView.edit);
-        this.vreCollectionsSelect = new VRECollectionView({
+        this.addSelect = new AddToCollectionView({
             collection: GlobalVariables.myCollections,
         }).on('addRecords', this.submitToCollections, this);
+        this.removeButton = new RemoveFromCollectionView({
+            collection: GlobalVariables.myCollections,
+        }).on('removeRecords', this.removeFromCollection, this);
         this.render();
     },
 
     renderContainer: function() {
         this.$el.html(this.template(_.assign({
+            first: this.isFirst,
+            last: this.isLast,
             title: this.model.getMainDisplay(),
             uri: this.model.id,
             databaseId: this.model.get("edpoprec:identifier"),
@@ -86,7 +98,19 @@ export var RecordDetailView = CompositeView.extend({
     },
 
     submitToCollections: function() {
-        this.vreCollectionsSelect.submitForm([this.model.id]);
+        this.addSelect.submitForm([this.model.id]);
+    },
+
+    removeFromCollection: function() {
+        this.removeButton.submitForm({
+            records: [this.model.id],
+            collection: vreChannel.request('browsingContext').get('uri'),
+        }).then(this.handleRemoval.bind(this));
+    },
+
+    handleRemoval: function() {
+        this.next();
+        this.model.collection.remove(this.model);
     },
 
     display: function() {
@@ -95,7 +119,7 @@ export var RecordDetailView = CompositeView.extend({
     },
 
     next: function(event) {
-        event.preventDefault();
+        event && event.preventDefault();
         vreChannel.trigger('displayNextRecord');
     },
 
