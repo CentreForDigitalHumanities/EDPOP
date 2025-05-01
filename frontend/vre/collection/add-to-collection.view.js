@@ -17,13 +17,13 @@ export var AddToCollectionView = View.extend({
         'change select': 'activateButton',
     },
     initialize: function() {
-        this.render();
+        this.collection = vreChannel.request('unsalientcollections');
+        this.render().listenTo(this.collection, 'update', this.render);
     },
     render: function() {
-        var shownCollections = vreChannel.request('unsalientcollections');
         this.$('select').select2('destroy');
         this.$el.html(this.template({
-            models: shownCollections.toJSON(),
+            models: this.collection.toJSON(),
             cid: this.cid,
         }));
         this.$('select').select2();

@@ -119,8 +119,8 @@ function prepareCollections() {
     VRECollections.mine(GlobalVariables.myCollections);
     catalogs.fetch();
     vreChannel.request('projects:fetch', finish);
-    GlobalVariables.myCollections.on('sync', finish);
-    catalogs.on('sync', finish);
+    GlobalVariables.myCollections.once('sync', finish);
+    catalogs.once('sync', finish);
 
     // Add account menu
     accountMenu.$el.appendTo('#navbar-right');
