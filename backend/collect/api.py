@@ -1,3 +1,5 @@
+from urllib.parse import unquote
+
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet, ViewSetMixin
 from rest_framework.views import APIView, Request
@@ -81,7 +83,7 @@ class CollectionRecordsView(RDFView):
     }
 
     def get_graph(self, request: Request, collection: str, **kwargs) -> Graph:
-        collection_uri = URIRef(collection)
+        collection_uri = URIRef(unquote(collection))
 
         if not collection_exists(collection_uri):
             raise NotFound('Collection does not exist')

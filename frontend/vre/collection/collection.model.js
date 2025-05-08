@@ -10,7 +10,7 @@ export var VRECollection = APIModel.extend({
     getRecords: function() {
         if (this.records) return this.records;
         var records = this.records = new Records();
-        records.url = `/api/collection-records/${this.id}/`;
+        records.url = `/api/collection-records/${encodeURIComponent(this.id)}/`;
         records.fetch().then(function() {
             records.trigger('complete');
         });
