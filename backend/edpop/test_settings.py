@@ -11,3 +11,11 @@ RDFLIB_STORE = SPARQLUpdateStore(
     update_endpoint=TRIPLESTORE_SPARQL_ENDPOINT,
     autocommit=False,
 )
+
+# Disable debug toolbar during testing.
+def not_toolbar(name):
+    return 'debug_toolbar' not in name
+
+INSTALLED_APPS = list(filter(not_toolbar, INSTALLED_APPS))
+MIDDLEWARE = list(filter(not_toolbar, MIDDLEWARE))
+TESTING = True

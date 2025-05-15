@@ -15,8 +15,10 @@ Including another URLconf
 """
 from django.urls import include, path
 from django.contrib import admin
+from django.conf import settings
 from rest_framework import routers
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from debug_toolbar.toolbar import debug_toolbar_urls
 
 from vre.api import RecordViewSet, AnnotationViewSet, SearchViewSet
 from collect.api import CollectionViewSet, AddRecordsViewSet, RemoveRecordsViewSet
@@ -47,3 +49,6 @@ urlpatterns = [
 ]
 
 urlpatterns += staticfiles_urlpatterns()
+
+if not settings.TESTING:
+    urlpatterns += debug_toolbar_urls()
