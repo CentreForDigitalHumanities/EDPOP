@@ -45,10 +45,11 @@ urlpatterns = [
     path('', include('catalogs.urls')),
     path('', include('accounts.urls')),
     path('', include('projects.urls')),
-    path('', include('vre.urls')),
 ]
 
 urlpatterns += staticfiles_urlpatterns()
 
 if not settings.TESTING:
     urlpatterns += debug_toolbar_urls()
+
+urlpatterns += [path('', include('vre.urls'))]
