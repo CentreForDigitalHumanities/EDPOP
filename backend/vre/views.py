@@ -10,3 +10,8 @@ HPB_SRU_URL = "http://sru.gbv.de/hpb"
 def index(request, id=None):
     with open(finders.find('index.html')) as index_file:
         return HttpResponse(content=index_file)
+
+
+def mirador(request):
+    with open(finders.find('mirador.html')) as mirador_file:
+        return HttpResponse(content=mirador_file)
