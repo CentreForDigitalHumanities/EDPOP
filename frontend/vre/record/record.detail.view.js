@@ -65,7 +65,7 @@ export var RecordDetailView = CompositeView.extend({
         }).render();
         this.digitizationsView = new DigitizationsView({
             collection: digitizations,
-        }).render();
+        });
         this.annotationsView = new RecordAnnotationsView({
             collection: new FlatAnnotations(null, {record: model}),
         }).render();
