@@ -1,6 +1,6 @@
 import { View } from "../core/view";
 import digitizationTemplate from './digitization.view.mustache';
-import {getPreviewUrlFromIIIFManifest} from "../utils/digitizations";
+import {IIIFManifestModel} from "./iiif.model";
 
 export var DigitizationView = View.extend({
     tagName: 'div',
@@ -21,19 +21,20 @@ export var DigitizationView = View.extend({
         this.encodedManifestUrl = encodeURIComponent(manifestUrl);
         if (manifestUrl) {
             // Model has a IIIF manifest
-            const thumbnailUrlPromise = getPreviewUrlFromIIIFManifest(manifestUrl);
-            thumbnailUrlPromise.then(url => {
-                this.iiif = true;
-                this.thumbnailUrl = url;
-                this.render();
-            });
+            this.iiifmodel = new IIIFManifestModel();
+            this.iiifmodel.fetch({url: manifestUrl});
+            this.iiif = true;
+            this.listenTo(this.iiifmodel, 'change', this.render);
         } else {
             this.iiif = false;
-            this.render();
         }
+        this.render();
     },
 
     render: function() {
+        if (this.iiif) {
+            this.previewUrl = this.iiifmodel.thumbnailUrl();
+        }
         this.$el.html(this.template(this));
         return this;
     }
