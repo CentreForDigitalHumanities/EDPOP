@@ -14,6 +14,9 @@ export var DigitizationView = View.extend({
             return;
         }
         const manifestUrl = this.model.get('value')["edpoprec:iiifManifest"];
+        this.summaryText = this.model.get('value')["edpoprec:summaryText"];
+        this.previewUrl = this.model.get('value')["edpoprec:previewURL"];
+        this.externalUrl = this.model.get('value')["edpoprec:url"];
         this.manifestUrl = manifestUrl;
         this.encodedManifestUrl = encodeURIComponent(manifestUrl);
         if (manifestUrl) {
@@ -24,6 +27,9 @@ export var DigitizationView = View.extend({
                 this.thumbnailUrl = url;
                 this.render();
             });
+        } else {
+            this.iiif = false;
+            this.render();
         }
     },
 
