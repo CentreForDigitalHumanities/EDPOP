@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { FilteredCollection } from "../utils/filtered.collection";
 import { CompositeView } from '../core/view.js';
 import { vreChannel } from '../radio';
 import { FlatAnnotations } from '../annotation/annotation.model';
@@ -55,10 +56,8 @@ export var RecordDetailView = CompositeView.extend({
         this.isFirst = (index === 0);
         this.isLast = (index === model.collection.length - 1);
         var fields = new FlatterFields(null, {record: model});
-        var digitizations = new Backbone.Collection(fields.filter(function(field) {
-            return field.id === 'edpoprec:digitization';
-        }), {
-            model: Field,
+        var digitizations = new FilteredCollection(fields, {
+            key: 'edpoprec:digitization'
         });
         this.fieldsView = new RecordFieldsView({
             collection: fields,
