@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang=en>
+    <head>
+        <meta http-equiv="charset" content="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Mirador</title>
+    </head>
+    <body>
+        <div id="mirador">
+
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/mirador@latest/dist/mirador.min.js"></script>
+        <script>
+            const params = new URLSearchParams(window.location.search);
+            const manifestUrlEncoded = params.get('manifest');
+            let manifestUrl = null;
+            if (manifestUrlEncoded) {
+                manifestUrl = decodeURIComponent(manifestUrlEncoded);
+            }
+            const miradorOptions = {
+                id: "mirador",
+                window: {
+                    allowClose: false,
+                    allowMaximize: false,
+                },
+            };
+            if (manifestUrl) {
+                miradorOptions.manifests = {
+                    [manifestUrl]: {
+                        provider: "edpop",
+                    }
+                };
+                miradorOptions.windows = [
+                    {
+                        loadedManifest: manifestUrl,
+                    }
+                ];
+            }
+            const mirador = Mirador.viewer(miradorOptions);
+        </script>
+    </body>
+</html>

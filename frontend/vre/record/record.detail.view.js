@@ -1,16 +1,18 @@
 import _ from 'lodash';
+import { FilteredCollection } from "../utils/filtered.collection";
 import { CompositeView } from '../core/view.js';
 import { vreChannel } from '../radio';
 import { FlatAnnotations } from '../annotation/annotation.model';
 import { RecordFieldsView } from '../field/record.fields.view';
 import { RecordAnnotationsView } from '../field/record.annotations.view';
-import { FlatterFields } from '../field/field.model';
+import { Field, FlatterFields } from '../field/field.model';
 import { AddToCollectionView } from '../collection/add-to-collection.view';
 import { RemoveFromCollectionView } from '../collection/remove-from-collection.view.js';
 import { typeTranslation } from '../utils/generic-functions.js';
 import { GlobalVariables } from '../globals/variables';
 import recordDetailTemplate from './record.detail.view.mustache';
 import typeIconTemplate from './record.type.icon.mustache';
+import {DigitizationsView} from "../digitization/digitizations.view";
 
 var renderOptions = {
     partials: {
@@ -27,18 +29,20 @@ export var RecordDetailView = CompositeView.extend({
 
     subviews: [{
         view: 'fieldsView',
-        selector: '.modal-body'
-    }, {
+        selector: '#main-content'
+    },{
         view: 'annotationsView',
-        selector: '.modal-body'
+        selector: '#main-content'
     }, {
         view: 'removeButton',
         selector: '.modal-footer',
         method: 'prepend',
     }, {
         view: 'addSelect',
-        selector: '.modal-footer',
-        method: 'prepend'
+        selector: '.modal-footer'
+    },{
+        view: 'digitizationsView',
+        selector: '#side-content',
     }],
 
     events: {
@@ -51,9 +55,16 @@ export var RecordDetailView = CompositeView.extend({
         var index = model.collection.indexOf(model);
         this.isFirst = (index === 0);
         this.isLast = (index === model.collection.length - 1);
+        var fields = new FlatterFields(null, {record: model});
+        var digitizations = new FilteredCollection(fields, {
+            key: 'edpoprec:digitization'
+        });
         this.fieldsView = new RecordFieldsView({
-            collection: new FlatterFields(null, {record: model}),
+            collection: fields,
         }).render();
+        this.digitizationsView = new DigitizationsView({
+            collection: digitizations,
+        });
         this.annotationsView = new RecordAnnotationsView({
             collection: new FlatAnnotations(null, {record: model}),
         }).render();

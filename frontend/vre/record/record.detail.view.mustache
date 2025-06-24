@@ -1,4 +1,4 @@
-<div class="modal-dialog modal-lg" role="document">
+<div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
         <div class="modal-header">
             <div class="btn-group me-2">
@@ -17,7 +17,7 @@
                     <span class="fa fa-arrow-right" aria-hidden="true"></span>
                 </button>
             </div>
-            <h4 class="modal-title">
+            <h4 class="modal-title text-truncate">
                 {{>typeIcon}}
                 {{title}}
             </h4>
@@ -29,11 +29,18 @@
             ></button>
         </div>
         <div class="modal-body">
-
             <ul class="inline-list">
                 {{#databaseId}}<li>ID in database: {{databaseId}}</li>{{/databaseId}}
                 {{#publicURL}}<li><a href="{{publicURL}}" target="_blank">Show record in original database</a></li>{{/publicURL}}
             </ul>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-9 px-0" id="main-content">
+                    </div>
+                    <div class="col-md-3 pe-0" id="side-content">
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="modal-footer" style="justify-content: space-between">
             <button type=button class="btn btn-light" data-bs-dismiss="modal">Close</button>
