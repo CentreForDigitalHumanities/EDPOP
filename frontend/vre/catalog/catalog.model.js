@@ -5,6 +5,9 @@ import {JsonLdCollection, JsonLdModel} from "../utils/jsonld.model";
  * Representation of a single catalogue.
  */
 export var Catalog = JsonLdModel.extend({
+    getName: function() {
+        return this.get("name");
+    }
 });
 
 /**
