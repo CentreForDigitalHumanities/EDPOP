@@ -15,7 +15,6 @@ export var RecordAboutView = Backbone.View.extend({
             publicURL: this.model.get("edpoprec:publicURL"),
             fromCatalog: this.model.getCatalogName(),
         }));
-        console.log(this.model.getCatalogName());
         return this;
     },
 });
