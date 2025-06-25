@@ -13,6 +13,7 @@ import { GlobalVariables } from '../globals/variables';
 import recordDetailTemplate from './record.detail.view.mustache';
 import typeIconTemplate from './record.type.icon.mustache';
 import {DigitizationsView} from "../digitization/digitizations.view";
+import {RecordAboutView} from "./record.about.view";
 
 var renderOptions = {
     partials: {
@@ -41,6 +42,9 @@ export var RecordDetailView = CompositeView.extend({
         view: 'addSelect',
         selector: '.modal-footer'
     },{
+        view: 'aboutView',
+        selector: '#side-content',
+    },{
         view: 'digitizationsView',
         selector: '#side-content',
     }],
@@ -65,6 +69,9 @@ export var RecordDetailView = CompositeView.extend({
         this.digitizationsView = new DigitizationsView({
             collection: digitizations,
         });
+        this.aboutView = new RecordAboutView({
+            model: model,
+        });
         this.annotationsView = new RecordAnnotationsView({
             collection: new FlatAnnotations(null, {record: model}),
         }).render();
@@ -84,8 +91,6 @@ export var RecordDetailView = CompositeView.extend({
             last: this.isLast,
             title: this.model.getMainDisplay(),
             uri: this.model.id,
-            databaseId: this.model.get("edpoprec:identifier"),
-            publicURL: this.model.get("edpoprec:publicURL"),
         }, typeTranslation(this.model)), renderOptions));
         return this;
     },

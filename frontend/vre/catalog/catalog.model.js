@@ -5,6 +5,10 @@ import {JsonLdCollection, JsonLdModel} from "../utils/jsonld.model";
  * Representation of a single catalogue.
  */
 export var Catalog = JsonLdModel.extend({
+    idAttribute: '@id',
+    getName: function() {
+        return this.get("name");
+    }
 });
 
 /**

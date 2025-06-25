@@ -2,6 +2,7 @@ import { APIModel } from '../utils/api.model';
 import { Annotations } from '../annotation/annotation.model';
 import { JsonLdModel, JsonLdNestedCollection } from "../utils/jsonld.model";
 import { FlatFields } from "../field/field.model";
+import {vreChannel} from "../radio";
 
 export var Record = JsonLdModel.extend({
     urlRoot: '/api/records',
@@ -44,6 +45,11 @@ export var Record = JsonLdModel.extend({
             });
         }
         return this.annotations;
+    },
+    getCatalogName: function() {
+        const catalog = this.get('edpoprec:fromCatalog');
+        const catalogUri = catalog && catalog['@id'];
+        return vreChannel.request('getCatalog', catalogUri).getName();
     },
 });
 
