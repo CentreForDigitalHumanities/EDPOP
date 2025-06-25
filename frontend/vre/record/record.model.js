@@ -47,7 +47,8 @@ export var Record = JsonLdModel.extend({
         return this.annotations;
     },
     getCatalogName: function() {
-        const catalogUri = this.get('edpoprec:fromCatalog')?.['@id'];
+        const catalog = this.get('edpoprec:fromCatalog');
+        const catalogUri = catalog && catalog['@id'];
         return vreChannel.request('getCatalog', catalogUri).getName();
     },
 });

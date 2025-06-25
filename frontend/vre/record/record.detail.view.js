@@ -71,7 +71,7 @@ export var RecordDetailView = CompositeView.extend({
         });
         this.aboutView = new RecordAboutView({
             model: model,
-        }).render();
+        });
         this.annotationsView = new RecordAnnotationsView({
             collection: new FlatAnnotations(null, {record: model}),
         }).render();

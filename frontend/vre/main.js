@@ -112,9 +112,7 @@ vreChannel.reply('browsingType', () => navigationState.get('browsingType'));
 vreChannel.reply('browsingContext', () => navigationState.get('browsingContext'));
 
 // Make catalog information available via channel
-vreChannel.reply('getCatalog', (uri) => catalogs.findWhere({
-    "@id": uri
-}));
+vreChannel.reply('getCatalog', (uri) => catalogs.get(uri));
 
 // We want this code to run after two conditions are met:
 // 1. The DOM has fully loaded;
