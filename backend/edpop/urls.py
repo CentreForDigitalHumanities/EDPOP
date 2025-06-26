@@ -33,7 +33,6 @@ api_router.register(r'add-selection',
 api_router.register(r'remove-selection',
                     RemoveRecordsViewSet,
                     basename='remove-selection')
-api_router.register('collections', CollectionViewSet, basename='collections')
 
 urlpatterns = [
     path('', include('annotations.urls')),
