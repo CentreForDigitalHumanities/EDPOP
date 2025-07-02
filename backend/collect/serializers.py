@@ -6,14 +6,14 @@ from collect.utils import collection_uri, collection_exists, collection_graph
 from projects.models import Project
 
 
-class ProjectField(serializers.Field):    
+class ProjectField(serializers.Field):
     def __init__(self, **kwargs):
         super().__init__( **kwargs)
 
     def to_internal_value(self, data):
         project = Project.objects.get(name=data)
         return URIRef(project.uri)
-    
+
     def to_representation(self, value):
         project = Project.objects.get(uri=str(value))
         return project.name
