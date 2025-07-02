@@ -19,6 +19,14 @@ class ProjectField(serializers.Field):
         return project.name
 
 
+def check_user_project_authorization(user, project_uri):
+    project_obj = Project.objects.get(uri=str(project_uri))
+    if not project_obj.permit_update_by(user):
+        raise serializers.ValidationError(
+            'No permission to write to this project'
+        )
+
+
 def can_update_project(data):
     '''
     Validates that the specified project is one the user is allowed to write to.
@@ -31,12 +39,7 @@ def can_update_project(data):
 
     project_uri = data['project']
     user = data['user']
-
-    project_obj = Project.objects.get(uri=str(project_uri))
-    if not project_obj.permit_update_by(user):
-        raise serializers.ValidationError(
-            'No permission to write to this project'
-        )
+    check_user_project_authorization(project_uri, user)
 
 
 class CollectionSerializer(serializers.Serializer):
