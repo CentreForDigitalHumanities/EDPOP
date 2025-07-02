@@ -171,7 +171,8 @@ def test_collection_records(db, user, project, client: Client, saved_records):
     assert result.askAnswer
 
 
-def test_add_single_record_preexisting(client, records, collection):
+def test_add_single_record_preexisting(client, user, records, collection):
+    client.force_login(user)
     collection_uri = str(collection.uri)
     payload = {
         'records': [str(records[0])],
@@ -187,7 +188,8 @@ def test_add_single_record_preexisting(client, records, collection):
     assert collection.records == records[:1]
 
 
-def test_add_multi_record_multi_collection(client, records, collections):
+def test_add_multi_record_multi_collection(client, user, records, collections):
+    client.force_login(user)
     record_uris = list(map(str, records))
     collection_urirefs = map(attrgetter('uri'), collections)
     collection_uris = list(map(str, collection_urirefs))
@@ -210,7 +212,8 @@ def test_add_multi_record_multi_collection(client, records, collections):
         assert set(collection.records) == records_set
 
 
-def test_remove_records(client, records, collection):
+def test_remove_records(client, user, records, collection):
+    client.force_login(user)
     collection_uri = str(collection.uri)
     record_uris = list(map(str, records))
     collection.records = records
@@ -229,7 +232,8 @@ def test_remove_records(client, records, collection):
     assert collection.records == []
 
 
-def test_remove_single_record(client, records, collection):
+def test_remove_single_record(client, user, records, collection):
+    client.force_login(user)
     collection_uri = str(collection.uri)
     record_uris = list(map(str, records))
     collection.records = records
