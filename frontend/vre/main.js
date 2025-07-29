@@ -12,6 +12,7 @@ import { vreChannel } from './radio';
 import { VRECollections } from './collection/collection.model';
 import { CatalogSearchView } from './catalog/catalog.search.view';
 import { BrowseCollectionView } from './collection/browse-collection.view';
+import { FilteredCollection } from "./utils/filtered.collection";
 
 import { SelectCollectionView } from './collection/select-collection.view';
 import { GlobalVariables } from './globals/variables';
@@ -31,8 +32,12 @@ GlobalVariables.myCollections = new VRECollections();
 // All collections except for the one currently selected.
 var unsalientCollections = new VRECollections();
 var catalogs = new Catalogs([], {comparator: 'name'});
+var visibleCatalogs = new FilteredCollection(catalogs, (catalog) => {
+    // Do not show the blank records catalogue
+    return catalog.id !== "https://edpop.hum.uu.nl/readers/blank-records";
+});
 var catalogDropdown = new SelectCatalogView({
-    collection: catalogs
+    collection: visibleCatalogs
 });
 var collectionDropdown = new SelectCollectionView({
     collection: GlobalVariables.myCollections
