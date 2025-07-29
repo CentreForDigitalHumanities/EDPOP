@@ -17,6 +17,7 @@ import recordTypeIcon from '../record/record.type.icon.mustache';
  * Adapted from: https://tabulator.info/examples/6.2#menu
  */
 export const columnChooseMenu = function(){
+    // This function is called with the Tabular object as its context
     const menu = [];
     const columns = this.getColumns();
     menu.push({
@@ -55,13 +56,16 @@ export const columnChooseMenu = function(){
                 // toggle current column visibility
                 column.toggle();
 
+                // Redraw the table so that the columns are realigned
+                this.redraw();
+
                 // change menu item icon
                 if (column.isVisible()) {
                     icon.classList.add("fa-check");
                 } else {
                     icon.classList.remove("fa-check");
                 }
-            }
+            }.bind(this)
         });
     }
 
