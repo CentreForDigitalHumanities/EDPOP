@@ -11,6 +11,7 @@ import {BIBLIOGRAPHICAL} from "../utils/record-ontology";
 
 export var BrowseCollectionView = CompositeView.extend({
     template: collectionTemplate,
+    recordClass: BIBLIOGRAPHICAL, // We only support bibliographical collections for now.
 
     events: {
         'click .page-header small button': 'editSummary',
