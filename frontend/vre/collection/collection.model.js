@@ -7,8 +7,8 @@ import { Records } from '../record/record.model.js';
  */
 export var VRECollection = APIModel.extend({
     idAttribute: 'uri',
-    getRecords: function() {
-        if (this.records) return this.records;
+    getRecords: function(reload=false) {
+        if (!reload && this.records) return this.records;
         var records = this.records = new Records();
         records.url = `/api/collection-records/${encodeURIComponent(this.id)}/`;
         records.fetch().then(function() {

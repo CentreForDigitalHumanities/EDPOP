@@ -6,6 +6,8 @@ import { RecordListManagingView } from '../record/record.list.managing.view.js';
 import { OverlayView } from '../utils/overlay.view.js';
 import { EditSummaryView } from './edit-summary.view.js';
 import collectionTemplate from './browse-collection.view.mustache';
+import {BlankRecordModel} from "./blank-record.model";
+import {BIBLIOGRAPHICAL} from "../utils/record-ontology";
 
 export var BrowseCollectionView = CompositeView.extend({
     template: collectionTemplate,
@@ -22,14 +24,8 @@ export var BrowseCollectionView = CompositeView.extend({
 
     initialize: function() {
         this.collection = this.collection || this.model.getRecords();
-        this.searchView = new SearchView({
-            model: this.model,
-            collection: this.collection,
-        });
-        this.recordsManager = new RecordListManagingView({
-            model: this.model,
-            collection: this.collection,
-        });
+        this.initializeCollection();
+
         var editor = new EditSummaryView({model: this.model});
         var overlay = this.editOverlay = new OverlayView({
             root: this.el,
@@ -37,7 +33,27 @@ export var BrowseCollectionView = CompositeView.extend({
             guest: editor,
         });
         overlay.listenTo(editor, 'submit reset', overlay.uncover);
+
         this.render().listenTo(this.model, 'change', this.render);
+    },
+
+    initializeCollection: function() {
+        this.searchView = new SearchView({
+            model: this.model,
+            collection: this.collection,
+        });
+        this.recordsManager = new RecordListManagingView({
+            model: this.model,
+            collection: this.collection,
+            recordClass: this.recordClass,
+        });
+        this.collection.listenTo(this.collection, 'createBlankRecord', this.createBlank.bind(this));
+    },
+
+    reloadCollection: function() {
+        this.collection = this.model.getRecords(true);
+        this.initializeCollection();
+        this.render();
     },
 
     renderContainer: function() {
@@ -49,4 +65,18 @@ export var BrowseCollectionView = CompositeView.extend({
         this.editOverlay.cover();
         return this;
     },
+
+    createBlank: function() {
+        var blankRecord = new BlankRecordModel({
+            collection: this.model.id,
+        });
+        blankRecord.createRecord({
+            success: () => {
+                this.reloadCollection();
+            },
+            error: () => {
+                alert("Creating blank record failed.");
+            }
+        });
+    }
 });
