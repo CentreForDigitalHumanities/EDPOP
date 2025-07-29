@@ -68,6 +68,9 @@ export var RecordListView = Backbone.View.extend({
             layout: "fitColumns",
             responsiveLayout: true,
             initialSort: getDefaultSort(this.recordClass),
+            movableColumns: true,
+            clipboard: "copy",
+            clipboardCopyRowRange: "selected",
             rowHeader: {
                 width: 50,
                 formatter: "rowSelection",
