@@ -97,9 +97,8 @@ export var RecordListManagingView = CompositeView.extend({
         this.recordListView.downloadCSV();
     },
 
-    createBlank: function() {
-        vreChannel.trigger('displayRecord', new Record({
-            content: {},
-        }));
+    createBlank: function(event) {
+        event.preventDefault();
+        this.collection.trigger('createBlankRecord');
     },
 });
