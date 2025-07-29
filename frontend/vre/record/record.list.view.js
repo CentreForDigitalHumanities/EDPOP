@@ -86,8 +86,16 @@ export var RecordListView = Backbone.View.extend({
             },
             headerFilterLiveFilterDelay: 0,
         });
-        this.table.on("rowClick", (e, row) => {
-            const model = row.getData().model;
+        this.table.on("cellClick", (e, cell) => {
+            const column = cell.getColumn();
+            if (!column.getField()) {
+                /* Check if the user clicked the selection column.
+                   In that case do not open the detail view, only
+                   toggle selection.
+                 */
+                return;
+            }
+            const model = cell.getRow().getData().model;
             vreChannel.trigger('displayRecord', model);
         });
         return this;
