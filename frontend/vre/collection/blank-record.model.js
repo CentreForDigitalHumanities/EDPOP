@@ -1,6 +1,6 @@
-import {APIModel} from "../utils/api.model";
+import { Record } from "../record/record.model";
 
-export var BlankRecordModel = APIModel.extend({
+export var BlankRecordModel = Record.extend({
     url: '/api/blank-record/',
 
     createRecord: function(options) {

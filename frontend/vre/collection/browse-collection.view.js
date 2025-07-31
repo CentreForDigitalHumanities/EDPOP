@@ -51,12 +51,6 @@ export var BrowseCollectionView = CompositeView.extend({
         this.collection.listenTo(this.collection, 'createBlankRecord', this.createBlank.bind(this));
     },
 
-    reloadCollection: function() {
-        this.collection = this.model.getRecords(true);
-        this.initializeCollection();
-        this.render();
-    },
-
     renderContainer: function() {
         this.$el.html(this.template(this.model.attributes));
         return this;
@@ -73,7 +67,7 @@ export var BrowseCollectionView = CompositeView.extend({
         });
         blankRecord.createRecord({
             success: () => {
-                this.reloadCollection();
+                this.collection.unshift(blankRecord);
             },
             error: () => {
                 alert("Creating blank record failed.");
