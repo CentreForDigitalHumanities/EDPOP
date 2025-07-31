@@ -16,6 +16,8 @@ from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
 
 from edpop_explorer import readers
 
+from collect.blank_record import BlankRecordReader
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
@@ -216,4 +218,4 @@ RDFLIB_STORE = SPARQLUpdateStore(
 
 # CATALOG_READERS: a list of Reader classes from the edpop-explorer package.
 # These readers will be registered for use in the VRE.
-CATALOG_READERS = readers.ALL_READERS
+CATALOG_READERS = readers.ALL_READERS + [BlankRecordReader]

@@ -46,7 +46,8 @@ export var RecordListManagingView = CompositeView.extend({
         }).on('removeRecords', this.removeFromCollection, this);
         this.recordListView = new RecordListView({
             collection: this.collection,
-            recordClass: this.recordClass
+            recordClass: this.recordClass,
+            type: this.type,
         });
         this.render();
     },
@@ -97,9 +98,8 @@ export var RecordListManagingView = CompositeView.extend({
         this.recordListView.downloadCSV();
     },
 
-    createBlank: function() {
-        vreChannel.trigger('displayRecord', new Record({
-            content: {},
-        }));
+    createBlank: function(event) {
+        event.preventDefault();
+        this.collection.trigger('createBlankRecord');
     },
 });

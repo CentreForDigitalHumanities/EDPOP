@@ -1,19 +1,22 @@
 from urllib.parse import unquote
 
+from django.http.request import HttpRequest
 from rest_framework import status
+from rest_framework.parsers import JSONParser
 from rest_framework.viewsets import ModelViewSet, ViewSetMixin
 from rest_framework.views import APIView, Request
 from rest_framework.response import Response
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, ParseError, APIException
 from rdf.renderers import TurtleRenderer, JsonLdRenderer
 from rdf.views import RDFView
 from rdf.utils import graph_from_triples
 from rdflib import URIRef, RDF, RDFS, Graph, BNode, Literal
 from django.conf import settings
 
+from collect.blank_record import create_blank_record
 from triplestore.constants import EDPOPCOL, EDPOPREC
 from projects.api import user_projects
-from catalogs.triplestore import RECORDS_GRAPH_IDENTIFIER
+from catalogs.triplestore import RECORDS_GRAPH_IDENTIFIER, save_to_triplestore
 from collect.rdf_models import EDPOPCollection
 from collect.utils import collection_exists, collection_graph
 from collect.serializers import CollectionSerializer
@@ -129,3 +132,32 @@ class RemoveRecordsViewSet(ViewSetMixin, APIView):
         collection_obj = EDPOPCollection(collection_graph(collection_uri), collection_uri)
         removed_count = collection_obj.remove_records(record_uris)
         return Response({collection: removed_count})
+
+
+class BlankRecordView(RDFView):
+    parser_classes = (JSONParser,)
+    renderer_classes = (JsonLdRenderer, TurtleRenderer)
+    json_ld_context = {
+        'rdfs': str(RDFS),
+        'edpoprec': str(EDPOPREC),
+    }
+
+    def post(self, request, **kwargs):
+        return Response(self.get_graph(request))
+
+    def get_graph(self, request, **kwargs) -> Graph:
+        try:
+            collection = request.data['collection']
+        except KeyError:
+            raise ParseError("No collection selected!")
+
+        record = create_blank_record()
+        record_graph = record.to_graph()
+        save_to_triplestore(record_graph, [URIRef(record.iri)])
+        collection_uri = URIRef(collection)
+        collection_obj = EDPOPCollection(collection_graph(collection_uri), collection_uri)
+        record_counter = collection_obj.add_records([record.iri])
+        if record_counter != 1:
+            raise APIException("Adding blank record failed")
+
+        return record_graph

@@ -4,9 +4,28 @@ import Tabulator from "tabulator";
 
 import {vreChannel} from "../radio";
 import {adjustDefinitions} from "../utils/tabulator-utils";
+import {BIBLIOGRAPHICAL, BIOGRAPHICAL} from "../utils/record-ontology";
 
 function getModelId(rowData) {
     return rowData.model.id;
+}
+
+function getDefaultSort(recordClass, type) {
+    if (type === "catalog") {
+        /* Do not sort catalog results by default, because the API's original
+           order has to be preserved. */
+        return null;
+    }
+    var sortColumn;
+    if (recordClass === BIBLIOGRAPHICAL) {
+        sortColumn = "edpoprec:title";
+    } else if (recordClass === BIOGRAPHICAL) {
+        sortColumn = "edpoprec:name";
+    }
+    return [{
+        column: sortColumn,
+        dir: "asc",
+    }];
 }
 
 export var RecordListView = Backbone.View.extend({
@@ -16,6 +35,11 @@ export var RecordListView = Backbone.View.extend({
      * @type {Tabulator}
      */
     table: null,
+    /**
+     * The kind of record list ("collection" or "catalog")
+     * @type {?string}
+     */
+    type: null,
     /**
      * The record class (BIBLIOGRAPHICAL or BIOGRAPHICAL)
      * @type {?string}
@@ -42,6 +66,11 @@ export var RecordListView = Backbone.View.extend({
             autoColumns: true,
             autoColumnsDefinitions: (autodetected) => {return adjustDefinitions(autodetected, this.recordClass)},
             layout: "fitColumns",
+            initialSort: getDefaultSort(this.recordClass),
+            resizableColumnFit: true,
+            movableColumns: true,
+            clipboard: "copy",
+            clipboardCopyRowRange: "selected",
             rowHeader: {
                 width: 50,
                 formatter: "rowSelection",
@@ -57,8 +86,16 @@ export var RecordListView = Backbone.View.extend({
             },
             headerFilterLiveFilterDelay: 0,
         });
-        this.table.on("rowClick", (e, row) => {
-            const model = row.getData().model;
+        this.table.on("cellClick", (e, cell) => {
+            const column = cell.getColumn();
+            if (!column.getField()) {
+                /* Check if the user clicked the selection column.
+                   In that case do not open the detail view, only
+                   toggle selection.
+                 */
+                return;
+            }
+            const model = cell.getRow().getData().model;
             vreChannel.trigger('displayRecord', model);
         });
         return this;
