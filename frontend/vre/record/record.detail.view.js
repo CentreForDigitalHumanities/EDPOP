@@ -31,9 +31,6 @@ export var RecordDetailView = CompositeView.extend({
     subviews: [{
         view: 'fieldsView',
         selector: '#main-content'
-    },{
-        view: 'annotationsView',
-        selector: '#main-content'
     }, {
         view: 'removeButton',
         selector: '.modal-footer',
@@ -41,12 +38,15 @@ export var RecordDetailView = CompositeView.extend({
     }, {
         view: 'addSelect',
         selector: '.modal-footer'
-    },{
+    }, {
         view: 'aboutView',
         selector: '#side-content',
-    },{
+    }, {
         view: 'digitizationsView',
         selector: '#side-content',
+    }, {
+        view: 'annotationsView',
+        selector: '#side-content'
     }],
 
     events: {

@@ -47,10 +47,7 @@ export var AnnotationEditView = View.extend({
     },
     submit: function(event) {
         event.preventDefault();
-        var model = this.model;
-        this.$('input').each(function(index, element) {
-            model.set(this.name, $(this).val());
-        });
+        this.model.set("value", this.$('textarea').val());
         this.trigger('save', this);
     },
     reset: function(event) {

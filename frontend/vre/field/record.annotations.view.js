@@ -2,13 +2,27 @@ import _ from 'lodash';
 import Backbone from 'backbone';
 import { AnnotationEditView } from '../annotation/annotation.edit.view';
 import { vreChannel } from '../radio.js';
-import { RecordFieldsBaseView } from './record.base.view';
+import {AggregateView} from "../core/view";
+import recordAnnotationsTemplate from "./record.annotations.view.mustache";
+import {CommentView} from "../annotation/comment.view";
 
-export var RecordAnnotationsView = RecordFieldsBaseView.extend({
-    title: 'Annotations',
+export var RecordAnnotationsView = AggregateView.extend({
+    template: recordAnnotationsTemplate,
+    container: 'tbody',
+
+    makeItem: function(model) {
+        var row = new CommentView({model: model});
+        row.on('edit', this.edit, this);
+        return row;
+    },
+
+    renderContainer: function() {
+        this.$el.html(this.template(this));
+        return this;
+    },
 
     initialize: function(options) {
-        RecordFieldsBaseView.prototype.initialize.call(this, options);
+        this.initItems().render().initCollectionEvents();
         this.editable = true;  // enables "New field" button
     },
 
