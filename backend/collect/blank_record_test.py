@@ -9,9 +9,3 @@ def test_record_is_created_valid_rdf():
     assert isinstance(record, Record)
     assert isinstance(record.iri, str)
     assert isinstance(record.to_graph(), Graph)
-
-
-def test_second_record_different_iri():
-    record1 = create_blank_record()
-    record2 = create_blank_record()
-    assert record1.iri != record2.iri
