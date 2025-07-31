@@ -48,7 +48,7 @@ export var BrowseCollectionView = CompositeView.extend({
             collection: this.collection,
             recordClass: this.recordClass,
         });
-        this.collection.listenTo(this.collection, 'createBlankRecord', this.createBlank.bind(this));
+        this.listenTo(this.collection, 'createBlankRecord', this.createBlank);
     },
 
     renderContainer: function() {
