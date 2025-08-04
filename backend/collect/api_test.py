@@ -13,24 +13,28 @@ from collect.utils import collection_uri
 from projects.models import Project
 from collect.rdf_models import EDPOPCollection
 from collect.utils import collection_graph
+from collect.api import CollectionsView
 
-def example_collection_data(project_name) -> Dict:
+
+def example_collection_data(project_uri) -> Dict:
     return {
         'name': 'My collection',
         'summary': 'These are my favourite records',
-        'project': project_name,
+        'project': project_uri,
     }
 
-def post_collection(client, project_name):
-    data = example_collection_data(project_name)
-    return client.post('/api/collections/', data, content_type='application/json')
+
+def post_collection(client, project_uri):
+    data = example_collection_data(project_uri)
+    data['@context'] = CollectionsView.json_ld_context
+    return client.post('/api/collections/', data, content_type='application/ld+json')
 
 def test_create_collection(db, user, project, client: Client):
     client.force_login(user)
 
-    response = post_collection(client, project.name)
+    response = post_collection(client, project.uri)
     assert is_success(response.status_code)
-    uri = URIRef(response.data['uri'])
+    uri = URIRef(response.json()['uri'])
 
     store = settings.RDFLIB_STORE
     assert any(store.triples((uri, RDF.type, EDPOPCOL.Collection)))
@@ -38,16 +42,16 @@ def test_create_collection(db, user, project, client: Client):
 
 def test_create_fails_if_collection_exists(db, user, project, client: Client):
     client.force_login(user)
-    success_response = post_collection(client, project.name)
+    success_response = post_collection(client, project.uri)
     assert is_success(success_response.status_code)
-    uri = URIRef(success_response.data['uri'])
+    uri = URIRef(success_response.json()['uri'])
 
     # try to create a collection at the same location
     fail_response = client.post('/api/collections/', {
         'name': 'My collection',
         'summary': 'I like these too',
-        'project': project.name
-    })
+        'project': project.uri
+    }, content_type='application/ld+json')
     assert is_client_error(fail_response.status_code)
 
     store = settings.RDFLIB_STORE
@@ -61,15 +65,16 @@ def test_list_collections(db, user, project, client: Client):
 
     response = client.get('/api/collections/')
     assert is_success(response.status_code)
-    assert len(response.data) == 0
+    assert len(response.json()) == 0
 
-    response = post_collection(client, project.name)
+    response = post_collection(client, project.uri)
 
     response = client.get('/api/collections/')
     assert is_success(response.status_code)
-    assert len(response.data) == 1
-    assert response.data[0]['uri'] == settings.RDF_NAMESPACE_ROOT + 'collections/my_collection'
-    assert response.data[0]['name'] == 'My collection'
+    response_json = response.json()
+    assert len(response_json) == 1
+    assert response_json[0]['uri'] == settings.RDF_NAMESPACE_ROOT + 'collections/my_collection'
+    assert response_json[0]['name'] == 'My collection'
 
 
 def collection_detail_url(collection_uri: str) -> str:
@@ -78,10 +83,10 @@ def collection_detail_url(collection_uri: str) -> str:
 
 def test_retrieve_collection(db, user, project, client: Client):
     client.force_login(user)
-    create_response = post_collection(client, project.name)
+    create_response = post_collection(client, project.uri)
 
 
-    correct_url = collection_detail_url(create_response.data['uri'])
+    correct_url = collection_detail_url(create_response.json()['uri'])
     nonexistent_uri = collection_uri('does not exist')
 
     not_found_response = client.get(collection_detail_url(nonexistent_uri))
@@ -89,7 +94,7 @@ def test_retrieve_collection(db, user, project, client: Client):
 
     success_response = client.get(correct_url)
     assert is_success(success_response.status_code)
-    assert success_response.data['name'] == 'My collection'
+    assert success_response.json()['name'] == 'My collection'
 
     client.logout()
     no_permission_response = client.get(correct_url)
@@ -97,9 +102,9 @@ def test_retrieve_collection(db, user, project, client: Client):
 
 def test_delete_collection(db, user, project, client: Client):
     client.force_login(user)
-    create_response = post_collection(client, project.name)
+    create_response = post_collection(client, project.uri)
 
-    detail_url = collection_detail_url(create_response.data['uri'])
+    detail_url = collection_detail_url(create_response.json()['uri'])
     delete_response = client.delete(detail_url)
     assert is_success(delete_response.status_code)
 
@@ -109,15 +114,15 @@ def test_delete_collection(db, user, project, client: Client):
 def test_update_collection(db, user, project, client: Client):
     client.force_login(user)
 
-    create_response = post_collection(client, project.name)
-    detail_url = collection_detail_url(create_response.data['uri'])
+    create_response = post_collection(client, project.uri)
+    detail_url = collection_detail_url(create_response.json()['uri'])
 
-    data = example_collection_data(project.name)
+    data = example_collection_data(project.uri)
     data.update({'summary': 'I don\'t like these anymore'})
 
     update_response = client.put(detail_url, data, content_type='application/json')
     assert is_success(update_response.status_code)
-    assert update_response.data['summary'] == 'I don\'t like these anymore'
+    assert update_response.json()['summary'] == 'I don\'t like these anymore'
 
 
 def test_project_validation(db, user, client: Client):
@@ -135,7 +140,7 @@ def test_project_validation(db, user, client: Client):
 
 def test_collection_records(db, user, project, client: Client, saved_records):
     client.force_login(user)
-    create_response = post_collection(client, project.name)
+    create_response = post_collection(client, project.uri)
     collection_uri = URIRef(create_response.data['uri'])
 
     records_url = '/api/collection-records/' + str(collection_uri) + '/'
