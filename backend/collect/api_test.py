@@ -29,6 +29,7 @@ def post_collection(client, project_uri):
     data['@context'] = CollectionsView.json_ld_context
     return client.post('/api/collections/', data, content_type='application/ld+json')
 
+
 def test_create_collection(db, user, project, client: Client):
     client.force_login(user)
 
