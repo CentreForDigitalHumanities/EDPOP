@@ -157,6 +157,7 @@ class CollectionsView(RDFView):
         graph = collection_graph(collection)
         quads = ((collection, p, o, graph) for p, o in props)
         graph.addN(quads)
+        graph.set((collection, RDF.type, EDPOPCOL.Collection))
         graph.commit()
         return Response(graph, HTTP_201_CREATED)
 
