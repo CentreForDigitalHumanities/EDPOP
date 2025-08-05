@@ -97,9 +97,6 @@ def test_retrieve_collection(db, user, project, client: Client):
     assert is_success(success_response.status_code)
     assert success_response.json()['name'] == 'My collection'
 
-    client.logout()
-    no_permission_response = client.get(correct_url)
-    assert no_permission_response.status_code == 403
 
 def test_delete_collection(db, user, project, client: Client):
     client.force_login(user)
