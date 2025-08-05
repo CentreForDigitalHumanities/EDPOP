@@ -172,6 +172,8 @@ class CollectionEditView(RDFResourceView):
 
     def get_graph(self, request, **kwargs):
         collection_uri = URIRef(unquote(kwargs['collection']))
+        if not collection_exists(collection_uri):
+            raise NotFound(f'Collection does not exist')
         return collection_graph(collection_uri)
 
     def put(self, request, format=None, **kwargs):
