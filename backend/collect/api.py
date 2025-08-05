@@ -157,6 +157,7 @@ class CollectionsView(RDFView):
         graph = collection_graph(collection)
         quads = ((collection, p, o, graph) for p, o in props)
         graph.addN(quads)
+        graph.commit()
         return Response(graph, HTTP_201_CREATED)
 
 
@@ -185,6 +186,7 @@ class CollectionEditView(RDFResourceView):
         override_summary = overrides.value(subject=uri, predicate=AS.summary)
         if override_summary:
             graph.set((uri, AS.summary, override_summary))
+        graph.commit()
         return Response(graph)
 
     def delete(self, request, format=None, **kwargs):
@@ -194,6 +196,7 @@ class CollectionEditView(RDFResourceView):
         check_user_project_authorization(request.user, existing_project)
         store = settings.RDFLIB_STORE
         store.remove_graph(graph)
+        store.commit()
         return Response(Graph(), HTTP_204_NO_CONTENT)
 
 
