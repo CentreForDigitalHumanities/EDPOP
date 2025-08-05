@@ -55,7 +55,8 @@ export var JsonLdCollection = APICollection.extend({
     model: JsonLdModel,
     parse: function(response) {
         if (!response.hasOwnProperty("@graph")) {
-            throw "Response has no @graph key, is this JSON-LD in compacted form?";
+            console.warn("Response has no @graph key; assuming that it is in compacted form.");
+            return [response];
         }
         return response["@graph"];
     }
@@ -119,10 +120,11 @@ export var JsonLdNestedCollection = APICollection.extend({
      */
     targetClass: undefined,
     parse: function(response) {
+        let allSubjects = response["@graph"];
         if (!response.hasOwnProperty("@graph")) {
-            throw "Response has no @graph key, is this JSON-LD in compacted form?";
+            console.warn("Response has no @graph key; assuming that it is in compacted form.");
+            allSubjects = [response];
         }
-        const allSubjects = response["@graph"];
         const completeSubjects = enforest(allSubjects, !this.targetClass);
         if (!this.targetClass) return completeSubjects;
         return _.filter(completeSubjects, {'@type': this.targetClass});
