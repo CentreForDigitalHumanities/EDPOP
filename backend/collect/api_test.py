@@ -65,13 +65,13 @@ def test_list_collections(db, user, project, client: Client):
 
     response = client.get('/api/collections/')
     assert is_success(response.status_code)
-    assert len(response.json()) == 0
+    assert len(response.json()['@graph']) == 0
 
     response = post_collection(client, project.uri)
 
     response = client.get('/api/collections/')
     assert is_success(response.status_code)
-    response_json = response.json()
+    response_json = response.json()['@graph']
     assert len(response_json) == 1
     assert response_json[0]['uri'] == settings.RDF_NAMESPACE_ROOT + 'collections/my_collection'
     assert response_json[0]['name'] == 'My collection'
