@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'rdf',
     'projects',
     'collect',
+    'annotations',
 ]
 
 MIDDLEWARE = [
