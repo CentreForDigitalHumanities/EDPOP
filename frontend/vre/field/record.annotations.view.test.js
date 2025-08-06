@@ -4,7 +4,7 @@ import { isEmpty, last, indexOf, find, compact } from 'lodash';
 import { Collection }  from 'backbone';
 
 import { vreChannel } from '../radio.js';
-import { FlatAnnotations } from '../annotation/annotation.model.js';
+import {Annotation, Annotations} from '../annotation/annotation.model.js';
 import { AnnotationEditView } from '../annotation/annotation.edit.view.js';
 import { RecordFieldsBaseView } from './record.base.view.js';
 import { RecordAnnotationsView } from './record.annotations.view.js';
@@ -22,18 +22,20 @@ var fakeProjectMenu = {
 };
 
 var TestCollection = Collection.extend({
-    modelId: FlatAnnotations.prototype.modelId,
+    modelId: Annotations.prototype.modelId,
 });
 
-var testAnnotations = [{
-    key: 'Color',
-    value: 'moss',
-    context: 'me, myself and I',
-}, {
-    key: 'Pet',
-    value: 'Slimey',
-    context: currentContext,
-}];
+var annotation = new Annotation({
+    "@id": "http://example.org/annotations/1",
+    "oa:hasBody": "moss",
+    context: "me, myself and I",
+});
+var annotation2 = new Annotation({
+    "@id": "http://example.org/annotations/2",
+    "oa:hasBody": "bright",
+    context: "monsters",
+});
+var testAnnotations = [annotation, annotation2];
 
 var numAnnotations = testAnnotations.length;
 var oneUp = numAnnotations + 1;
@@ -140,15 +142,11 @@ describe('RecordAnnotationsView', function() {
         vreChannel.stopReplying('projects:current');
     });
 
-    it('inherits from RecordFieldsBaseView', function() {
-        assert(this.view instanceof RecordFieldsBaseView);
-    });
-
     it('has a button for adding new fields', function() {
         var button = this.view.$('table + button');
         assert(button.length === 1);
         var text = button.text();
-        assert(/new.+field/i.test(text));
+        assert(/new.+comment/i.test(text));
     });
 
     describe('when adding a new field', function() {
