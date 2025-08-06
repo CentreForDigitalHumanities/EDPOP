@@ -22,7 +22,7 @@ export var CommentView = View.extend({
         // custom models
         var templateData = {};
         Object.assign(templateData, {
-            displayText: this.model.get('value'),
+            displayText: this.model.getBody(),
         });
         this.$el.html(this.template(templateData));
         return this;

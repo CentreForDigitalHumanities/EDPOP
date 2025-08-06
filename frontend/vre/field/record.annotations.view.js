@@ -5,6 +5,7 @@ import { vreChannel } from '../radio.js';
 import {AggregateView} from "../core/view";
 import recordAnnotationsTemplate from "./record.annotations.view.mustache";
 import {CommentView} from "../annotation/comment.view";
+import {Annotation} from "../annotation/annotation.model";
 
 export var RecordAnnotationsView = AggregateView.extend({
     template: recordAnnotationsTemplate,
@@ -53,7 +54,7 @@ export var RecordAnnotationsView = AggregateView.extend({
     },
 
     editEmpty: function() {
-        this.edit(new Backbone.Model());
+        this.edit(new Annotation());
     },
 
     cancel: function(editRow) {

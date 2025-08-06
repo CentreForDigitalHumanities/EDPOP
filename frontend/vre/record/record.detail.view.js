@@ -2,7 +2,6 @@ import _ from 'lodash';
 import { FilteredCollection } from "../utils/filtered.collection";
 import { CompositeView } from '../core/view.js';
 import { vreChannel } from '../radio';
-import { FlatAnnotations } from '../annotation/annotation.model';
 import { RecordFieldsView } from '../field/record.fields.view';
 import { RecordAnnotationsView } from '../field/record.annotations.view';
 import { Field, FlatterFields } from '../field/field.model';
@@ -56,6 +55,7 @@ export var RecordDetailView = CompositeView.extend({
 
     initialize: function(options) {
         var model = this.model;
+        model.getAnnotations();
         var index = model.collection.indexOf(model);
         this.isFirst = (index === 0);
         this.isLast = (index === model.collection.length - 1);
@@ -73,7 +73,7 @@ export var RecordDetailView = CompositeView.extend({
             model: model,
         });
         this.annotationsView = new RecordAnnotationsView({
-            collection: new FlatAnnotations(null, {record: model}),
+            collection: model.annotations,
         }).render();
         this.annotationsView.listenTo(this.fieldsView, 'edit', this.annotationsView.edit);
         this.addSelect = new AddToCollectionView({
