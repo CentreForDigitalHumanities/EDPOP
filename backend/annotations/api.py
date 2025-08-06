@@ -1,7 +1,9 @@
 import uuid
 from django.conf import settings
+from django.http.response import HttpResponse
 from rest_framework.views import Request
-from rest_framework.decorators import api_view
+from rest_framework.parsers import JSONParser
+from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.response import Response
 from rdflib import URIRef, Graph, Literal, DCTERMS, RDFS
 import datetime
@@ -18,6 +20,14 @@ ANNOTATION_GRAPH_URI = settings.RDF_NAMESPACE_ROOT + "annotations/"
 ANNOTATION_GRAPH_IDENTIFIER = URIRef(ANNOTATION_GRAPH_URI)
 
 RDF_ANNOTATION_ROOT = settings.RDF_NAMESPACE_ROOT + "annotations/"
+
+JSON_LD_CONTEXT = {
+    'rdfs': str(RDFS),
+    'edpoprec': str(EDPOPREC),
+    'oa': str(OA),
+    'as': str(AS),
+    'dcterms': str(DCTERMS),
+}
 
 
 # Argument: target_uris
@@ -48,30 +58,35 @@ where {
 '''
 
 
-@api_view(['POST'])
-def add_annotation(request: Request) -> Response:
-    subject_node = URIRef(RDF_ANNOTATION_ROOT + uuid.uuid4().hex)
-    graph = Graph(identifier=ANNOTATION_GRAPH_IDENTIFIER)
-    if not all(x in request.data.keys() for x in ["oa:hasTarget", "oa:hasBody"]):
-        return Response({"error": "Missing required fields"}, status=400)
-    oa_has_target = URIRef(request.data.get("oa:hasTarget"))
-    oa_motivated_by = OA.commenting
-    oa_has_body = Literal(request.data.get("oa:hasBody"))
-    as_published = Literal(datetime.date.today())
-    dcterms_creator = user_to_uriref(request.user)
-    triples = [
-        (subject_node, OA.hasTarget, oa_has_target),
-        (subject_node, OA.motivatedBy, oa_motivated_by),
-        (subject_node, OA.hasBody, oa_has_body),
-        (subject_node, AS.published, as_published),
-        (subject_node, DCTERMS.creator, dcterms_creator),
-    ]
-    quads = list(triples_to_quads(triples, graph))
-    # Get the existing graph from Blazegraph
-    store = settings.RDFLIB_STORE
-    store.addN(quads)
-    store.commit()
-    return Response({})
+class AddAnnotationView(RDFView):
+    parser_classes = (JSONParser,)
+    renderer_classes = (JsonLdRenderer, TurtleRenderer)
+    json_ld_context = JSON_LD_CONTEXT
+
+    def post(self, request, **kwargs):
+        subject_node = URIRef(RDF_ANNOTATION_ROOT + uuid.uuid4().hex)
+        graph = Graph(identifier=ANNOTATION_GRAPH_IDENTIFIER)
+        if not all(x in request.data.keys() for x in ["oa:hasTarget", "oa:hasBody"]):
+            return Response({"error": "Missing required fields"}, status=400)
+        oa_has_target = URIRef(request.data.get("oa:hasTarget"))
+        oa_motivated_by = OA.commenting
+        oa_has_body = Literal(request.data.get("oa:hasBody"))
+        as_published = Literal(datetime.date.today())
+        dcterms_creator = user_to_uriref(request.user)
+        triples = [
+            (subject_node, OA.hasTarget, oa_has_target),
+            (subject_node, OA.motivatedBy, oa_motivated_by),
+            (subject_node, OA.hasBody, oa_has_body),
+            (subject_node, AS.published, as_published),
+            (subject_node, DCTERMS.creator, dcterms_creator),
+        ]
+        quads = list(triples_to_quads(triples, graph))
+        # Get the existing graph from Blazegraph
+        store = settings.RDFLIB_STORE
+        store.addN(quads)
+        store.commit()
+        graph = graph_from_triples(triples)
+        return Response(graph)
 
 
 @api_view(['PUT'])
@@ -92,13 +107,7 @@ class AnnotationsView(RDFView):
     '''
 
     renderer_classes = (JsonLdRenderer, TurtleRenderer)
-    json_ld_context = {
-        'rdfs': str(RDFS),
-        'edpoprec': str(EDPOPREC),
-        'oa': str(OA),
-        'as': str(AS),
-        'dcterms': str(DCTERMS),
-    }
+    json_ld_context = JSON_LD_CONTEXT
 
     def get_graph(self, request: Request, record: str, **kwargs) -> Graph:
         record_uri = URIRef(record)
