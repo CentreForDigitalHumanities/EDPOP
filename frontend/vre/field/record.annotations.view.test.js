@@ -162,40 +162,6 @@ describe('RecordAnnotationsView', function() {
         describe('on trash', newAnnotationTrashed);
     });
 
-    describe('when editing a previously unedited field', function() {
-        beforeEach(function() {
-            this.fieldView = this.view.items[0];
-            this.affectedModel = this.fieldView.model;
-            assert(this.affectedModel === this.collection.at(0));
-            assert(this.affectedModel.get('context') !== currentContext);
-            this.affectedElement = this.fieldView.$el;
-            assert(this.affectedElement.get(0) === this.view.$('tr').get(0));
-            this.affectedElement.click();
-            this.editor = last(this.view.items);
-        });
-
-        it('leaves the original row in place', function() {
-            assert(this.detectChange.notCalled);
-            assert(this.detectRemove.notCalled);
-            assert(this.fieldView === this.view.items[0]);
-            assert(this.affectedModel === this.collection.at(0));
-            assert(this.affectedElement.get(0) === this.view.$('tr').get(0));
-        });
-
-        it('appends a new AnnotationEditView', assertEditorAppended);
-
-        it('copies key and value but overrides the context', function () {
-            var newModel = this.editor.model;
-            assert(newModel.get('key') === this.affectedModel.get('key'));
-            assert(newModel.get('value') === this.affectedModel.get('value'));
-            assert(newModel.get('context') === currentContext);
-        });
-
-        describe('on cancel', newAnnotationCanceled);
-        describe('on save', newAnnotationSaved);
-        describe('on trash', newAnnotationTrashed);
-    });
-
     describe('when editing a previously edited field', function() {
         beforeEach(function() {
             this.position = 1;
