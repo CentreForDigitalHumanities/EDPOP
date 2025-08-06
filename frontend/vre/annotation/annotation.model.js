@@ -16,7 +16,7 @@ export var Annotation = JsonLdModel.extend({
             "oa:hasTarget": target,
         }, {
             url: `/api/annotations/add/`,
-        })
+        });
     },
     deleteFromDatabase: function() {
         this.save(null, {
