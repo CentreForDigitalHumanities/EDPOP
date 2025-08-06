@@ -5,5 +5,6 @@ from . import api
 urlpatterns = [
     path('api/annotations/add/', api.AddAnnotationView.as_view(), name='add_annotation'),
     path('api/annotations/delete/', api.delete_annotation, name='delete_annotation'),
+    path('api/annotations/update/', api.update_annotation, name='update_annotation'),
     re_path(r'api/annotations/get/(?P<record>.+)/', api.AnnotationsView.as_view(), name='annotations')
 ]

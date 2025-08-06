@@ -57,6 +57,19 @@ where {
 }
 '''
 
+delete_annotation_body_update = '''
+delete {
+  graph ?annotations {
+    ?annotation <http://www.w3.org/ns/oa#hasBody> ?o.
+  }
+}
+where {
+  graph ?annotations {
+    ?annotation <http://www.w3.org/ns/oa#hasBody> ?o.
+  }
+}
+'''
+
 
 class AddAnnotationView(RDFView):
     parser_classes = (JSONParser,)
@@ -97,6 +110,23 @@ def delete_annotation(request: Request) -> Response:
         'annotations': ANNOTATION_GRAPH_IDENTIFIER,
         'annotation': id_uriref,
     })
+    store.commit()
+    return Response({})
+
+
+@api_view(['PUT'])
+def update_annotation(request: Request) -> Response:
+    id_uriref = URIRef(request.data.get("@id"))
+    oa_has_body = Literal(request.data.get("oa:hasBody"))
+    store = settings.RDFLIB_STORE
+    # Delete the current body
+    store.update(delete_annotation_body_update, initBindings={
+        'annotations': ANNOTATION_GRAPH_IDENTIFIER,
+        'annotation': id_uriref,
+    })
+    triples = [(id_uriref, OA.hasBody, oa_has_body)]
+    quads = list(triples_to_quads(triples, Graph(identifier=ANNOTATION_GRAPH_IDENTIFIER)))
+    store.addN(quads)
     store.commit()
     return Response({})
 
