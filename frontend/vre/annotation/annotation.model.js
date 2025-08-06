@@ -5,8 +5,11 @@ export var Annotation = JsonLdModel.extend({
     getBody: function() {
         return this.get('oa:hasBody');
     },
-    getDate: function() {
+    getPublishedDate: function() {
         return getDateLiteral(this.get('as:published'));
+    },
+    getUpdatedDate: function() {
+        return getDateLiteral(this.get('as:updated'));
     },
     getAuthor: function() {
         return new UserLd(this.get('dcterms:creator'));

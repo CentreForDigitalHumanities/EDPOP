@@ -114,21 +114,30 @@ def delete_annotation(request: Request) -> Response:
     return Response({})
 
 
-@api_view(['PUT'])
-def update_annotation(request: Request) -> Response:
-    id_uriref = URIRef(request.data.get("@id"))
-    oa_has_body = Literal(request.data.get("oa:hasBody"))
-    store = settings.RDFLIB_STORE
-    # Delete the current body
-    store.update(delete_annotation_body_update, initBindings={
-        'annotations': ANNOTATION_GRAPH_IDENTIFIER,
-        'annotation': id_uriref,
-    })
-    triples = [(id_uriref, OA.hasBody, oa_has_body)]
-    quads = list(triples_to_quads(triples, Graph(identifier=ANNOTATION_GRAPH_IDENTIFIER)))
-    store.addN(quads)
-    store.commit()
-    return Response({})
+class UpdateAnnotationView(RDFView):
+    parser_classes = (JSONParser,)
+    renderer_classes = (JsonLdRenderer, TurtleRenderer)
+    json_ld_context = JSON_LD_CONTEXT
+
+    def put(self, request, **kwargs):
+        id_uriref = URIRef(request.data.get("@id"))
+        oa_has_body = Literal(request.data.get("oa:hasBody"))
+        as_updated = Literal(datetime.date.today())
+        store = settings.RDFLIB_STORE
+        # Delete the current body
+        store.update(delete_annotation_body_update, initBindings={
+            'annotations': ANNOTATION_GRAPH_IDENTIFIER,
+            'annotation': id_uriref,
+        })
+        triples = [
+            (id_uriref, OA.hasBody, oa_has_body),
+            (id_uriref, AS.updated, as_updated),
+        ]
+        quads = list(triples_to_quads(triples, Graph(identifier=ANNOTATION_GRAPH_IDENTIFIER)))
+        store.addN(quads)
+        store.commit()
+        graph = graph_from_triples(triples)
+        return Response(graph)
 
 
 class AnnotationsView(RDFView):
