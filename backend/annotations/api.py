@@ -97,6 +97,7 @@ class AnnotationsView(RDFView):
         'edpoprec': str(EDPOPREC),
         'oa': str(OA),
         'as': str(AS),
+        'dcterms': str(DCTERMS),
     }
 
     def get_graph(self, request: Request, record: str, **kwargs) -> Graph:

@@ -21,6 +21,7 @@ export var CommentView = View.extend({
         // there are some tests relating to old-style annotations that assign
         // custom models
         var templateData = {};
+        var date = this.model.getDate();
         var author = this.model.getAuthor();
         Object.assign(templateData, {
             displayText: this.model.getBody(),
