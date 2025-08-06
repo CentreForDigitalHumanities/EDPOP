@@ -43,6 +43,25 @@ export function getStringLiteral(literalObject) {
     }, null);
 }
 
+/**
+ * Get a date literal from JSON-LD. This function probes whether the literal
+ * is of xsd:string or xsd:date format and tries to return a Date object.
+ * If the date cannot be reliably parsed, return null.
+ * @param literalObject
+ * @return {?Date}
+ */
+export function getDateLiteral(literalObject) {
+    if (typeof literalObject === "string") {
+        // Only accept dates in the format YYYY-MM-DD
+        if (literalObject.match(/^\d{4}-\d{2}-\d{2}-(?:Z|[+-]\d{2}:\d{2})?$/)) {
+            return new Date(literalObject);
+        }
+    } else if (typeof literalObject === "object" && Object.hasOwn(literalObject, "@value") && Object.hasOwn(literalObject, "@type") && literalObject["@type"] === "http://www.w3.org/2001/XMLSchema#date") {
+        return new Date(literalObject["@value"]);
+    }
+    return null;
+}
+
 export var JsonLdModel = Backbone.Model.extend({
     idAttribute: '@id',
 });
