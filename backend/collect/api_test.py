@@ -116,9 +116,12 @@ def test_update_collection(db, user, project, client: Client):
     detail_url = collection_detail_url(create_response.json()['uri'])
 
     data = example_collection_data(project.uri)
-    data.update({'summary': 'I don\'t like these anymore'})
+    data.update({
+        'summary': 'I don\'t like these anymore',
+        '@context': CollectionsView.json_ld_context,
+    })
 
-    update_response = client.put(detail_url, data, content_type='application/json')
+    update_response = client.put(detail_url, data, content_type='application/ld+json')
     assert is_success(update_response.status_code)
     assert update_response.json()['summary'] == 'I don\'t like these anymore'
 
