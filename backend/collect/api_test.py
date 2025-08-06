@@ -113,10 +113,12 @@ def test_update_collection(db, user, project, client: Client):
     client.force_login(user)
 
     create_response = post_collection(client, project.uri)
-    detail_url = collection_detail_url(create_response.json()['uri'])
+    uri = create_response.json()['uri']
+    detail_url = collection_detail_url(uri)
 
     data = example_collection_data(project.uri)
     data.update({
+        'uri': uri,
         'summary': 'I don\'t like these anymore',
         '@context': CollectionsView.json_ld_context,
     })
