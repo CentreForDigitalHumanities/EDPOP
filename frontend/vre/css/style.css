@@ -6,6 +6,11 @@ h2 {
     color: cornflowerblue;
 }
 
+.authored-by {
+    font-size: 0.8em;
+    color: #888;
+}
+
 #result_detail td {
     cursor: pointer;
 }

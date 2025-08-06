@@ -1,8 +1,12 @@
 import { JsonLdModel, JsonLdNestedCollection } from "../utils/jsonld.model";
+import {UserLd} from "../user/user.ld.model";
 
 export var Annotation = JsonLdModel.extend({
     getBody: function() {
         return this.get('oa:hasBody');
+    },
+    getAuthor: function() {
+        return new UserLd(this.get('dcterms:creator'));
     },
     saveNew: function(target) {
         this.save({

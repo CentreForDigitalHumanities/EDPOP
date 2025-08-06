@@ -21,8 +21,11 @@ export var CommentView = View.extend({
         // there are some tests relating to old-style annotations that assign
         // custom models
         var templateData = {};
+        var author = this.model.getAuthor();
         Object.assign(templateData, {
             displayText: this.model.getBody(),
+            author: (author ? author.getUsername() : null),
+            date: (date ? date.toLocaleDateString() : null),
         });
         this.$el.html(this.template(templateData));
         return this;
