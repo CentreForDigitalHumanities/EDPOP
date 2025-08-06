@@ -34,6 +34,19 @@ where {{
 }}
 '''.format
 
+delete_annotation_update = '''
+delete {
+  graph ?annotations {
+    ?annotation ?p ?o.
+  }
+}
+where {
+  graph ?annotations {
+    ?annotation ?p ?o.
+  }
+}
+'''
+
 
 @api_view(['POST'])
 def add_annotation(request: Request) -> Response:
@@ -57,6 +70,18 @@ def add_annotation(request: Request) -> Response:
     # Get the existing graph from Blazegraph
     store = settings.RDFLIB_STORE
     store.addN(quads)
+    store.commit()
+    return Response({})
+
+
+@api_view(['PUT'])
+def delete_annotation(request: Request) -> Response:
+    id_uriref = URIRef(request.data.get("@id"))
+    store = settings.RDFLIB_STORE
+    store.update(delete_annotation_update, initBindings={
+        'annotations': ANNOTATION_GRAPH_IDENTIFIER,
+        'annotation': id_uriref,
+    })
     store.commit()
     return Response({})
 
