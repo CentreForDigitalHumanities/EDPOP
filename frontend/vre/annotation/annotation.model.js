@@ -1,4 +1,4 @@
-import {getDateLiteral, JsonLdModel, JsonLdNestedCollection} from "../utils/jsonld.model";
+import {getDateTimeLiteral, JsonLdModel, JsonLdNestedCollection} from "../utils/jsonld.model";
 import {UserLd} from "../user/user.ld.model";
 
 export var Annotation = JsonLdModel.extend({
@@ -7,10 +7,10 @@ export var Annotation = JsonLdModel.extend({
         return this.get('oa:hasBody');
     },
     getPublishedDate: function() {
-        return getDateLiteral(this.get('as:published'));
+        return getDateTimeLiteral(this.get('as:published'));
     },
     getUpdatedDate: function() {
-        return getDateLiteral(this.get('as:updated'));
+        return getDateTimeLiteral(this.get('as:updated'));
     },
     getAuthor: function() {
         return new UserLd(this.get('dcterms:creator'));

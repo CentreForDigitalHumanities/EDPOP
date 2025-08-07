@@ -27,8 +27,8 @@ export var CommentView = View.extend({
         Object.assign(templateData, {
             displayText: this.model.getBody(),
             author: (author ? author.getUsername() : null),
-            publishedDate: (publishedDate ? publishedDate.toLocaleDateString() : null),
-            updatedDate: (updatedDate ? updatedDate.toLocaleDateString() : null),
+            publishedDate: (publishedDate ? publishedDate.toLocaleString() : null),
+            updatedDate: (updatedDate ? updatedDate.toLocaleString() : null),
         });
         this.$el.html(this.template(templateData));
         return this;

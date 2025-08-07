@@ -83,7 +83,7 @@ class AnnotationView(RDFView):
         oa_has_target = URIRef(request.data.get("oa:hasTarget"))
         oa_motivated_by = OA.commenting
         oa_has_body = Literal(request.data.get("oa:hasBody"))
-        as_published = Literal(datetime.date.today())
+        as_published = Literal(datetime.datetime.now())
         dcterms_creator = user_to_uriref(request.user)
         triples = [
             (subject_node, RDF.type, EDPOPCOL.Annotation),
@@ -120,7 +120,7 @@ class AnnotationEditView(RDFView):
     def put(self, request, **kwargs):
         id_uriref = URIRef(kwargs.get("annotation"))
         oa_has_body = Literal(request.data.get("oa:hasBody"))
-        as_updated = Literal(datetime.date.today())
+        as_updated = Literal(datetime.datetime.now())
         store = settings.RDFLIB_STORE
         # Delete the current body
         store.update(delete_annotation_body_update, initBindings={
