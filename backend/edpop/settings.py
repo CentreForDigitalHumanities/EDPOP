@@ -103,7 +103,7 @@ WSGI_APPLICATION = 'edpop.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'edpop',
+        'NAME': 'edpop_reserve',
         'USER': 'edpopuser',
         'PASSWORD': 'edpop',
         'HOST': os.getenv('EDPOP_DATABASE_HOST', 'localhost'),

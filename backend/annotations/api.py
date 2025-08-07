@@ -70,8 +70,7 @@ where {
 }
 '''
 
-
-class AddAnnotationView(RDFView):
+class AnnotationView(RDFView):
     parser_classes = (JSONParser,)
     renderer_classes = (JsonLdRenderer, TurtleRenderer)
     json_ld_context = JSON_LD_CONTEXT
@@ -102,22 +101,20 @@ class AddAnnotationView(RDFView):
         return Response(graph)
 
 
-@api_view(['PUT'])
-def delete_annotation(request: Request) -> Response:
-    id_uriref = URIRef(request.data.get("@id"))
-    store = settings.RDFLIB_STORE
-    store.update(delete_annotation_update, initBindings={
-        'annotations': ANNOTATION_GRAPH_IDENTIFIER,
-        'annotation': id_uriref,
-    })
-    store.commit()
-    return Response({})
-
-
-class UpdateAnnotationView(RDFView):
+class AnnotationEditView(RDFView):
     parser_classes = (JSONParser,)
     renderer_classes = (JsonLdRenderer, TurtleRenderer)
     json_ld_context = JSON_LD_CONTEXT
+
+    def delete(self, request, **kwargs):
+        id_uriref = URIRef(kwargs.get("annotation"))
+        store = settings.RDFLIB_STORE
+        store.update(delete_annotation_update, initBindings={
+            'annotations': ANNOTATION_GRAPH_IDENTIFIER,
+            'annotation': id_uriref,
+        })
+        store.commit()
+        return Response(Graph())
 
     def put(self, request, **kwargs):
         id_uriref = URIRef(request.data.get("@id"))
@@ -140,7 +137,7 @@ class UpdateAnnotationView(RDFView):
         return Response(graph)
 
 
-class AnnotationsView(RDFView):
+class AnnotationsPerTargetView(RDFView):
     '''
     View the records inside a collection
     '''
