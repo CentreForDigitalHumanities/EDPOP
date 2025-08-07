@@ -44,6 +44,18 @@ export function getStringLiteral(literalObject) {
 }
 
 /**
+ * Check whether the given literal is of the given data type.
+ * @param literalObject - the object to be checked
+ * @param expectedType - the expected XSD type (part after xsd:)
+ * @returns {boolean}
+ */
+function checkDataType(literalObject, expectedType) {
+    if (expectedType === "string")
+        return typeof literalObject === "string";
+    return typeof literalObject === "object" && Object.hasOwn(literalObject, "@type") && literalObject["@type"] === "http://www.w3.org/2001/XMLSchema#" + expectedType;
+}
+
+/**
  * Get a date literal from JSON-LD. This function probes whether the literal
  * is of xsd:string or xsd:date format and tries to return a Date object.
  * If the date cannot be reliably parsed, return null.
@@ -51,15 +63,19 @@ export function getStringLiteral(literalObject) {
  * @return {?Date}
  */
 export function getDateLiteral(literalObject) {
-    if (typeof literalObject === "string") {
-        // Only accept dates in the format YYYY-MM-DD
-        if (literalObject.match(/^\d{4}-\d{2}-\d{2}-(?:Z|[+-]\d{2}:\d{2})?$/)) {
-            return new Date(literalObject);
-        }
-    } else if (typeof literalObject === "object" && Object.hasOwn(literalObject, "@value") && Object.hasOwn(literalObject, "@type") && literalObject["@type"] === "http://www.w3.org/2001/XMLSchema#date") {
+    if (checkDataType(literalObject, "date")) {
         return new Date(literalObject["@value"]);
+    } else {
+        return null;
     }
-    return null;
+}
+
+export function getDateTimeLiteral(literalObject) {
+    if (checkDataType(literalObject, "dateTime")) {
+        return new Date(literalObject["@value"]);
+    } else {
+        return null;
+    }
 }
 
 export var JsonLdModel = Backbone.Model.extend({
