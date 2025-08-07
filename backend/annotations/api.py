@@ -5,10 +5,10 @@ from rest_framework.views import Request
 from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.response import Response
-from rdflib import URIRef, Graph, Literal, DCTERMS, RDFS
+from rdflib import URIRef, Graph, Literal, DCTERMS, RDFS, RDF
 import datetime
 
-from triplestore.constants import EDPOPREC, AS
+from triplestore.constants import EDPOPREC, AS, EDPOPCOL
 from rdf.views import RDFView
 from rdf.utils import graph_from_triples
 from rdf.renderers import TurtleRenderer, JsonLdRenderer
@@ -86,6 +86,7 @@ class AnnotationView(RDFView):
         as_published = Literal(datetime.date.today())
         dcterms_creator = user_to_uriref(request.user)
         triples = [
+            (subject_node, RDF.type, EDPOPCOL.Annotation),
             (subject_node, OA.hasTarget, oa_has_target),
             (subject_node, OA.motivatedBy, oa_motivated_by),
             (subject_node, OA.hasBody, oa_has_body),
@@ -117,7 +118,7 @@ class AnnotationEditView(RDFView):
         return Response(Graph())
 
     def put(self, request, **kwargs):
-        id_uriref = URIRef(request.data.get("@id"))
+        id_uriref = URIRef(kwargs.get("annotation"))
         oa_has_body = Literal(request.data.get("oa:hasBody"))
         as_updated = Literal(datetime.date.today())
         store = settings.RDFLIB_STORE
