@@ -54,7 +54,9 @@ export var RecordAnnotationsView = AggregateView.extend({
     },
 
     editEmpty: function() {
-        this.edit(new Annotation());
+        this.edit(new Annotation({
+            "oa:hasTarget": this.collection.target,
+        }));
     },
 
     cancel: function(editRow) {
@@ -71,6 +73,7 @@ export var RecordAnnotationsView = AggregateView.extend({
         var model = editRow.model;
         this.cancel(editRow);
         this.collection.add(model, {merge: true});
+        model.save();
     },
 
     trash: function(editRow) {
