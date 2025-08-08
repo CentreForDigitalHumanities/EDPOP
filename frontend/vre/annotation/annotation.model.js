@@ -22,12 +22,6 @@ export var Annotation = JsonLdModel.extend({
             return '/api/annotation/' + encodeURIComponent(this.id) + '/';
         }
     },
-    destroy: function() {
-        this.save(null, {
-            url: '/api/annotation/' + encodeURIComponent(this.id) + '/',
-            method: 'DELETE',
-        })
-    }
 });
 
 export var Annotations = JsonLdNestedCollection.extend({
