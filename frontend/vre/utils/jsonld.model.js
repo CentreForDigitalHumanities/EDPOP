@@ -49,7 +49,7 @@ export function getStringLiteral(literalObject) {
  * @param expectedType - the expected XSD type (part after xsd:)
  * @returns {boolean}
  */
-function checkDataType(literalObject, expectedType) {
+function hasDataType(literalObject, expectedType) {
     if (expectedType === "string")
         return typeof literalObject === "string";
     return typeof literalObject === "object" && Object.hasOwn(literalObject, "@type") && literalObject["@type"] === "http://www.w3.org/2001/XMLSchema#" + expectedType;
@@ -63,7 +63,7 @@ function checkDataType(literalObject, expectedType) {
  * @return {?Date}
  */
 export function getDateLiteral(literalObject) {
-    if (checkDataType(literalObject, "date")) {
+    if (hasDataType(literalObject, "date")) {
         return new Date(literalObject["@value"]);
     } else {
         return null;
@@ -71,7 +71,7 @@ export function getDateLiteral(literalObject) {
 }
 
 export function getDateTimeLiteral(literalObject) {
-    if (checkDataType(literalObject, "dateTime")) {
+    if (hasDataType(literalObject, "dateTime")) {
         return new Date(literalObject["@value"]);
     } else {
         return null;
