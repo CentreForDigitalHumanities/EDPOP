@@ -13,7 +13,7 @@ export var CommentView = View.extend({
     },
 
     initialize: function(options) {
-        this.render().listenTo(this.model, 'change:value sync', this.render);
+        this.render().listenTo(this.model, 'change', this.render);
     },
 
     render: function() {
