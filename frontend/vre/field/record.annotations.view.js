@@ -24,7 +24,8 @@ export var RecordAnnotationsView = AggregateView.extend({
     },
 
     events: {
-        'click table + button': 'editEmpty',
+        'click button.new-comment': 'editEmpty',
+        'click button.new-tag': 'editEmptyTag',
     },
 
     edit: function(model) {
@@ -52,7 +53,15 @@ export var RecordAnnotationsView = AggregateView.extend({
     editEmpty: function() {
         this.edit(new Annotation({
             "oa:hasTarget": this.collection.target,
+            "oa:motivatedBy": {"@id": "oa:commenting"},
         }));
+    },
+
+    editEmptyTag: function() {
+        this.edit(new Annotation({
+            "oa:hasTarget": this.collection.target,
+            "oa:motivatedBy": {"@id": "oa:tagging"},
+        }))
     },
 
     cancel: function(editRow) {

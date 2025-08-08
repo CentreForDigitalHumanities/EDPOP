@@ -25,7 +25,8 @@ export var CommentView = View.extend({
         var updatedDate = this.model.getUpdatedDate();
         var author = this.model.getAuthor();
         Object.assign(templateData, {
-            displayText: this.model.getBody(),
+            isTag: this.model.getAnnotationType() === 'tag',
+            displayText: this.model.getDisplayText(),
             author: (author ? author.getUsername() : null),
             publishedDate: (publishedDate ? publishedDate.toLocaleString() : null),
             updatedDate: (updatedDate ? updatedDate.toLocaleString() : null),
