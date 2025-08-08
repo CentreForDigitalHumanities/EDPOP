@@ -10,12 +10,7 @@ import {Annotation} from "../annotation/annotation.model";
 export var RecordAnnotationsView = AggregateView.extend({
     template: recordAnnotationsTemplate,
     container: 'tbody',
-
-    makeItem: function(model) {
-        var row = new CommentView({model: model});
-        row.on('edit', this.edit, this);
-        return row;
-    },
+    subview: CommentView,
 
     renderContainer: function() {
         this.$el.html(this.template(this));
@@ -24,6 +19,7 @@ export var RecordAnnotationsView = AggregateView.extend({
 
     initialize: function(options) {
         this.initItems().render().initCollectionEvents();
+        this.listenTo(this.collection, 'edit', this.edit);
         this.editable = true;  // enables "New field" button
     },
 

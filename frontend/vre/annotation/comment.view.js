@@ -35,6 +35,6 @@ export var CommentView = View.extend({
     },
 
     edit: function(event) {
-        this.trigger('edit', this.model);
+        this.model.trigger('edit', this.model);
     },
 });
