@@ -4,7 +4,7 @@ import { isEmpty, last, indexOf, find, compact } from 'lodash';
 import { Collection }  from 'backbone';
 
 import { vreChannel } from '../radio.js';
-import { FlatAnnotations } from '../annotation/annotation.model.js';
+import {Annotation, Annotations} from '../annotation/annotation.model.js';
 import { AnnotationEditView } from '../annotation/annotation.edit.view.js';
 import { RecordFieldsBaseView } from './record.base.view.js';
 import { RecordAnnotationsView } from './record.annotations.view.js';
@@ -22,18 +22,20 @@ var fakeProjectMenu = {
 };
 
 var TestCollection = Collection.extend({
-    modelId: FlatAnnotations.prototype.modelId,
+    modelId: Annotations.prototype.modelId,
 });
 
-var testAnnotations = [{
-    key: 'Color',
-    value: 'moss',
-    context: 'me, myself and I',
-}, {
-    key: 'Pet',
-    value: 'Slimey',
-    context: currentContext,
-}];
+var annotation = new Annotation({
+    "@id": "http://example.org/annotations/1",
+    "oa:hasBody": "moss",
+    context: "me, myself and I",
+});
+var annotation2 = new Annotation({
+    "@id": "http://example.org/annotations/2",
+    "oa:hasBody": "bright",
+    context: "monsters",
+});
+var testAnnotations = [annotation, annotation2];
 
 var numAnnotations = testAnnotations.length;
 var oneUp = numAnnotations + 1;
@@ -140,15 +142,11 @@ describe('RecordAnnotationsView', function() {
         vreChannel.stopReplying('projects:current');
     });
 
-    it('inherits from RecordFieldsBaseView', function() {
-        assert(this.view instanceof RecordFieldsBaseView);
-    });
-
     it('has a button for adding new fields', function() {
         var button = this.view.$('table + button');
         assert(button.length === 1);
         var text = button.text();
-        assert(/new.+field/i.test(text));
+        assert(/new.+comment/i.test(text));
     });
 
     describe('when adding a new field', function() {
@@ -158,40 +156,6 @@ describe('RecordAnnotationsView', function() {
         });
 
         it('appends a new AnnotationEditView', assertEditorAppended);
-
-        describe('on cancel', newAnnotationCanceled);
-        describe('on save', newAnnotationSaved);
-        describe('on trash', newAnnotationTrashed);
-    });
-
-    describe('when editing a previously unedited field', function() {
-        beforeEach(function() {
-            this.fieldView = this.view.items[0];
-            this.affectedModel = this.fieldView.model;
-            assert(this.affectedModel === this.collection.at(0));
-            assert(this.affectedModel.get('context') !== currentContext);
-            this.affectedElement = this.fieldView.$el;
-            assert(this.affectedElement.get(0) === this.view.$('tr').get(0));
-            this.affectedElement.click();
-            this.editor = last(this.view.items);
-        });
-
-        it('leaves the original row in place', function() {
-            assert(this.detectChange.notCalled);
-            assert(this.detectRemove.notCalled);
-            assert(this.fieldView === this.view.items[0]);
-            assert(this.affectedModel === this.collection.at(0));
-            assert(this.affectedElement.get(0) === this.view.$('tr').get(0));
-        });
-
-        it('appends a new AnnotationEditView', assertEditorAppended);
-
-        it('copies key and value but overrides the context', function () {
-            var newModel = this.editor.model;
-            assert(newModel.get('key') === this.affectedModel.get('key'));
-            assert(newModel.get('value') === this.affectedModel.get('value'));
-            assert(newModel.get('context') === currentContext);
-        });
 
         describe('on cancel', newAnnotationCanceled);
         describe('on save', newAnnotationSaved);

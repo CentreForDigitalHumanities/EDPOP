@@ -3,10 +3,11 @@ import sinon from 'sinon';
 import { each, after } from 'lodash';
 import { Model, $ } from 'backbone';
 import { AnnotationEditView } from './annotation.edit.view';
+import {Annotation} from "./annotation.model";
 
 describe('AnnotationEditView', function() {
     beforeEach(function() {
-        this.model = new Model();
+        this.model = new Annotation();
         this.view = new AnnotationEditView({model: this.model});
         this.view.render().$el.appendTo('body');
     });
@@ -15,11 +16,10 @@ describe('AnnotationEditView', function() {
         this.view.remove();
     });
 
-    it('renders with two inputs and some buttons', function() {
-        var inputs = this.view.$('input');
-        assert(inputs.length === 2);
-        assert(inputs[0].name === 'key');
-        assert(inputs[1].name === 'value');
+    it('renders with a textarea and some buttons', function() {
+        var textarea = this.view.$('textarea');
+        assert(textarea.length === 1);
+        assert(textarea[0].name === 'value');
         var buttons = this.view.$('button');
         assert(buttons.length === 3);
         assert(buttons[0].textContent === 'Save');
@@ -44,16 +44,13 @@ describe('AnnotationEditView', function() {
     describe('on submit', function() {
         beforeEach(function() {
             this.detectSave = sinon.fake();
-            var inputs = this.view.$('input');
-            inputs.eq(0).val('Color');
-            inputs.eq(1).val('green');
+            var textarea = this.view.$('textarea');
+            textarea.eq(0).val('green');
             this.view.on('save', this.detectSave).$('button').eq(0).click();
         });
 
         it('saves input data to the model', function() {
-            var data = this.model.toJSON();
-            assert(data.key === 'Color');
-            assert(data.value === 'green');
+            assert(this.model.getBody() === 'green');
         });
 
         it('triggers a "save" event', function() {

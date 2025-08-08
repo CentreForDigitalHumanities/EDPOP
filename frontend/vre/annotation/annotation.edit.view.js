@@ -34,9 +34,10 @@ export var AnnotationEditView = View.extend({
         );
     },
     render: function() {
-        this.$el.html(this.template(
-            _.extend({cid: this.cid}, this.model.attributes)
-        ));
+        this.$el.html(this.template({
+            currentText: this.model.getBody(),
+            cid: this.cid,
+        }));
         return this;
     },
     remove: function() {
@@ -47,10 +48,7 @@ export var AnnotationEditView = View.extend({
     },
     submit: function(event) {
         event.preventDefault();
-        var model = this.model;
-        this.$('input').each(function(index, element) {
-            model.set(this.name, $(this).val());
-        });
+        this.model.set("oa:hasBody", this.$('textarea').val());
         this.trigger('save', this);
     },
     reset: function(event) {

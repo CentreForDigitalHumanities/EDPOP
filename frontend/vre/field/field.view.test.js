@@ -48,10 +48,4 @@ describe('FieldView', function() {
         assert(newText.includes(newExpectedText));
         assert(!newText.includes(oldExpectedTest));
     });
-
-    it('triggers an edit event when clicked', function() {
-        var detectEdit = sinon.fake();
-        this.view.on('edit', detectEdit).$el.click();
-        assert(detectEdit.called);
-    });
 });

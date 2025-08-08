@@ -43,6 +43,41 @@ export function getStringLiteral(literalObject) {
     }, null);
 }
 
+/**
+ * Check whether the given literal is of the given data type.
+ * @param literalObject - the object to be checked
+ * @param expectedType - the expected XSD type (part after xsd:)
+ * @returns {boolean}
+ */
+function hasDataType(literalObject, expectedType) {
+    if (expectedType === "string")
+        return typeof literalObject === "string";
+    return typeof literalObject === "object" && Object.hasOwn(literalObject, "@type") && literalObject["@type"] === "http://www.w3.org/2001/XMLSchema#" + expectedType;
+}
+
+/**
+ * Get a date literal from JSON-LD. This function probes whether the literal
+ * is of xsd:string or xsd:date format and tries to return a Date object.
+ * If the date cannot be reliably parsed, return null.
+ * @param literalObject
+ * @return {?Date}
+ */
+export function getDateLiteral(literalObject) {
+    if (hasDataType(literalObject, "date")) {
+        return new Date(literalObject["@value"]);
+    } else {
+        return null;
+    }
+}
+
+export function getDateTimeLiteral(literalObject) {
+    if (hasDataType(literalObject, "dateTime")) {
+        return new Date(literalObject["@value"]);
+    } else {
+        return null;
+    }
+}
+
 export var JsonLdModel = Backbone.Model.extend({
     idAttribute: '@id',
 });
@@ -55,7 +90,8 @@ export var JsonLdCollection = APICollection.extend({
     model: JsonLdModel,
     parse: function(response) {
         if (!response.hasOwnProperty("@graph")) {
-            throw "Response has no @graph key, is this JSON-LD in compacted form?";
+            console.warn("Response has no @graph key; assuming that it is in compacted form.");
+            return [response];
         }
         return response["@graph"];
     }
@@ -119,10 +155,11 @@ export var JsonLdNestedCollection = APICollection.extend({
      */
     targetClass: undefined,
     parse: function(response) {
+        let allSubjects = response["@graph"];
         if (!response.hasOwnProperty("@graph")) {
-            throw "Response has no @graph key, is this JSON-LD in compacted form?";
+            console.warn("Response has no @graph key; assuming that it is in compacted form.");
+            allSubjects = [response];
         }
-        const allSubjects = response["@graph"];
         const completeSubjects = enforest(allSubjects, !this.targetClass);
         if (!this.targetClass) return completeSubjects;
         return _.filter(completeSubjects, {'@type': this.targetClass});

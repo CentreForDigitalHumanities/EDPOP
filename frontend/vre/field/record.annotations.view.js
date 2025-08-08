@@ -2,13 +2,24 @@ import _ from 'lodash';
 import Backbone from 'backbone';
 import { AnnotationEditView } from '../annotation/annotation.edit.view';
 import { vreChannel } from '../radio.js';
-import { RecordFieldsBaseView } from './record.base.view';
+import {AggregateView} from "../core/view";
+import recordAnnotationsTemplate from "./record.annotations.view.mustache";
+import {CommentView} from "../annotation/comment.view";
+import {Annotation} from "../annotation/annotation.model";
 
-export var RecordAnnotationsView = RecordFieldsBaseView.extend({
-    title: 'Annotations',
+export var RecordAnnotationsView = AggregateView.extend({
+    template: recordAnnotationsTemplate,
+    container: 'tbody',
+    subview: CommentView,
+
+    renderContainer: function() {
+        this.$el.html(this.template(this));
+        return this;
+    },
 
     initialize: function(options) {
-        RecordFieldsBaseView.prototype.initialize.call(this, options);
+        this.initItems().render().initCollectionEvents();
+        this.listenTo(this.collection, 'edit', this.edit);
         this.editable = true;  // enables "New field" button
     },
 
@@ -39,7 +50,9 @@ export var RecordAnnotationsView = RecordFieldsBaseView.extend({
     },
 
     editEmpty: function() {
-        this.edit(new Backbone.Model());
+        this.edit(new Annotation({
+            "oa:hasTarget": this.collection.target,
+        }));
     },
 
     cancel: function(editRow) {
@@ -56,6 +69,7 @@ export var RecordAnnotationsView = RecordFieldsBaseView.extend({
         var model = editRow.model;
         this.cancel(editRow);
         this.collection.add(model, {merge: true});
+        model.save();
     },
 
     trash: function(editRow) {

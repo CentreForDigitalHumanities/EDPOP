@@ -39,10 +39,10 @@ export var Record = JsonLdModel.extend({
     },
     getAnnotations: function() {
         if (!this.annotations) {
-            this.annotations = new Annotations();
-            if (!this.isNew()) this.annotations.query({
-                params: {record__id: this.id}
-            });
+            this.annotations = new Annotations(null, {target: this.id});
+            if (!this.isNew()) {
+                this.annotations.fetch();
+            }
         }
         return this.annotations;
     },
