@@ -34,13 +34,10 @@ export var AnnotationEditView = View.extend({
         );
     },
     render: function() {
-        var templateData = {};
-        Object.assign(templateData, {
+        this.$el.html(this.template({
             currentText: this.model.getBody(),
-        });
-        this.$el.html(this.template(
-            _.extend({cid: this.cid}, templateData)
-        ));
+            cid: this.cid,
+        }));
         return this;
     },
     remove: function() {
