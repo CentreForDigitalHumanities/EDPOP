@@ -1,8 +1,5 @@
-import {AggregateView} from "../core/view";
 import fieldTemplate from './field.view.mustache';
-import {AnnotationEditView} from "../annotation/annotation.edit.view";
 import {CommentView} from "../annotation/comment.view";
-import _ from "lodash";
 import {Annotation} from "../annotation/annotation.model";
 import {AnnotatableView} from "./annotatable.view";
 

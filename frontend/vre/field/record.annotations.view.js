@@ -1,8 +1,4 @@
 import _ from 'lodash';
-import Backbone from 'backbone';
-import { AnnotationEditView } from '../annotation/annotation.edit.view';
-import { vreChannel } from '../radio.js';
-import {AggregateView} from "../core/view";
 import recordAnnotationsTemplate from "./record.annotations.view.mustache";
 import {CommentView} from "../annotation/comment.view";
 import {Annotation} from "../annotation/annotation.model";
