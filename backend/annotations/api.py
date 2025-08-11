@@ -24,6 +24,7 @@ RDF_ANNOTATION_ROOT = settings.RDF_NAMESPACE_ROOT + "annotations/"
 JSON_LD_CONTEXT = {
     'rdfs': str(RDFS),
     'edpoprec': str(EDPOPREC),
+    'edpopcol': str(EDPOPCOL),
     'oa': str(OA),
     'as': str(AS),
     'dcterms': str(DCTERMS),
@@ -70,6 +71,24 @@ where {
 }
 '''
 
+
+def get_edpoprec_uriref(string: str) -> URIRef:
+    partial = string.removeprefix("edpoprec:")
+    return getattr(EDPOPREC, partial)
+
+
+def create_field_selectors_triples(data: dict, subject_node: URIRef) -> list:
+    triples = []
+    select_field = data.get("edpopcol:selectField")
+    select_original_text = data.get("edpopcol:selectOriginalText")
+    if select_field:
+        select_field_uriref = get_edpoprec_uriref(select_field)
+        triples.append((subject_node, EDPOPCOL.selectField, select_field_uriref))
+    if select_original_text:
+        triples.append((subject_node, EDPOPCOL.selectOriginalText, Literal(select_original_text)))
+    return triples
+
+
 class AnnotationView(RDFView):
     parser_classes = (JSONParser,)
     renderer_classes = (JsonLdRenderer, TurtleRenderer)
@@ -100,6 +119,7 @@ class AnnotationView(RDFView):
             (subject_node, AS.published, as_published),
             (subject_node, DCTERMS.creator, dcterms_creator),
         ]
+        triples.extend(create_field_selectors_triples(request.data, subject_node))
         quads = list(triples_to_quads(triples, graph))
         # Get the existing graph from Blazegraph
         store = settings.RDFLIB_STORE
@@ -125,6 +145,7 @@ class AnnotationEditView(RDFView):
         return Response(Graph())
 
     def put(self, request, **kwargs):
+        # Allow editing of the body. Other properties cannot be edited.
         id_uriref = URIRef(kwargs.get("annotation"))
         oa_has_body = Literal(request.data.get("oa:hasBody"))
         as_updated = Literal(datetime.datetime.now())
