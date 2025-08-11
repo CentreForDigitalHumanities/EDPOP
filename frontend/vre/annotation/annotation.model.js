@@ -26,15 +26,12 @@ export var Annotation = JsonLdModel.extend({
     },
     getAnnotationType: function() {
         var motivation = this.get('oa:motivatedBy');
-        if (motivation) {
-            var motivationId = motivation["@id"];
-            if (motivationId === 'oa:commenting') {
-                return 'comment';
-            } else if (motivationId === 'oa:tagging') {
-                return 'tag';
-            }
-        } else {
-            return null;
+        if (!motivation) return null;
+        var motivationId = motivation["@id"];
+        if (motivationId === 'oa:commenting') {
+            return 'comment';
+        } else if (motivationId === 'oa:tagging') {
+            return 'tag';
         }
     },
     url: function() {
