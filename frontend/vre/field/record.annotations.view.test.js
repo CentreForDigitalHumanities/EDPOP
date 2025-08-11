@@ -2,11 +2,11 @@ import assert from 'assert';
 import sinon from 'sinon';
 import { isEmpty, last, indexOf, find, compact } from 'lodash';
 import { Collection }  from 'backbone';
+import { FilteredCollection } from "../utils/filtered.collection";
 
 import { vreChannel } from '../radio.js';
 import {Annotation, Annotations} from '../annotation/annotation.model.js';
 import { AnnotationEditView } from '../annotation/annotation.edit.view.js';
-import { RecordFieldsBaseView } from './record.base.view.js';
 import { RecordAnnotationsView } from './record.annotations.view.js';
 
 // Test fixtures.
@@ -124,11 +124,12 @@ describe('RecordAnnotationsView', function() {
     });
 
     beforeEach(function() {
-        this.collection = new TestCollection(testAnnotations).on({
+        var collection = new TestCollection(testAnnotations).on({
             add: this.detectAdd = sinon.fake(),
             change: this.detectChange = sinon.fake(),
             remove: this.detectRemove = sinon.fake(),
         });
+        this.collection = new FilteredCollection(collection, () => true);
         this.view = new RecordAnnotationsView({collection: this.collection});
         this.view.render();
     });

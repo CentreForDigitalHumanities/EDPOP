@@ -16,7 +16,7 @@ describe('FieldView', function() {
             },
             context: 'me, myself and I',
         });
-        this.view = new FieldView({model: this.model});
+        this.view = new FieldView({model: this.model, collection: new Backbone.Collection()});
     });
 
     afterEach(function() {
