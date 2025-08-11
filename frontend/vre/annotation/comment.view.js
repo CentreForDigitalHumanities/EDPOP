@@ -13,6 +13,7 @@ export var CommentView = View.extend({
     },
 
     initialize: function(options) {
+        _.assign(this, _.pick(options, ['fieldAnnotation']));
         this.render().listenTo(this.model, 'change', this.render);
     },
 
@@ -25,6 +26,7 @@ export var CommentView = View.extend({
         var updatedDate = this.model.getUpdatedDate();
         var author = this.model.getAuthor();
         Object.assign(templateData, {
+            isFieldAnnotation: this.fieldAnnotation,
             isTag: this.model.getAnnotationType() === 'tag',
             displayText: this.model.getDisplayText(),
             author: (author ? author.getUsername() : null),
