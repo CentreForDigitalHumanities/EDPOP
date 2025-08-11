@@ -25,11 +25,16 @@ export var Annotation = JsonLdModel.extend({
         return new UserLd(this.get('dcterms:creator'));
     },
     getAnnotationType: function() {
-        var motivation = this.get('oa:motivatedBy')["@id"];
-        if (motivation === 'oa:commenting') {
-            return 'comment';
-        } else if (motivation === 'oa:tagging') {
-            return 'tag';
+        var motivation = this.get('oa:motivatedBy');
+        if (motivation) {
+            var motivationId = motivation["@id"];
+            if (motivationId === 'oa:commenting') {
+                return 'comment';
+            } else if (motivationId === 'oa:tagging') {
+                return 'tag';
+            }
+        } else {
+            return null;
         }
     },
     url: function() {
