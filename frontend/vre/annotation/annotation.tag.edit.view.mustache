@@ -1,0 +1,15 @@
+<td>
+    <form id=form-{{cid}}>
+        <div class="mb-2">
+            <select name="glossaryitem" style="width: 100%;" id="glossary-select-{{cid}}" required class="mb-2">
+                <option value="">Select a glossary item</option>
+                {{#choices}}<option value={{@id}}>{{skos:prefLabel}}</option>{{/choices}}
+            </select>
+        </div>
+        <button type=submit class="btn btn-primary">Save</button>
+        <button type=reset class="btn btn-default">Cancel</button>
+        <button type=button class="btn btn-danger" aria-label=Delete>
+            <span class="fa fa-trash" aria-hidden=true></span>
+        </button>
+    </form>
+</td>

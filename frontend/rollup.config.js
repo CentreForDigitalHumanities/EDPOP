@@ -3,6 +3,7 @@ import wontache from 'rollup-plugin-wontache';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import terser from '@rollup/plugin-terser';
+import json from "@rollup/plugin-json";
 
 var underscorePattern = /node_modules\/underscore($|\/)/;
 var extension = /.js$/;
@@ -14,6 +15,7 @@ export default {
         wontache(),
         nodeResolve(),
         commonjs(),
+        json(),
     ],
     output: {
         file: 'vre/bundle.js',

@@ -1,11 +1,14 @@
 import { View } from '../core/view.js';
 import annotationEditTemplate from './annotation.edit.view.mustache';
+import annotationTagEditTemplate from './annotation.tag.edit.view.mustache';
 import confirmDeletionTemplate from './annotation.confirm.deletion.mustache';
+import {glossary} from "../utils/glossary";
 
 export var AnnotationEditView = View.extend({
     tagName: 'tr',
     className: 'form-inline',
     template: annotationEditTemplate,
+    glossaryTemplate: annotationTagEditTemplate,
     events: {
         'submit': 'submit',
         'reset': 'reset',
@@ -32,23 +35,48 @@ export var AnnotationEditView = View.extend({
             confirmSelector,
             this.cancelTrash.bind(this),
         );
+        if (this.model.getAnnotationType() === 'tag') {
+            glossary.on('update', this.render);
+        }
     },
     render: function() {
-        this.$el.html(this.template({
-            currentText: this.model.getBody(),
-            cid: this.cid,
-        }));
+        if (this.model.getAnnotationType() === 'tag') {
+            this.$('select').select2('destroy');
+            this.$el.html(this.glossaryTemplate({
+                choices: glossary.toJSON(),
+                cid: this.cid,
+            }));
+            this.$('select').select2({
+                dropdownParent: $('.modal-content'),
+            });
+            if (this.model.getBody()) {
+                this.$('select').val(this.model.getBody()["@id"]);
+            }
+            this.$('select').trigger('change');
+        } else {
+            this.$el.html(this.template({
+                currentText: this.model.getBody(),
+                cid: this.cid,
+            }));
+        }
         return this;
     },
     remove: function() {
         this.$el.popover('dispose');
         this.trashConfirmer.off();
         this.trashCanceller.off();
+        if (this.model.getAnnotationType() === 'tag') {
+            this.$('select').select2('destroy');
+        }
         return View.prototype.remove.call(this);
     },
     submit: function(event) {
         event.preventDefault();
-        this.model.set("oa:hasBody", this.$('textarea').val());
+        if (this.model.getAnnotationType() === 'tag') {
+            this.model.set("oa:hasBody", this.$('select').val());
+        } else {
+            this.model.set("oa:hasBody", this.$('textarea').val());
+        }
         this.trigger('save', this);
     },
     reset: function(event) {

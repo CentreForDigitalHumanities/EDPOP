@@ -81,8 +81,17 @@ class AnnotationView(RDFView):
         if not all(x in request.data.keys() for x in ["oa:hasTarget", "oa:hasBody"]):
             return Response({"error": "Missing required fields"}, status=400)
         oa_has_target = URIRef(request.data.get("oa:hasTarget"))
-        oa_motivated_by = OA.commenting
-        oa_has_body = Literal(request.data.get("oa:hasBody"))
+        oa_motivated_by_value = request.data.get("oa:motivatedBy")
+        oa_motivated_by_id = oa_motivated_by_value and oa_motivated_by_value.get("@id")
+        oa_has_body_value = request.data.get("oa:hasBody")
+        if oa_motivated_by_id in ("oa:commenting", None):
+            oa_has_body = Literal(oa_has_body_value)
+            oa_motivated_by = OA.commenting
+        elif oa_motivated_by_id == "oa:tagging":
+            oa_has_body = URIRef(oa_has_body_value)
+            oa_motivated_by = OA.tagging
+        else:
+            return Response({"error": "Invalid oa:motivatedBy value"}, status=400)
         as_published = Literal(datetime.datetime.now())
         dcterms_creator = user_to_uriref(request.user)
         triples = [
