@@ -32,6 +32,9 @@ export var Annotation = JsonLdModel.extend({
             return 'comment';
         } else if (motivationId === 'oa:tagging') {
             return 'tag';
+        } else {
+            console.warn('Unsupported annotation type: ' + motivationId);
+            return null;
         }
     },
     url: function() {
