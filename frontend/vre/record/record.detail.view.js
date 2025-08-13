@@ -51,6 +51,7 @@ export var RecordDetailView = CompositeView.extend({
     events: {
         'click #load_next': 'next',
         'click #load_previous': 'previous',
+        'click #reload': 'reload',
     },
 
     initialize: function(options) {
@@ -137,4 +138,9 @@ export var RecordDetailView = CompositeView.extend({
         event.preventDefault();
         vreChannel.trigger('displayPreviousRecord');
     },
+
+    reload: function(event) {
+        event.preventDefault();
+        this.model.reload();
+    }
 });
