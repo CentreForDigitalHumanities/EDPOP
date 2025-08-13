@@ -129,7 +129,7 @@ describe('RecordAnnotationsView', function() {
             change: this.detectChange = sinon.fake(),
             remove: this.detectRemove = sinon.fake(),
         });
-        this.collection = new FilteredCollection(collection, () => true);
+        this.collection = new FilteredCollection(collection, _.constant(true));
         this.view = new RecordAnnotationsView({collection: this.collection});
         this.view.render();
     });
