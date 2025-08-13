@@ -2,6 +2,7 @@ import fieldTemplate from './field.view.mustache';
 import {CommentView} from "../annotation/comment.view";
 import {Annotation} from "../annotation/annotation.model";
 import {AnnotatableView} from "./annotatable.view";
+import {parent} from "@uu-cdh/backbone-collection-transformers/src/inheritance";
 
 /**
  * Displays a single model from a FlatFields or FlatAnnotations collection.
@@ -14,7 +15,7 @@ export var FieldView = AnnotatableView.extend({
 
     initialize: function(options) {
         this.render().listenTo(this.model, 'change:value', this.render);
-        AnnotatableView.prototype.initialize.call(this, options);
+        parent(this).initialize.call(this, options);
     },
 
     makeItem: function(model) {
