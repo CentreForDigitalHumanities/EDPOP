@@ -5,12 +5,12 @@ from itertools import chain
 import datetime as dt
 from django.conf import settings
 from edpop_explorer import Record
-from rdf.utils import prune_triples
-from rdflib import URIRef, Literal, Graph, Namespace
+from rdf.utils import prune_triples, graph_from_triples
+from rdflib import URIRef, Literal, Graph, Namespace, RDFS
 from rdflib.term import Node
 
 from triplestore.utils import replace_blank_node, \
-    replace_blank_nodes_in_triples, triples_to_quads
+    replace_blank_nodes_in_triples, triples_to_quads, sparql_multivalues
 
 RECORDS_GRAPH_URI = settings.RDF_NAMESPACE_ROOT + "records/"
 RECORDS_GRAPH_IDENTIFIER = URIRef(RECORDS_GRAPH_URI)
@@ -80,6 +80,22 @@ where {{
 }}
 '''.format
 
+# Argument: record_uris
+get_records_query = '''
+construct {{
+  ?r ?p1 ?o1.
+  ?f ?p2 ?o2.
+}}
+where {{
+  values ?r {{ {record_uris} }}
+  graph ?records_graph {{
+    ?r ?p1 ?o1;
+       ?pt ?f.
+    optional {{?f ?p2 ?o2.}}
+  }}
+}}
+'''.format
+
 
 def prune_recursively(graph: Graph, subject: Node):
     """Recursively prune triples """
@@ -136,3 +152,19 @@ def collect_garbage(until: Optional[dt.date]=None) -> None:
         cutoff_date=Literal(until).n3(),
     ), initNs={'schema': SCHEMA})
     store.commit()
+
+
+def get_single_record(record_iri: URIRef) -> Graph:
+    store = settings.RDFLIB_STORE
+    record_uris = sparql_multivalues([record_iri])
+    query = get_records_query(record_uris=record_uris)
+    triples = store.query(
+        query,
+        initNs={
+            'rdfs': RDFS,
+        },
+        initBindings={
+            'records_graph': RECORDS_GRAPH_IDENTIFIER,
+        }
+    )
+    return graph_from_triples(triples)
