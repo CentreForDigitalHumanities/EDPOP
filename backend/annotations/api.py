@@ -74,7 +74,7 @@ where {
 
 def get_edpoprec_uriref(string: str) -> URIRef:
     partial = string.removeprefix("edpoprec:")
-    return getattr(EDPOPREC, partial)
+    return EDPOPREC[partial]
 
 
 def create_field_selectors_triples(data: dict, subject_node: URIRef) -> list:
