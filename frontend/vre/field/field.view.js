@@ -13,7 +13,7 @@ export var FieldView = AnnotatableView.extend({
     container: 'div.annotations',
 
     initialize: function(options) {
-        this.render().listenTo(this.model, 'change:value', this.renderContainer);
+        this.render().listenTo(this.model, 'change:value', this.render);
         AnnotatableView.prototype.initialize.call(this, options);
     },
 
