@@ -5,7 +5,6 @@ import {
     typeTranslation,
 } from '../utils/generic-functions';
 import {
-    fieldList,
     properties,
     biblioProperties,
     bioProperties,
@@ -51,6 +50,10 @@ export var Field = Backbone.Model.extend({
             return {name: this.id};
         }
     },
+    getLinkedUri() {
+        var value = this.get('value');
+        return value && value['edpoprec:authorityRecord'] && value['edpoprec:authorityRecord']['@id'];
+    }
 });
 
 /**
