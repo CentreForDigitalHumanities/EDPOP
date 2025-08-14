@@ -162,7 +162,9 @@ class SearchGraphBuilder:
         results = self.records
         record_nodes = map(attrgetter('subject_node'), results)
         graphs = [x.to_graph() for x in results if isinstance(x, Record)]
-        content_graph = sum(graphs, Graph())
+        content_graph = Graph()
+        quads = [(s, p, o, content_graph) for g in graphs for (s, p, o) in g.triples((None, None, None))]
+        content_graph.addN(quads)
         remove_from_triplestore(results)
         save_to_triplestore(content_graph, record_nodes)
         return content_graph
