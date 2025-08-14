@@ -70,9 +70,7 @@ router.on({
         browsingType: 'catalog',
         browsingContext: catalogs.findWhere({identifier: id})
     }),
-    'route:showRecord': id => {
-        showRecord(id);
-    },
+    'route:showRecord': showRecord,
 });
 
 // Focus/blur semantics for the catalog or collection currently being viewed.
