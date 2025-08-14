@@ -26,9 +26,7 @@ class RecordView(RDFView):
     json_ld_context = JSON_LD_CONTEXT
 
     def get_graph(self, request: views.Request, **kwargs) -> Graph:
-        force_reload = False
-        if request.headers.get("Force-Reload") == "true":
-            force_reload = True
+        force_reload = request.headers.get("Force-Reload") == "true"
         reader = kwargs.get("reader")
         record_id = kwargs.get("record")
         record_uri = "https://edpop.hum.uu.nl/readers/" + reader + "/" + record_id
