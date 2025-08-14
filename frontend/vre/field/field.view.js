@@ -38,6 +38,10 @@ export var FieldView = AnnotatableView.extend({
                 displayText: this.model.getMainDisplay(),
                 fieldInfo: this.model.getFieldInfo(),
             });
+            var linkedUri = this.model.getLinkedUri();
+            if (linkedUri) {
+                templateData.linkedRecordUri = encodeURIComponent(linkedUri);
+            }
         }
         this.$el.html(this.template(templateData));
         return this;

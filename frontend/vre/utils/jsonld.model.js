@@ -80,6 +80,22 @@ export function getDateTimeLiteral(literalObject) {
 
 export var JsonLdModel = Backbone.Model.extend({
     idAttribute: '@id',
+    parse: function(response) {
+        if (!response['@context']) {
+            // Response is a partial parse by JsonLdNestedCollection; ignore
+            return response;
+        } else {
+            var allSubjects;
+            if (!response.hasOwnProperty("@graph")) {
+                console.warn("Response has no @graph key; assuming that it is in compacted form.");
+                allSubjects = [response];
+            } else {
+                allSubjects = response["@graph"];
+            }
+            var completeSubjects = enforest(allSubjects, true);
+            return completeSubjects[0];
+        }
+    }
 });
 
 /**

@@ -51,14 +51,17 @@ export var RecordDetailView = CompositeView.extend({
     events: {
         'click #load_next': 'next',
         'click #load_previous': 'previous',
+        'click #reload': 'reload',
     },
 
     initialize: function(options) {
         var model = this.model;
         model.getAnnotations();
-        var index = model.collection.indexOf(model);
-        this.isFirst = (index === 0);
-        this.isLast = (index === model.collection.length - 1);
+        if (model.collection) {
+            var index = model.collection.indexOf(model);
+            this.isFirst = (index === 0);
+            this.isLast = (index === model.collection.length - 1);
+        }
         var fields = new FlatterFields(null, {record: model});
         var digitizations = new FilteredCollection(fields, {
             key: 'edpoprec:digitization'
@@ -94,6 +97,7 @@ export var RecordDetailView = CompositeView.extend({
             last: this.isLast,
             title: this.model.getMainDisplay(),
             uri: this.model.id,
+            inContext: this.model.collection ? true : false,
         }, typeTranslation(this.model)), renderOptions));
         return this;
     },
@@ -134,4 +138,9 @@ export var RecordDetailView = CompositeView.extend({
         event.preventDefault();
         vreChannel.trigger('displayPreviousRecord');
     },
+
+    reload: function(event) {
+        event.preventDefault();
+        this.model.reload();
+    }
 });

@@ -2,20 +2,27 @@
     <div class="modal-content">
         <div class="modal-header">
             <div class="btn-group me-2">
-                <button
+                {{#inContext}}<button
                     class="btn btn-outline-primary"
                     id="load_previous"
                     {{#first}}disabled{{/first}}
                 >
                     <span class="fa fa-arrow-left" aria-hidden="true"></span>
-                </button>
+                </button>{{/inContext}}
                 <button
+                    class="btn btn-outline-primary"
+                    id="reload"
+                    title="Refresh from source catalogue"
+                >
+                    <span class="fa fa-rotate-right" aria-hidden="true"></span>
+                </button>
+                {{#inContext}}<button
                     class="btn btn-outline-primary"
                     id="load_next"
                     {{#last}}disabled{{/last}}
                 >
                     <span class="fa fa-arrow-right" aria-hidden="true"></span>
-                </button>
+                </button>{{/inContext}}
             </div>
             <h4 class="modal-title text-truncate">
                 {{>typeIcon}}

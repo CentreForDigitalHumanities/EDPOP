@@ -23,6 +23,7 @@ import {Catalogs} from "./catalog/catalog.model";
 import {SelectCatalogView} from "./catalog/select-catalog.view";
 import { StateModel } from './utils/state.model.js';
 import { WelcomeView } from './utils/welcome.view.js';
+import {Record} from "./record/record.model";
 
 // Dangerously global variable (accessible from dependency modules).
 GlobalVariables.myCollections = new VRECollections();
@@ -51,6 +52,7 @@ var VRERouter = Backbone.Router.extend({
     routes: {
         'collection/:id/': 'showCollection',
         'catalog/:id/': 'showCatalog',
+        'record/:id': 'showRecord',
     },
 });
 
@@ -68,6 +70,7 @@ router.on({
         browsingType: 'catalog',
         browsingContext: catalogs.findWhere({identifier: id})
     }),
+    'route:showRecord': showRecord,
 });
 
 // Focus/blur semantics for the catalog or collection currently being viewed.
@@ -97,6 +100,17 @@ function showCollection(vreCollection) {
 
 function hideCollection(vreCollection) {
     unsalientCollections.add(vreCollection);
+}
+
+function showRecord(id) {
+    var model = new Record({
+        "@id": id
+    });
+    model.fetch({
+        success: function(model) {
+            vreChannel.trigger('displayRecord', model);
+        }
+    });
 }
 
 GlobalVariables.myCollections.on({
