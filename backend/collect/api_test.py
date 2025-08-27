@@ -144,7 +144,7 @@ def test_project_validation(db, user, client: Client):
 def test_collection_records(db, user, project, client: Client, saved_records):
     client.force_login(user)
     create_response = post_collection(client, project.uri)
-    collection_uri = URIRef(create_response.data['uri'])
+    collection_uri = URIRef(create_response.json()['uri'])
 
     records_url = '/api/collection-records/' + str(collection_uri) + '/'
 
