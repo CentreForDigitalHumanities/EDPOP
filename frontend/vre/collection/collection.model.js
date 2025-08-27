@@ -1,11 +1,11 @@
 //import Backbone from 'backbone';
-import { APIModel, APICollection } from '../utils/api.model'
+import { JsonLdModel, JsonLdCollection } from '../utils/jsonld.model'
 import { Records } from '../record/record.model.js';
 
 /**
  * Representation of a single VRE collection.
  */
-export var VRECollection = APIModel.extend({
+export var VRECollection = JsonLdModel.extend({
     idAttribute: 'uri',
     getRecords: function(reload=false) {
         if (!reload && this.records) return this.records;
@@ -18,7 +18,7 @@ export var VRECollection = APIModel.extend({
     },
 });
 
-export var VRECollections = APICollection.extend({
+export var VRECollections = JsonLdCollection.extend({
     url: '/api/collections/',
     model: VRECollection,
 }, {
