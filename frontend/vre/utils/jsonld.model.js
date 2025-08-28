@@ -1,5 +1,6 @@
 import _ from "lodash";
 import {APICollection} from "./api.model";
+import { parent } from "@uu-cdh/backbone-collection-transformers/src/inheritance.js";
 
 /**
  * The @graph property inside JSON-LD
@@ -156,12 +157,11 @@ export function enforest(subjects, toplevelOnly) {
 }
 
 /**
- * Generic subclass of APICollection that parses incoming compacted JSON-LD to an
- * array of subjects that are of RDF class `targetClass`. If these subjects
- * refer to other objects, these are nested
+ * Generic subclass of JsonLdCollection that parses incoming compacted JSON-LD
+ * to an array of subjects that are of RDF class `targetClass`. If these
+ * subjects refer to other objects, these are nested
  */
-export var JsonLdNestedCollection = APICollection.extend({
-    model: JsonLdModel,
+export var JsonLdNestedCollection = JsonLdCollection.extend({
     /**
      * The RDF class (as it is named in JSON-LD) of which nested subjects have
      * to be put in the collection array when incoming data is parsed. If left
@@ -170,12 +170,9 @@ export var JsonLdNestedCollection = APICollection.extend({
      * @type {string}
      */
     targetClass: undefined,
-    parse: function(response) {
-        let allSubjects = response["@graph"];
-        if (!response.hasOwnProperty("@graph")) {
-            console.warn("Response has no @graph key; assuming that it is in compacted form.");
-            allSubjects = [response];
-        }
+    parse: function(response, options) {
+        const allSubjects = parent(JsonLdNestedCollection.prototype)
+        .parse.call(this, response, options);
         const completeSubjects = enforest(allSubjects, !this.targetClass);
         if (!this.targetClass) return completeSubjects;
         return _.filter(completeSubjects, {'@type': this.targetClass});
@@ -183,15 +180,14 @@ export var JsonLdNestedCollection = APICollection.extend({
 })
 
 /**
- * Generic subclass of APICollection that parses incoming compacted JSON-LD to an
- * ordered array of subjects according to the information of the
+ * Generic subclass of JsonLdCollection that parses incoming compacted JSON-LD
+ * to an ordered array of subjects according to the information of the
  * `OrderedCollection` entity (ActivityStreams ontology) from the same graph.
  * Sets the `totalResults` attribute if available.
  * The graph should contain exactly one `OrderedCollection`.
  * @class
  */
-export var JsonLdWithOCCollection = APICollection.extend({
-    model: JsonLdModel,
+export var JsonLdWithOCCollection = JsonLdCollection.extend({
     /**
      * The total number of results. This is filled by `parse` if the
      * `OrderedCollection` subject comes with `totalItems`.
@@ -204,12 +200,10 @@ export var JsonLdWithOCCollection = APICollection.extend({
      * @type {string}
      */
     activityStreamsPrefix: "as:",
-    parse: function(response) {
+    parse: function(response, options) {
         // Get all subjects of the graph with their predicates and objects as an array
-        if (!response.hasOwnProperty("@graph")) {
-            throw "Response has no @graph key, is this JSON-LD in compacted form?";
-        }
-        const allSubjects = response["@graph"];
+        const allSubjects = parent(JsonLdWithOCCollection.prototype)
+        .parse.call(this, response, options);
         const completeSubjects = enforest(allSubjects);
         const as = this.activityStreamsPrefix;
         const ocType = `${as}OrderedCollection`;
