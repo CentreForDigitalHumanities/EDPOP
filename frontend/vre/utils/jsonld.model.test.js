@@ -294,6 +294,8 @@ describe('jsonLdSync', () => {
     });
 });
 
+const testContext = {'@context': 'http://example.com/ld-context.json'};
+
 describe('JsonLdModel', () => {
     let model;
 
@@ -352,6 +354,26 @@ describe('JsonLdModel', () => {
         });
     });
 
+    describe('toJSON method', () => {
+        beforeEach(() => {
+            model.set(singularJsonLdResource);
+        });
+
+        it('usually spills the attributes verbatim', () => {
+            assert.deepStrictEqual(
+                model.toJSON(),
+                singularJsonLdResource
+            );
+        });
+
+        it('takes the collection context into account', () => {
+            model.collection = {context: testContext['@context']};
+            assert.deepStrictEqual(
+                model.toJSON(),
+                _.extend({}, singularJsonLdResource, testContext)
+            );
+        });
+    });
 });
 
 describe('JsonLdCollection', () => {
@@ -386,6 +408,35 @@ describe('JsonLdCollection', () => {
                 exampleJsonLDGraph
             );
         });
+
+        it('stores the context if present', () => {
+            const payload = _.extend({'@graph': exampleJsonLDGraph}, testContext);
+            assert.deepStrictEqual(
+                collection.parse(payload),
+                exampleJsonLDGraph
+            );
+            assert(collection.context === testContext['@context']);
+        });
     });
 
+    describe('toJSON method', () => {
+        beforeEach(() => {
+            collection.set(exampleJsonLDGraph);
+        });
+
+        it('usually spills the contents of the models verbatim', () => {
+            assert.deepStrictEqual(
+                collection.toJSON(),
+                exampleJsonLDGraph
+            );
+        });
+
+        it('adds the context if present', () => {
+            collection.context = testContext['@context'];
+            assert.deepStrictEqual(
+                collection.toJSON(),
+                _.extend({'@graph': exampleJsonLDGraph}, testContext)
+            );
+        });
+    });
 });

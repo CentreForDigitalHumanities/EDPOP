@@ -104,7 +104,17 @@ export var JsonLdModel = Backbone.Model.extend({
         if (result.length === 1) return result[0];
         if (response['@context']) return enforest(result, true)[0];
         throw 'Expected exactly one resource but got zero or multiple';
-    }
+    },
+    toJSON: function(options) {
+        var json = parent(JsonLdModel.prototype).toJSON.call(this, options);
+        if (
+            this.collection &&
+            !this.collection.serializing &&
+            this.collection.context &&
+            !this.has('@context')
+        ) json['@context'] = this.collection.context;
+        return json;
+    },
 });
 
 /**
@@ -116,7 +126,8 @@ export var JsonLdCollection = APICollection.extend({
     sync: jsonLdSync,
     parse: function(response) {
         var result = response;
-        if (response.hasOwnProperty('@graph')) {
+        if (result.hasOwnProperty('@context')) this.context = result['@context'];
+        if (result.hasOwnProperty('@graph')) {
             result = response['@graph'];
         } else {
             console.warn(
@@ -126,7 +137,17 @@ export var JsonLdCollection = APICollection.extend({
             );
         }
         return _.isArray(result) ? result : [result];
-    }
+    },
+    toJSON: function(options) {
+        this.serializing = true;
+        var json = parent(JsonLdCollection.prototype).toJSON.call(this, options);
+        delete this.serializing;
+        if (this.context) return {
+            '@context': this.context,
+            '@graph': json,
+        };
+        return json;
+    },
 });
 
 /**
