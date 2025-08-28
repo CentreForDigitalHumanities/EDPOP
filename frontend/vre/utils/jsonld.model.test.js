@@ -1,6 +1,13 @@
 import assert from 'assert';
 import sinon from 'sinon';
-import {getStringLiteral, enforest} from "./jsonld.model";
+import _ from 'lodash';
+import Backbone from 'backbone';
+import {
+    enforest,
+    getStringLiteral,
+    jsonLdSync,
+    priorMethod,
+} from "./jsonld.model";
 
 function findById(graph, id) {
     return graph.find((subject) => subject["@id"] === id);
@@ -169,5 +176,115 @@ describe('getStringLiteral', () => {
             "@language": "fr",
             "@value": "bonjour",
         }]) === "hello");
+    });
+});
+
+const methodBase = {};
+const derived1 = _.create(methodBase);
+const derived2 = _.create(derived1, {
+    method() {},
+});
+const derived3 = _.create(derived2, {
+    method() {},
+});
+const derived4 = _.create(derived3);
+const derived5 = _.create(derived4);
+const derived6 = _.create(derived5);
+const derived7 = _.create(derived6);
+
+describe('priorMethod', () => {
+    it('finds the overridden method on a prototype', () => {
+        const foundMethod = priorMethod(derived3, 'method', derived3.method);
+        assert(foundMethod === derived2.method);
+    });
+
+    it('finds the overridden method on a prior prototype', () => {
+        const foundMethod = priorMethod(derived4, 'method', derived3.method);
+        assert(foundMethod === derived2.method);
+    });
+
+    it('finds the overridden method in a deep prototype chain', () => {
+        const foundMethod = priorMethod(derived7, 'method', derived3.method);
+        assert(foundMethod === derived2.method);
+    });
+
+    it('returns undefined if there is no prior method', () => {
+        const foundMethod = priorMethod(derived2, 'method', derived2.method);
+        assert(foundMethod === undefined);
+    });
+});
+
+const BaseSyncer = Backbone.Model.extend({
+    sync() { return 'tested'; },
+});
+
+const DerivedSyncer = BaseSyncer.extend({
+    sync: jsonLdSync,
+})
+
+describe('jsonLdSync', () => {
+    const options = {method: 'GET'};
+    let spySync, instance;
+
+    beforeEach(() => {
+        spySync = sinon.spy(BaseSyncer.prototype, 'sync');
+        instance = new DerivedSyncer;
+    });
+
+    afterEach(() => {
+        instance = null;
+        spySync.restore();
+    });
+
+    function assertSpyArgs(method, model, options, omitted) {
+        const matchOptions = sinon.match(options);
+        assert(spySync.calledWith(method, model, matchOptions));
+        if (omitted) {
+            assert(spySync.callCount === 1);
+            const passedOptions = spySync.lastCall.args[2];
+            assert(!(omitted in passedOptions));
+        }
+    }
+
+    it('calls a prototypal sync method under the hood', () => {
+        instance.sync();
+        assert(spySync.called);
+    });
+
+    it('falls back to Backbone.sync in the absense of a prototype', () => {
+        const bbSync = Backbone.sync;
+        Backbone.sync = spySync;
+        jsonLdSync();
+        Backbone.sync = bbSync;
+        assert(spySync.called);
+    });
+
+    it('forwards arguments to the underlying sync', () => {
+        instance.sync('read', instance, options);
+        assertSpyArgs('read', instance, options);
+    });
+
+    it('returns the result of the underlying sync', () => {
+        const result = instance.sync();
+        assert(result === 'tested');
+    });
+
+    _.each(['create', 'update', 'patch'], (method) => {
+        it(`overrides the content type when the method is ${method}`, () => {
+            const withOverride = _.extend({
+                contentType: 'application/ld+json'
+            }, options);
+            instance.sync(method, instance, options);
+            assertSpyArgs(method, instance, withOverride);
+            assert(!('contentType' in options));
+        });
+    });
+
+    _.each(['read', 'delete'], (method) => {
+        it(`does not override when the method is ${method}`, () => {
+            instance.sync(method, instance, options);
+            assertSpyArgs(method, instance, options, 'contentType');
+            assert(!('contentType' in options));
+        });
     });
 });

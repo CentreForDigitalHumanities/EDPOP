@@ -79,8 +79,24 @@ export function getDateTimeLiteral(literalObject) {
     }
 }
 
+export function priorMethod(instance, name, current) {
+    var ancestor = parent(instance);
+    while (ancestor[name] === current) ancestor = parent(ancestor);
+    return ancestor[name];
+}
+
+export function jsonLdSync(method, model, options) {
+    options = options || {};
+    if (options.data == null && model && (
+        method === 'create' || method === 'update' || method === 'patch'
+    )) options = _.extend({contentType: 'application/ld+json'}, options);
+    var baseSync = this && priorMethod(this, 'sync', jsonLdSync) || Backbone.sync;
+    return baseSync.call(this, method, model, options);
+}
+
 export var JsonLdModel = Backbone.Model.extend({
     idAttribute: '@id',
+    sync: jsonLdSync,
     parse: function(response) {
         if (!response['@context']) {
             // Response is a partial parse by JsonLdNestedCollection; ignore
@@ -105,6 +121,7 @@ export var JsonLdModel = Backbone.Model.extend({
  */
 export var JsonLdCollection = APICollection.extend({
     model: JsonLdModel,
+    sync: jsonLdSync,
     parse: function(response) {
         if (!response.hasOwnProperty("@graph")) {
             console.warn("Response has no @graph key; assuming that it is in compacted form.");
