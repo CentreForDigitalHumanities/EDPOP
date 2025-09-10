@@ -33,6 +33,10 @@ authors:
   - given-names: Luka
     family-names: van der Plas
     affiliation: Utrecht University
+  - given-names: Berit
+    family-names: Janssen
+    orcid: 'https://orcid.org/0000-0001-7218-7642'
+    affiliation: Utrecht University
 repository-code: 'https://github.com/CentreForDigitalHumanities/EDPOP'
 url: >-
   https://edpop.wp.hum.uu.nl/virtual-research-environment-vre
