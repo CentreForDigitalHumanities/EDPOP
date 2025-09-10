@@ -1,0 +1,48 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: EDPOP
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - family-names: >-
+      Research Software Lab, Centre for Digital Humanities,
+      Utrecht University
+  - given-names: Jeroen
+    family-names: Salman
+    affiliation: Utrecht University
+    orcid: 'https://orcid.org/0000-0001-8927-5091'
+  - given-names: Andrea
+    family-names: van Leerdam
+    affiliation: Utrecht University
+    orcid: 'https://orcid.org/0000-0003-0391-8370'
+  - given-names: Cristina
+    family-names: Reguera Gomez
+    affiliation: Utrecht University
+  - given-names: Julian
+    family-names: Gonggrijp
+    affiliation: Utrecht University
+    orcid: 'https://orcid.org/0000-0002-2744-5160'
+  - given-names: Tijmen
+    family-names: Baarda
+    orcid: 'https://orcid.org/0000-0002-2577-4948'
+    affiliation: Utrecht University
+  - given-names: Luka
+    family-names: van der Plas
+    affiliation: Utrecht University
+repository-code: 'https://github.com/CentreForDigitalHumanities/EDPOP'
+url: >-
+  https://edpop.wp.hum.uu.nl/virtual-research-environment-vre
+abstract: >-
+  A virtual research environment (VRE) that lets you
+  collect, align and annotate bibliographical and
+  biographical records from several online catalogs.
+keywords:
+  - metadata
+  - linked data
+  - annotation
+  - bibliographic data
+license: BSD-3-Clause
