@@ -2,8 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/103948690.svg)](https://doi.org/10.5281/zenodo.17093901)
 
-
-This web application provides a virtual research environment (VRE) that lets you collect, align and annotate bibliographical and biographical records from several online catalogs.
+This [web application provides a virtual research environment (VRE)](https://edpop.wp.hum.uu.nl/virtual-research-environment-vre) that lets you collect, align and annotate bibliographical and biographical records from several online catalogs.
 
 The VRE consists of separate backend and frontend applications. They are documented in more detail in their respective directories. To run them jointly during development, take the following steps:
 
