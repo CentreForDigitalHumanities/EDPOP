@@ -12,7 +12,7 @@ export var BrowseCollectionView = CompositeView.extend({
     recordClass: BIBLIOGRAPHICAL, // We only support bibliographical collections for now.
 
     events: {
-        'click .page-header small button': 'editSummary',
+        'click h2 small button': 'editSummary',
     },
 
     subviews: [
@@ -27,7 +27,7 @@ export var BrowseCollectionView = CompositeView.extend({
         var editor = new EditSummaryView({model: this.model});
         var overlay = this.editOverlay = new OverlayView({
             root: this.el,
-            target: '.page-header h2 small',
+            target: 'h2 small',
             guest: editor,
         });
         overlay.listenTo(editor, 'submit reset', overlay.uncover);
