@@ -11,10 +11,6 @@ import {
     priorMethod,
 } from "./jsonld.model";
 
-function findById(graph, id) {
-    return graph.find((subject) => subject["@id"] === id);
-}
-
 const exampleJsonLDGraph = [{
     "@id": "http://example.com/s1",
     "dc:title": "Title without references",
