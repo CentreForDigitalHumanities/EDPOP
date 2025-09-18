@@ -1,7 +1,7 @@
 import { APIModel, APICollection } from '../utils/api.model';
 
 export var Project = APIModel.extend({
-    idAttribute: 'name',
+    idAttribute: 'uri',
 });
 
 export var Projects = APICollection.extend({
