@@ -1,7 +1,5 @@
 import { CompositeView } from '../core/view.js';
 
-import { SearchResults } from '../search/search.model.js';
-import { SearchView } from '../search/search.view.js';
 import { RecordListManagingView } from '../record/record.list.managing.view.js';
 import { OverlayView } from '../utils/overlay.view.js';
 import { EditSummaryView } from './edit-summary.view.js';
@@ -18,7 +16,6 @@ export var BrowseCollectionView = CompositeView.extend({
     },
 
     subviews: [
-        {view: 'searchView', selector: '.page-header'},
         'recordsManager',
         {view: 'editOverlay', place: false},
     ],
@@ -39,10 +36,6 @@ export var BrowseCollectionView = CompositeView.extend({
     },
 
     initializeCollection: function() {
-        this.searchView = new SearchView({
-            model: this.model,
-            collection: this.collection,
-        });
         this.recordsManager = new RecordListManagingView({
             model: this.model,
             collection: this.collection,
