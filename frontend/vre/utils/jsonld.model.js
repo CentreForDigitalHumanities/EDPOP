@@ -98,20 +98,12 @@ export var JsonLdModel = Backbone.Model.extend({
     idAttribute: '@id',
     sync: jsonLdSync,
     parse: function(response) {
-        if (!response['@context']) {
-            // Response is a partial parse by JsonLdNestedCollection; ignore
-            return response;
-        } else {
-            var allSubjects;
-            if (!response.hasOwnProperty("@graph")) {
-                console.warn("Response has no @graph key; assuming that it is in compacted form.");
-                allSubjects = [response];
-            } else {
-                allSubjects = response["@graph"];
-            }
-            var completeSubjects = enforest(allSubjects, true);
-            return completeSubjects[0];
-        }
+        var result = response;
+        if (response.hasOwnProperty('@graph')) result = response['@graph'];
+        if (!_.isArray(result)) return result;
+        if (result.length === 1) return result[0];
+        if (response['@context']) return enforest(result, true)[0];
+        throw 'Expected exactly one resource but got zero or multiple';
     }
 });
 
@@ -123,11 +115,17 @@ export var JsonLdCollection = APICollection.extend({
     model: JsonLdModel,
     sync: jsonLdSync,
     parse: function(response) {
-        if (!response.hasOwnProperty("@graph")) {
-            console.warn("Response has no @graph key; assuming that it is in compacted form.");
-            return [response];
+        var result = response;
+        if (response.hasOwnProperty('@graph')) {
+            result = response['@graph'];
+        } else {
+            console.warn(
+                'Response has no @graph key, is this JSON-LD in compacted form?',
+                response,
+                this
+            );
         }
-        return response["@graph"];
+        return _.isArray(result) ? result : [result];
     }
 });
 

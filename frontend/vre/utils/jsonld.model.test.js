@@ -5,6 +5,8 @@ import Backbone from 'backbone';
 import {
     enforest,
     getStringLiteral,
+    JsonLdCollection,
+    JsonLdModel,
     jsonLdSync,
     priorMethod,
 } from "./jsonld.model";
@@ -94,6 +96,9 @@ const exampleJsonLDGraph = [{
         "@id": "http://example.com/s5",
     }]},
 }];
+
+const singularJsonLdResource = exampleJsonLDGraph[0];
+
 
 describe('enforest', () => {
     const enforestedSubjects = enforest(exampleJsonLDGraph);
@@ -287,4 +292,100 @@ describe('jsonLdSync', () => {
             assert(!('contentType' in options));
         });
     });
+});
+
+describe('JsonLdModel', () => {
+    let model;
+
+    beforeEach(() => {
+        model = new JsonLdModel;
+    });
+
+    describe('parse method', () => {
+        it('forwards singular objects', () => {
+            assert.deepStrictEqual(
+                model.parse(singularJsonLdResource),
+                singularJsonLdResource
+            );
+        });
+
+        it('extracts singleton arrays', () => {
+            assert.deepStrictEqual(
+                model.parse([singularJsonLdResource]),
+                singularJsonLdResource
+            );
+        });
+
+        it('extracts singleton @graphs', () => {
+            assert.deepStrictEqual(
+                model.parse({'@graph': [singularJsonLdResource]}),
+                singularJsonLdResource
+            );
+        });
+
+        it('rejects empty arrays', () => {
+            assert.throws(() => assert.deepStrictEqual(
+                model.parse([]),
+                undefined
+            ));
+        });
+
+        it('rejects multi-item arrays', () => {
+            assert.throws(() => assert.deepStrictEqual(
+                model.parse(exampleJsonLDGraph),
+                singularJsonLdResource
+            ));
+        });
+
+        it('rejects empty @graphs', () => {
+            assert.throws(() => assert.deepStrictEqual(
+                model.parse({'@graph': []}),
+                undefined
+            ));
+        });
+
+        it('rejects multi-item @graphs', () => {
+            assert.throws(() => assert.deepStrictEqual(
+                model.parse({'@graph': exampleJsonLDGraph}),
+                singularJsonLdResource
+            ));
+        });
+    });
+
+});
+
+describe('JsonLdCollection', () => {
+    let collection;
+
+    beforeEach(() => {
+        collection = new JsonLdCollection;
+    });
+
+    afterEach(() => {
+        collection.off().stopListening().reset();
+    });
+
+    describe('parse method', () => {
+        it('forwards plain arrays', () => {
+            assert.deepStrictEqual(
+                collection.parse(exampleJsonLDGraph),
+                exampleJsonLDGraph
+            );
+        });
+
+        it('accepts singleton objects', () => {
+            assert.deepStrictEqual(
+                collection.parse(singularJsonLdResource),
+                [singularJsonLdResource]
+            );
+        });
+
+        it('extracts @graphs', () => {
+            assert.deepStrictEqual(
+                collection.parse({'@graph': exampleJsonLDGraph}),
+                exampleJsonLDGraph
+            );
+        });
+    });
+
 });
