@@ -21,7 +21,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from debug_toolbar.toolbar import debug_toolbar_urls
 
 from vre.api import RecordViewSet, AnnotationViewSet, SearchViewSet
-from collect.api import CollectionViewSet, AddRecordsViewSet, RemoveRecordsViewSet
+from collect.api import AddRecordsViewSet, RemoveRecordsViewSet
 
 api_router = routers.DefaultRouter()
 api_router.register(r'records', RecordViewSet)

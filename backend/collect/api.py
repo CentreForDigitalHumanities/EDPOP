@@ -64,38 +64,6 @@ where {
 '''
 
 
-class CollectionViewSet(ModelViewSet):
-    '''
-    Viewset for listing or retrieving collection metadata
-    '''
-
-    lookup_value_regex = '.+'
-    serializer_class = CollectionSerializer
-    permission_classes = [CollectionPermission]
-
-    def get_queryset(self):
-        projects = user_projects(self.request.user)
-        return [
-            EDPOPCollection(collection_graph(uri), uri)
-            for project in projects
-            for uri in project.rdf_model().collections
-        ]
-
-
-    def get_object(self):
-        uri = URIRef(self.kwargs['pk'])
-
-        if not collection_exists(uri):
-            raise NotFound(f'Collection does not exist')
-
-        store = settings.RDFLIB_STORE
-        context = next(store.contexts((uri, RDF.type, EDPOPCOL.Collection)))
-        graph = Graph(store, context)
-        collection = EDPOPCollection(graph, uri)
-        self.check_object_permissions(self.request, collection)
-        return collection
-
-
 class CollectionsView(RDFView):
     '''
     List collections and create new ones.
