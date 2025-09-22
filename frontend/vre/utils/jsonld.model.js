@@ -1,5 +1,5 @@
 import _ from "lodash";
-import {APICollection} from "./api.model";
+import { APIModel, APICollection } from "./api.model";
 import { parent } from "@uu-cdh/backbone-collection-transformers/src/inheritance.js";
 
 /**
@@ -94,7 +94,7 @@ export function jsonLdSync(method, model, options) {
     return baseSync.call(this, method, model, options);
 }
 
-export var JsonLdModel = Backbone.Model.extend({
+export var JsonLdModel = APIModel.extend({
     idAttribute: '@id',
     sync: jsonLdSync,
     parse: function(response) {
