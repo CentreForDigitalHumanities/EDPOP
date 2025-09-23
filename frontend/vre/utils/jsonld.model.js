@@ -79,6 +79,26 @@ export function getDateTimeLiteral(literalObject) {
     }
 }
 
+/**
+ * Dynamically retrieve the super.method of an override method.
+ *
+ * When providing a standalone override method that can be plugged into any part
+ * of an inheritance hierarchy (such as {@link jsonLdSync}), a problem presents
+ * itself if that override also has to call the method that it overrides. The
+ * author of the override cannot know in advance what version of the method is
+ * being overridden, nor can they know the prototype on which the override will
+ * be assigned. To address this, the override method can internally call
+ * `priorMethod` in order to determine the ancestor method at the time of
+ * invocation.
+ *
+ * @param {object} instance - Instance or prototype from which to start
+ * traversing the prototype chain.
+ * @param {string} name - Name of the method being overridden.
+ * @param {function} current - The override method of which the first ancestor
+ * is to be found.
+ * @returns {function} The underlying method, i.e., what may be referred to as
+ * super[name] in a statically resolvable situation.
+ */
 export function priorMethod(instance, name, current) {
     var ancestor = parent(instance);
     while (ancestor[name] === current) ancestor = parent(ancestor);
