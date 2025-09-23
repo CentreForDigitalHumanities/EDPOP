@@ -147,15 +147,7 @@ export var JsonLdCollection = APICollection.extend({
     parse: function(response) {
         var result = response;
         if (result.hasOwnProperty('@context')) this.context = result['@context'];
-        if (result.hasOwnProperty('@graph')) {
-            result = response['@graph'];
-        } else {
-            console.warn(
-                'Response has no @graph key, is this JSON-LD in compacted form?',
-                response,
-                this
-            );
-        }
+        if (result.hasOwnProperty('@graph')) result = response['@graph'];
         return _.isArray(result) ? result : [result];
     },
     toJSON: function(options) {
