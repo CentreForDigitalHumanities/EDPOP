@@ -151,8 +151,16 @@ export var JsonLdCollection = APICollection.extend({
         return _.isArray(result) ? result : [result];
     },
     toJSON: function(options) {
+        // By default, individual JsonLdModel instances without an internal
+        // `@context` will look for a context on their containing collection and
+        // copy it into their serialization. When we are serializing the entire
+        // collection, this is redundant. By marking the collection as currently
+        // being serialized, we signal to the invidual models that they need not
+        // copy the collection context.
         this.serializing = true;
         var json = parent(JsonLdCollection.prototype).toJSON.call(this, options);
+        // At this point all calls to `JsonLdModel#toJSON` have finished, so we
+        // can remove the mark again.
         delete this.serializing;
         if (this.context) return {
             '@context': this.context,
