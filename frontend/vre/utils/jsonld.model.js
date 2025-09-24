@@ -1,5 +1,6 @@
 import _ from "lodash";
-import {APICollection} from "./api.model";
+import { APIModel, APICollection } from "./api.model";
+import { parent } from "@uu-cdh/backbone-collection-transformers/src/inheritance.js";
 
 /**
  * The @graph property inside JSON-LD
@@ -78,24 +79,62 @@ export function getDateTimeLiteral(literalObject) {
     }
 }
 
-export var JsonLdModel = Backbone.Model.extend({
+/**
+ * Dynamically retrieve the super.method of an override method.
+ *
+ * When providing a standalone override method that can be plugged into any part
+ * of an inheritance hierarchy (such as {@link jsonLdSync}), a problem presents
+ * itself if that override also has to call the method that it overrides. The
+ * author of the override cannot know in advance what version of the method is
+ * being overridden, nor can they know the prototype on which the override will
+ * be assigned. To address this, the override method can internally call
+ * `priorMethod` in order to determine the ancestor method at the time of
+ * invocation.
+ *
+ * @param {object} instance - Instance or prototype from which to start
+ * traversing the prototype chain.
+ * @param {string} name - Name of the method being overridden.
+ * @param {function} current - The override method of which the first ancestor
+ * is to be found.
+ * @returns {function} The underlying method, i.e., what may be referred to as
+ * super[name] in a statically resolvable situation.
+ */
+export function priorMethod(instance, name, current) {
+    var ancestor = parent(instance);
+    while (ancestor[name] === current) ancestor = parent(ancestor);
+    return ancestor[name];
+}
+
+export function jsonLdSync(method, model, options) {
+    options = options || {};
+    if (options.data == null && model && (
+        method === 'create' || method === 'update' || method === 'patch'
+    )) options = _.extend({contentType: 'application/ld+json'}, options);
+    var baseSync = this && priorMethod(this, 'sync', jsonLdSync) || Backbone.sync;
+    return baseSync.call(this, method, model, options);
+}
+
+export var JsonLdModel = APIModel.extend({
     idAttribute: '@id',
+    sync: jsonLdSync,
     parse: function(response) {
-        if (!response['@context']) {
-            // Response is a partial parse by JsonLdNestedCollection; ignore
-            return response;
-        } else {
-            var allSubjects;
-            if (!response.hasOwnProperty("@graph")) {
-                console.warn("Response has no @graph key; assuming that it is in compacted form.");
-                allSubjects = [response];
-            } else {
-                allSubjects = response["@graph"];
-            }
-            var completeSubjects = enforest(allSubjects, true);
-            return completeSubjects[0];
-        }
-    }
+        var result = response;
+        if (response.hasOwnProperty('@graph')) result = response['@graph'];
+        if (!_.isArray(result)) return result;
+        if (result.length === 1) return result[0];
+        if (response['@context']) return enforest(result, true)[0];
+        throw 'Expected exactly one resource but got zero or multiple';
+    },
+    toJSON: function(options) {
+        var json = parent(JsonLdModel.prototype).toJSON.call(this, options);
+        if (
+            this.collection &&
+            !this.collection.serializing &&
+            this.collection.context &&
+            !this.has('@context')
+        ) json['@context'] = this.collection.context;
+        return json;
+    },
 });
 
 /**
@@ -104,13 +143,31 @@ export var JsonLdModel = Backbone.Model.extend({
  */
 export var JsonLdCollection = APICollection.extend({
     model: JsonLdModel,
+    sync: jsonLdSync,
     parse: function(response) {
-        if (!response.hasOwnProperty("@graph")) {
-            console.warn("Response has no @graph key; assuming that it is in compacted form.");
-            return [response];
-        }
-        return response["@graph"];
-    }
+        var result = response;
+        if (result.hasOwnProperty('@context')) this.context = result['@context'];
+        if (result.hasOwnProperty('@graph')) result = response['@graph'];
+        return _.isArray(result) ? result : [result];
+    },
+    toJSON: function(options) {
+        // By default, individual JsonLdModel instances without an internal
+        // `@context` will look for a context on their containing collection and
+        // copy it into their serialization. When we are serializing the entire
+        // collection, this is redundant. By marking the collection as currently
+        // being serialized, we signal to the invidual models that they need not
+        // copy the collection context.
+        this.serializing = true;
+        var json = parent(JsonLdCollection.prototype).toJSON.call(this, options);
+        // At this point all calls to `JsonLdModel#toJSON` have finished, so we
+        // can remove the mark again.
+        delete this.serializing;
+        if (this.context) return {
+            '@context': this.context,
+            '@graph': json,
+        };
+        return json;
+    },
 });
 
 /**
@@ -156,12 +213,11 @@ export function enforest(subjects, toplevelOnly) {
 }
 
 /**
- * Generic subclass of APICollection that parses incoming compacted JSON-LD to an
- * array of subjects that are of RDF class `targetClass`. If these subjects
- * refer to other objects, these are nested
+ * Generic subclass of JsonLdCollection that parses incoming compacted JSON-LD
+ * to an array of subjects that are of RDF class `targetClass`. If these
+ * subjects refer to other objects, these are nested
  */
-export var JsonLdNestedCollection = APICollection.extend({
-    model: JsonLdModel,
+export var JsonLdNestedCollection = JsonLdCollection.extend({
     /**
      * The RDF class (as it is named in JSON-LD) of which nested subjects have
      * to be put in the collection array when incoming data is parsed. If left
@@ -170,12 +226,9 @@ export var JsonLdNestedCollection = APICollection.extend({
      * @type {string}
      */
     targetClass: undefined,
-    parse: function(response) {
-        let allSubjects = response["@graph"];
-        if (!response.hasOwnProperty("@graph")) {
-            console.warn("Response has no @graph key; assuming that it is in compacted form.");
-            allSubjects = [response];
-        }
+    parse: function(response, options) {
+        const allSubjects = parent(JsonLdNestedCollection.prototype)
+        .parse.call(this, response, options);
         const completeSubjects = enforest(allSubjects, !this.targetClass);
         if (!this.targetClass) return completeSubjects;
         return _.filter(completeSubjects, {'@type': this.targetClass});
@@ -183,15 +236,14 @@ export var JsonLdNestedCollection = APICollection.extend({
 })
 
 /**
- * Generic subclass of APICollection that parses incoming compacted JSON-LD to an
- * ordered array of subjects according to the information of the
+ * Generic subclass of JsonLdCollection that parses incoming compacted JSON-LD
+ * to an ordered array of subjects according to the information of the
  * `OrderedCollection` entity (ActivityStreams ontology) from the same graph.
  * Sets the `totalResults` attribute if available.
  * The graph should contain exactly one `OrderedCollection`.
  * @class
  */
-export var JsonLdWithOCCollection = APICollection.extend({
-    model: JsonLdModel,
+export var JsonLdWithOCCollection = JsonLdCollection.extend({
     /**
      * The total number of results. This is filled by `parse` if the
      * `OrderedCollection` subject comes with `totalItems`.
@@ -204,12 +256,10 @@ export var JsonLdWithOCCollection = APICollection.extend({
      * @type {string}
      */
     activityStreamsPrefix: "as:",
-    parse: function(response) {
+    parse: function(response, options) {
         // Get all subjects of the graph with their predicates and objects as an array
-        if (!response.hasOwnProperty("@graph")) {
-            throw "Response has no @graph key, is this JSON-LD in compacted form?";
-        }
-        const allSubjects = response["@graph"];
+        const allSubjects = parent(JsonLdWithOCCollection.prototype)
+        .parse.call(this, response, options);
         const completeSubjects = enforest(allSubjects);
         const as = this.activityStreamsPrefix;
         const ocType = `${as}OrderedCollection`;

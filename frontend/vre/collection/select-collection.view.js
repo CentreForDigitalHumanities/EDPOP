@@ -65,7 +65,7 @@ export var SelectCollectionView = AggregateView.extend({
         var name = input.val();
         this.collection.create({
             name: name,
-            project: project.get('name'),
+            project: project.get('uri'),
         });
         input.val('');
     },

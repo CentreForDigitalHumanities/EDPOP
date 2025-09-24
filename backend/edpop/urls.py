@@ -15,11 +15,13 @@ Including another URLconf
 """
 from django.urls import include, path
 from django.contrib import admin
+from django.conf import settings
 from rest_framework import routers
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from debug_toolbar.toolbar import debug_toolbar_urls
 
 from vre.api import RecordViewSet, AnnotationViewSet, SearchViewSet
-from collect.api import CollectionViewSet, AddRecordsViewSet, RemoveRecordsViewSet
+from collect.api import AddRecordsViewSet, RemoveRecordsViewSet
 
 api_router = routers.DefaultRouter()
 api_router.register(r'records', RecordViewSet)
@@ -31,7 +33,6 @@ api_router.register(r'add-selection',
 api_router.register(r'remove-selection',
                     RemoveRecordsViewSet,
                     basename='remove-selection')
-api_router.register('collections', CollectionViewSet, basename='collections')
 
 urlpatterns = [
     path('', include('annotations.urls')),
@@ -43,7 +44,11 @@ urlpatterns = [
     path('', include('catalogs.urls')),
     path('', include('accounts.urls')),
     path('', include('projects.urls')),
-    path('', include('vre.urls')),
 ]
 
 urlpatterns += staticfiles_urlpatterns()
+
+if not settings.TESTING:
+    urlpatterns += debug_toolbar_urls()
+
+urlpatterns += [path('', include('vre.urls'))]

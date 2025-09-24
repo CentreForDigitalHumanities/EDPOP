@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 from pathlib import Path
 import os
+import socket
 from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
 
 from edpop_explorer import readers
@@ -56,6 +57,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'dj_rest_auth',
+    'debug_toolbar',
     'vre.apps.VreConfig',
     'catalogs.apps.CatalogsConfig',
     'triplestore',
@@ -67,6 +69,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -142,6 +145,9 @@ LOGIN_REDIRECT_URL = '/'
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ),
 }
 
@@ -220,3 +226,12 @@ RDFLIB_STORE = SPARQLUpdateStore(
 # CATALOG_READERS: a list of Reader classes from the edpop-explorer package.
 # These readers will be registered for use in the VRE.
 CATALOG_READERS = readers.ALL_READERS + [BlankRecordReader]
+
+# Settings required to enable Django Debug Toolbar
+local_ip = socket.gethostbyname(socket.gethostname())
+docker_remote_ip = '.'.join(local_ip.split('.')[:-1]) + '.1'
+INTERNAL_IPS = [
+    '127.0.0.1',
+    docker_remote_ip,
+]
+TESTING = False
