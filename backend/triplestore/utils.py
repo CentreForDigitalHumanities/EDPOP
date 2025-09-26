@@ -92,6 +92,20 @@ def replace_blank_nodes_in_triples(triples: Triples) -> Triples:
     ) for s, p, o in triples)
 
 
+def replace_node(triples: Triples, old: Node, new: Node) -> Triples:
+    """Deep copy triples with all occurrences of old replaced by new."""
+
+    def apply_to_node(node: Node) -> Node:
+        if node == old:
+            return new
+        return node
+
+    def apply_to_triple(triple: Triple) -> Triple:
+        return tuple(map(apply_to_node, triple))
+
+    return map(apply_to_triple, triples)
+
+
 def triples_to_quads(triples: Triples, graph: Graph) -> Quads:
     """Convert all triples to quads according to a given named graph."""
     return ((s, p, o, graph) for s, p, o in triples)
