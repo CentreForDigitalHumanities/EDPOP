@@ -45,6 +45,7 @@ def test_edit_annotation(client, triplestore, django_test_user):
     uri = create_annotation(client, target, 'This is an annotation', django_test_user)
     client.put(f'/api/annotation/{quote_plus(uri)}/', {
         '@context': JSON_LD_CONTEXT,
+        '@id': uri,
         'oa:hasBody': 'This is an edited annotation'
     }, content_type='application/ld+json')
     body_triple = list(triplestore.triples((URIRef(uri), OA.hasBody, None)))[0][0]
