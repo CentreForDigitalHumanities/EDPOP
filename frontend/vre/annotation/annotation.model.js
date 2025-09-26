@@ -62,7 +62,7 @@ export var Annotations = JsonLdNestedCollection.extend({
     sync: priorMethod(JsonLdModel.prototype, 'sync', jsonLdSync),
     initialize: function(model, options) {
         _.assign(this, _.pick(options, ['target']));
-        this.url = `/api/annotations-per-target/${encodeURIComponent(this.target)}/`;
+        this.url = `/api/record-annotations/${encodeURIComponent(this.target)}/`;
         this.on('remove', this.deleteAnnotation);
     },
     deleteAnnotation: function(annotation) {

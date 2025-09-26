@@ -47,8 +47,7 @@ def test_list_annotations(client, triplestore, django_test_user):
     target = 'http://example.com/target'
     uri = create_annotation(client, target, 'This is an annotation', django_test_user)
     uri2 = create_annotation(client, target, 'This is another annotation', django_test_user)
-    response = client.get(f'/api/annotations-per-target/{quote_plus(target)}/', content_type='application/json')
+    response = client.get(f'/api/record-annotations/{quote_plus(target)}/', content_type='application/json')
     assert response.status_code == 200
     graph = response.data
     assert len(list(graph.triples((None, OA.hasTarget, URIRef(target))))) == 2
-
