@@ -26,14 +26,14 @@ export var RecordAnnotationsView = AnnotatableView.extend({
 
     editEmpty: function() {
         this.edit(new Annotation({
-            "oa:hasTarget": this.collection.underlying.target,
+            "oa:hasSource": this.collection.underlying.target,
             "motivation": "oa:commenting",
         }));
     },
 
     editEmptyTag: function() {
         this.edit(new Annotation({
-            "oa:hasTarget": this.collection.underlying.target,
+            "oa:hasSource": this.collection.underlying.target,
             "motivation": "oa:tagging",
         }))
     },

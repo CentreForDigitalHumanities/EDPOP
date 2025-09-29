@@ -52,7 +52,7 @@ export var FieldView = AnnotatableView.extend({
         var fieldId = this.model.get('key');
         var fieldContents = this.model.get('value');
         var attributes = {
-            "oa:hasTarget": this.collection.underlying.target,
+            "oa:hasSource": this.collection.underlying.target,
             "edpopcol:field": fieldId,
             "motivation": "oa:commenting",
         };
