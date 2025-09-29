@@ -51,11 +51,14 @@ export var FieldView = AnnotatableView.extend({
         event.preventDefault();
         var fieldId = this.model.get('key');
         var fieldContents = this.model.get('value');
-        this.edit(new Annotation({
+        var attributes = {
             "oa:hasTarget": this.collection.underlying.target,
             "edpopcol:field": fieldId,
-            "edpopcol:originalText": (fieldContents ? fieldContents['edpoprec:originalText'] : null),
-            "oa:motivatedBy": {"@id": "oa:commenting"},
-        }));
+            "motivation": "oa:commenting",
+        };
+        if (fieldContents) {
+            attributes['edpopcol:originalText'] = fieldContents['edpoprec:originalText'];
+        }
+        this.edit(new Annotation(attributes));
     },
 });

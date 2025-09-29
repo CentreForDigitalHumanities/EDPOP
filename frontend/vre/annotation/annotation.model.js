@@ -18,9 +18,9 @@ export var Annotation = JsonLdModel.extend({
         return this.get('oa:hasBody');
     },
     getDisplayText: function() {
-        if (this.getAnnotationType() === 'comment') {
+        if (this.get('motivation') === 'oa:commenting') {
             return this.getBody();
-        } else if (this.getAnnotationType() === 'tag') {
+        } else if (this.get('motivation') === 'oa:tagging') {
             var id = this.getBody();
             return glossary.get(id).get('skos:prefLabel');
         }
@@ -33,19 +33,6 @@ export var Annotation = JsonLdModel.extend({
     },
     getAuthor: function() {
         return new UserLd(this.get('dcterms:creator'));
-    },
-    getAnnotationType: function() {
-        var motivation = this.get('oa:motivatedBy');
-        if (!motivation) return null;
-        var motivationId = motivation["@id"];
-        if (motivationId === 'oa:commenting') {
-            return 'comment';
-        } else if (motivationId === 'oa:tagging') {
-            return 'tag';
-        } else {
-            console.warn('Unsupported annotation type: ' + motivationId);
-            return null;
-        }
     },
     // Fields that are normally nested in JSON-LD, but get hoisted to the
     // top-level `attributes` for more convenient access. See the overridden

@@ -35,12 +35,12 @@ export var AnnotationEditView = View.extend({
             confirmSelector,
             this.cancelTrash.bind(this),
         );
-        if (this.model.getAnnotationType() === 'tag') {
+        if (this.model.get('motivation') === 'oa:tagging') {
             glossary.on('update', this.render);
         }
     },
     render: function() {
-        if (this.model.getAnnotationType() === 'tag') {
+        if (this.model.get('motivation') === 'oa:tagging') {
             this.$('select').select2('destroy');
             this.$el.html(this.glossaryTemplate({
                 choices: glossary.toJSON(),
@@ -65,14 +65,14 @@ export var AnnotationEditView = View.extend({
         this.$el.popover('dispose');
         this.trashConfirmer.off();
         this.trashCanceller.off();
-        if (this.model.getAnnotationType() === 'tag') {
+        if (this.model.get('motivation') === 'oa:tagging') {
             this.$('select').select2('destroy');
         }
         return View.prototype.remove.call(this);
     },
     submit: function(event) {
         event.preventDefault();
-        if (this.model.getAnnotationType() === 'tag') {
+        if (this.model.get('motivation') === 'oa:tagging') {
             this.model.set("oa:hasBody", this.$('select').val());
         } else {
             this.model.set("oa:hasBody", this.$('textarea').val());

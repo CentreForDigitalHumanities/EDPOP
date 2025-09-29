@@ -27,14 +27,14 @@ export var RecordAnnotationsView = AnnotatableView.extend({
     editEmpty: function() {
         this.edit(new Annotation({
             "oa:hasTarget": this.collection.underlying.target,
-            "oa:motivatedBy": {"@id": "oa:commenting"},
+            "motivation": "oa:commenting",
         }));
     },
 
     editEmptyTag: function() {
         this.edit(new Annotation({
             "oa:hasTarget": this.collection.underlying.target,
-            "oa:motivatedBy": {"@id": "oa:tagging"},
+            "motivation": "oa:tagging",
         }))
     },
 });
