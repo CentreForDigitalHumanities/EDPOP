@@ -37,13 +37,6 @@ export var Annotation = JsonLdModel.extend({
             return null;
         }
     },
-    url: function() {
-        if (this.isNew()) {
-            return '/api/annotation/';
-        } else {
-            return '/api/annotation/' + encodeURIComponent(this.id) + '/';
-        }
-    },
 });
 
 export var Annotations = JsonLdNestedCollection.extend({
