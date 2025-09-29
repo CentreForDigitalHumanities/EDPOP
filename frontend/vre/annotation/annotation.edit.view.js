@@ -49,9 +49,8 @@ export var AnnotationEditView = View.extend({
             this.$('select').select2({
                 dropdownParent: $('.modal-content'),
             });
-            if (this.model.getBody()) {
-                this.$('select').val(this.model.getBody()["@id"]);
-            }
+            var tag = this.model.get('glossary');
+            if (tag) this.$('select').val(tag);
             this.$('select').trigger('change');
         } else {
             this.$el.html(this.template({
@@ -73,7 +72,7 @@ export var AnnotationEditView = View.extend({
     submit: function(event) {
         event.preventDefault();
         if (this.model.get('motivation') === 'oa:tagging') {
-            this.model.set("oa:hasBody", this.$('select').val());
+            this.model.set("glossary", this.$('select').val());
         } else {
             this.model.set("oa:hasBody", this.$('textarea').val());
         }

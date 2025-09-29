@@ -6,10 +6,8 @@ import {FieldView} from "./field.view";
 function annotationMatchesField(model, targetField) {
     return function(annotation) {
         var field = annotation.get('edpopcol:field');
+        if (field !== targetField) return false;
         var originalText = annotation.get('edpopcol:originalText');
-        if (!field) return false;
-        var fieldId = field["@id"];
-        if (fieldId !== targetField) return false;
         return !originalText || originalText === model.get('value')["edpoprec:originalText"];
     }
 }

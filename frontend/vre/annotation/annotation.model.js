@@ -21,7 +21,7 @@ export var Annotation = JsonLdModel.extend({
         if (this.get('motivation') === 'oa:commenting') {
             return this.getBody();
         } else if (this.get('motivation') === 'oa:tagging') {
-            var id = this.getBody();
+            var id = this.get('tagUrl');
             return glossary.get(id).get('skos:prefLabel');
         }
     },
