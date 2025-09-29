@@ -1,9 +1,9 @@
 import _ from 'lodash';
 import { parent } from '@uu-cdh/backbone-collection-transformers/src/inheritance.js';
 
-import {getDateTimeLiteral, JsonLdModel, JsonLdNestedCollection} from "../utils/jsonld.model";
-import {UserLd} from "../user/user.ld.model";
-import {glossary} from "../utils/glossary";
+import {getDateTimeLiteral, JsonLdModel, JsonLdNestedCollection} from '../utils/jsonld.model';
+import {UserLd} from '../user/user.ld.model';
+import {glossary} from '../utils/glossary';
 
 // Helper function for removing multiple properties from an object in iteration.
 function stripAttribute(container) {
@@ -32,6 +32,7 @@ function stripAttribute(container) {
  */
 export var Annotation = JsonLdModel.extend({
     urlRoot: '/api/annotation/',
+
     getDisplayText: function() {
         if (this.get('motivation') === 'oa:commenting') {
             return this.get('oa:hasBody');
@@ -40,19 +41,24 @@ export var Annotation = JsonLdModel.extend({
             return glossary.get(id).get('skos:prefLabel');
         }
     },
+
     getPublishedDate: function() {
         return getDateTimeLiteral(this.get('as:published'));
     },
+
     getUpdatedDate: function() {
         return getDateTimeLiteral(this.get('as:updated'));
     },
+
     getAuthor: function() {
         return new UserLd(this.get('dcterms:creator'));
     },
+
     // Fields that are normally nested in JSON-LD, but get hoisted to the
     // top-level `attributes` for more convenient access. See the overridden
     // `parse` and `toJSON` methods below.
     flatFields: ['motivation', 'tagURL', 'oa:hasSource', 'edpopcol:field', 'edpopcol:originalText'],
+
     parse: function(response, options) {
         var anno = parent(Annotation.prototype)
             .parse.call(this, response, options),
@@ -75,6 +81,7 @@ export var Annotation = JsonLdModel.extend({
         }
         return _.assign(flat, anno);
     },
+
     toJSON: function(options) {
         var jsonld = parent(Annotation.prototype).
             toJSON.call(this, options),
@@ -105,6 +112,7 @@ export var Annotation = JsonLdModel.extend({
  */
 export var Annotations = JsonLdNestedCollection.extend({
     model: Annotation,
+
     /**
      * @name Annotations#target
      * @member {string}
@@ -113,12 +121,14 @@ export var Annotations = JsonLdNestedCollection.extend({
      * means that it becomes the `oa:hasSource` (NOT the `oa:hasTarget`!) in the
      * JSON-LD representation.
      */
+
     initialize: function(model, options) {
         _.assign(this, _.pick(options, ['target']));
         this.url = `/api/record-annotations/${encodeURIComponent(this.target)}/`;
         this.on('remove', this.deleteAnnotation);
     },
+
     deleteAnnotation: function(annotation) {
         annotation.destroy();
-    }
-})
+    },
+});
