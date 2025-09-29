@@ -53,8 +53,8 @@ export var FieldView = AnnotatableView.extend({
         var fieldContents = this.model.get('value');
         this.edit(new Annotation({
             "oa:hasTarget": this.collection.underlying.target,
-            "edpopcol:selectField": fieldId,
-            "edpopcol:selectOriginalText": (fieldContents ? fieldContents['edpoprec:originalText'] : null),
+            "edpopcol:field": fieldId,
+            "edpopcol:originalText": (fieldContents ? fieldContents['edpoprec:originalText'] : null),
             "oa:motivatedBy": {"@id": "oa:commenting"},
         }));
     },

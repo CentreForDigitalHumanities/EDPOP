@@ -76,7 +76,7 @@ export var RecordDetailView = CompositeView.extend({
             model: model,
         });
         var recordAnnotations = FilteredCollection(model.annotations, (annotation) => {
-            return !annotation.get('edpopcol:selectField');
+            return !annotation.get('edpopcol:field');
         });
         this.annotationsView = new RecordAnnotationsView({
             collection: recordAnnotations,
