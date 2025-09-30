@@ -12,6 +12,24 @@ function stripAttribute(container) {
     };
 }
 
+/**
+ * Backbone.Model representation of a Web Annotation to an EDPOP record.
+ *
+ * This model stores and synchronizes an annotation in compacted JSON-LD format.
+ * The Web Annotation data model is highly nested, which is inconvenient in a
+ * presentation and editing context. To remedy this, nested properties of
+ * interest are copied to the root `attributes` object during parsing. They are
+ * re-nested before being sent to the backend. Client code should read and edit
+ * these root-level attributes, rather than their standard nested paths (in parentheses):
+ *
+ * motivation            ([oa:motivatedBy][@id])
+ * tagURL                ([oa:hasBody][@id] if motivation === oa:tagging)
+ * oa:hasSource          ([oa:hasTarget][oa:hasSource][@id])
+ * edpopcol:field        ([oa:hasTarget][oa:hasSelector][edpopcol:field][@id])
+ * edpopcol:originalText ([oa:hasTarget][oa:hasSelector][edpopcol:originalText])
+ *
+ * @class
+ */
 export var Annotation = JsonLdModel.extend({
     urlRoot: '/api/annotation/',
     getBody: function() {
