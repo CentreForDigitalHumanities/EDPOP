@@ -1,9 +1,8 @@
 from django.contrib.auth.models import User
+from django.conf import settings
 from rdflib import URIRef
 
-from edpop.settings import RDF_NAMESPACE_ROOT
-
-RDF_ACCOUNTS_ROOT = RDF_NAMESPACE_ROOT + "accounts/"
+RDF_ACCOUNTS_ROOT = settings.RDF_NAMESPACE_ROOT + "accounts/"
 
 
 def user_to_uriref(user: User) -> URIRef:
