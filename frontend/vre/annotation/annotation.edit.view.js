@@ -43,7 +43,7 @@ export var AnnotationEditView = View.extend({
         if (this.model.getAnnotationType() === 'tag') {
             this.$('select').select2('destroy');
             this.$el.html(this.glossaryTemplate({
-                choices: glossary.toJSON(),
+                choices: glossary.models.map(function(model) {return model.toJSON();}),
                 cid: this.cid,
             }));
             this.$('select').select2({
