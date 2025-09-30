@@ -43,7 +43,7 @@ export var AnnotationEditView = View.extend({
         if (this.model.get('motivation') === 'oa:tagging') {
             this.$('select').select2('destroy');
             this.$el.html(this.glossaryTemplate({
-                choices: glossary.toJSON(),
+                choices: glossary.parse(glossary.toJSON()),
                 cid: this.cid,
             }));
             this.$('select').select2({
