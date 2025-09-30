@@ -89,13 +89,17 @@ def create_field_selectors_triples(data: dict, subject_node: URIRef) -> list:
     return triples
 
 
+def create_annotation_subject_node() -> URIRef:
+    return URIRef(RDF_ANNOTATION_ROOT + uuid.uuid4().hex)
+
+
 class AnnotationView(RDFView):
     parser_classes = (JSONParser,)
     renderer_classes = (JsonLdRenderer, TurtleRenderer)
     json_ld_context = JSON_LD_CONTEXT
 
     def post(self, request, **kwargs):
-        subject_node = URIRef(RDF_ANNOTATION_ROOT + uuid.uuid4().hex)
+        subject_node = create_annotation_subject_node()
         graph = Graph(identifier=ANNOTATION_GRAPH_IDENTIFIER)
         if not all(x in request.data.keys() for x in ["oa:hasTarget", "oa:hasBody"]):
             return Response({"error": "Missing required fields"}, status=400)
