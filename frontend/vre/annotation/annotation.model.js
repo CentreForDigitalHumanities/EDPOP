@@ -98,8 +98,21 @@ export var Annotation = JsonLdModel.extend({
     },
 });
 
+/**
+ * Collection of instances of {@link Annotation}.
+ *
+ * @class
+ */
 export var Annotations = JsonLdNestedCollection.extend({
     model: Annotation,
+    /**
+     * @name Annotations#target
+     * @member {string}
+     * @summary The `target` of an Annotations collection is the id of the
+     * {@link Record} that all annotations in the collection are about. This
+     * means that it becomes the `oa:hasSource` (NOT the `oa:hasTarget`!) in the
+     * JSON-LD representation.
+     */
     initialize: function(model, options) {
         _.assign(this, _.pick(options, ['target']));
         this.url = `/api/record-annotations/${encodeURIComponent(this.target)}/`;
