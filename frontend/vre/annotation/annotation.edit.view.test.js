@@ -50,7 +50,7 @@ describe('AnnotationEditView', function() {
         });
 
         it('saves input data to the model', function() {
-            assert(this.model.getBody() === 'green');
+            assert(this.model.get('oa:hasBody') === 'green');
         });
 
         it('triggers a "save" event', function() {

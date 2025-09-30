@@ -32,12 +32,9 @@ function stripAttribute(container) {
  */
 export var Annotation = JsonLdModel.extend({
     urlRoot: '/api/annotation/',
-    getBody: function() {
-        return this.get('oa:hasBody');
-    },
     getDisplayText: function() {
         if (this.get('motivation') === 'oa:commenting') {
-            return this.getBody();
+            return this.get('oa:hasBody');
         } else if (this.get('motivation') === 'oa:tagging') {
             var id = this.get('tagURL');
             return glossary.get(id).get('skos:prefLabel');

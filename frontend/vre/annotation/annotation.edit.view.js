@@ -54,7 +54,7 @@ export var AnnotationEditView = View.extend({
             this.$('select').trigger('change');
         } else {
             this.$el.html(this.template({
-                currentText: this.model.getBody(),
+                currentText: this.model.get('oa:hasBody'),
                 cid: this.cid,
             }));
         }
