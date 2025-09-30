@@ -41,7 +41,7 @@ const serverMod = {
 const clientMod = {
     '@id': serverMod['@id'],
     motivation: serverMod['oa:motivatedBy']['@id'],
-    glossary: serverMod['oa:hasBody']['@id'],
+    tagURL: serverMod['oa:hasBody']['@id'],
     'oa:hasSource': serverMod['oa:hasTarget']['oa:hasSource']['@id'],
     'edpopcol:field': serverMod['oa:hasTarget']['oa:hasSelector']['edpopcol:field']['@id'],
     'edpopcol:originalText': serverMod['oa:hasTarget']['oa:hasSelector']['edpopcol:originalText'],

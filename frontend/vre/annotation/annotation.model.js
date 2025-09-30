@@ -21,7 +21,7 @@ export var Annotation = JsonLdModel.extend({
         if (this.get('motivation') === 'oa:commenting') {
             return this.getBody();
         } else if (this.get('motivation') === 'oa:tagging') {
-            var id = this.get('tagUrl');
+            var id = this.get('tagURL');
             return glossary.get(id).get('skos:prefLabel');
         }
     },
@@ -37,7 +37,7 @@ export var Annotation = JsonLdModel.extend({
     // Fields that are normally nested in JSON-LD, but get hoisted to the
     // top-level `attributes` for more convenient access. See the overridden
     // `parse` and `toJSON` methods below.
-    flatFields: ['motivation', 'glossary', 'oa:hasSource', 'edpopcol:field', 'edpopcol:originalText'],
+    flatFields: ['motivation', 'tagURL', 'oa:hasSource', 'edpopcol:field', 'edpopcol:originalText'],
     parse: function(response, options) {
         var anno = parent(Annotation.prototype)
             .parse.call(this, response, options),
@@ -46,7 +46,7 @@ export var Annotation = JsonLdModel.extend({
             body = anno['oa:hasBody'],
             target = anno['oa:hasTarget'];
         if (motivation) flat.motivation = motivation['@id'];
-        if (body && body['@id']) flat.glossary = body['@id'];
+        if (body && body['@id']) flat.tagURL = body['@id'];
         if (target) {
             var source = target['oa:hasSource'],
                 selector = target['oa:hasSelector'];
@@ -64,7 +64,7 @@ export var Annotation = JsonLdModel.extend({
         var jsonld = parent(Annotation.prototype).
             toJSON.call(this, options),
             flatMotivation = jsonld.motivation,
-            flatGlossary = jsonld.glossary,
+            flatTagURL = jsonld.tagURL,
             target = jsonld['oa:hasTarget'] || {},
             selector = target['oa:hasSelector'] || {},
             flatSource = jsonld['oa:hasSource'],
@@ -76,7 +76,7 @@ export var Annotation = JsonLdModel.extend({
         if (flatSource) target['oa:hasSource'] = {'@id': flatSource};
         if (flatSelector) target['oa:hasSelector'] = selector;
         if (flatSource || flatSelector) jsonld['oa:hasTarget'] = target;
-        if (flatGlossary) jsonld['oa:hasBody'] = {'@id': flatGlossary};
+        if (flatTagURL) jsonld['oa:hasBody'] = {'@id': flatTagURL};
         if (flatMotivation) jsonld['oa:motivatedBy'] = {'@id': flatMotivation};
         _.each(this.flatFields, stripAttribute(jsonld));
         return jsonld;

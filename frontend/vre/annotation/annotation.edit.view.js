@@ -49,7 +49,7 @@ export var AnnotationEditView = View.extend({
             this.$('select').select2({
                 dropdownParent: $('.modal-content'),
             });
-            var tag = this.model.get('glossary');
+            var tag = this.model.get('tagURL');
             if (tag) this.$('select').val(tag);
             this.$('select').trigger('change');
         } else {
@@ -72,7 +72,7 @@ export var AnnotationEditView = View.extend({
     submit: function(event) {
         event.preventDefault();
         if (this.model.get('motivation') === 'oa:tagging') {
-            this.model.set("glossary", this.$('select').val());
+            this.model.set("tagURL", this.$('select').val());
         } else {
             this.model.set("oa:hasBody", this.$('textarea').val());
         }
