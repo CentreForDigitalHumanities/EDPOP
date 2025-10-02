@@ -1,8 +1,14 @@
 from rdflib import BNode, Graph, URIRef, Literal
 from rdflib.namespace import RDF
 
-from .utils import union_graphs, replace_blank_node, \
-    replace_blank_nodes_in_triples, triples_to_quads, sparql_multivalues
+from .utils import (
+    replace_blank_node,
+    replace_blank_nodes_in_triples,
+    replace_node,
+    sparql_multivalues,
+    triples_to_quads,
+    union_graphs,
+)
 
 
 def blank_triple():
@@ -69,6 +75,20 @@ def test_replace_blank_nodes_in_triples_empty():
     triples = []
     result = replace_blank_nodes_in_triples(triples)
     assert list(result) == []
+
+
+def test_replace_node():
+    b1, b2, b3, b4 = (BNode() for x in range(4))
+    triples = [
+        (b1, b2, b3),
+        (b3, b1, b2),
+        (b2, b3, b1),
+    ]
+    assert list(replace_node(triples, b3, b4)) == [
+        (b1, b2, b4),
+        (b4, b1, b2),
+        (b2, b4, b1),
+    ]
 
 
 def test_triples_to_quads():

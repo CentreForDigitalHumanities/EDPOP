@@ -27,7 +27,7 @@ export var CommentView = View.extend({
         var author = this.model.getAuthor();
         Object.assign(templateData, {
             isFieldAnnotation: this.fieldAnnotation,
-            isTag: this.model.getAnnotationType() === 'tag',
+            isTag: this.model.get('motivation') === 'oa:tagging',
             displayText: this.model.getDisplayText(),
             author: (author ? author.getUsername() : null),
             publishedDate: (publishedDate ? publishedDate.toLocaleString() : null),

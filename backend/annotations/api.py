@@ -1,92 +1,104 @@
+import datetime
 import uuid
 from django.conf import settings
-from django.http.response import HttpResponse
 from rest_framework.views import Request
-from rest_framework.parsers import JSONParser
-from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 from rdflib import URIRef, Graph, Literal, DCTERMS, RDFS, RDF
-import datetime
-
-from triplestore.constants import EDPOPREC, AS, EDPOPCOL
-from rdf.views import RDFView
+from rdf.views import RDFView, graph_from_request
 from rdf.utils import graph_from_triples
 from rdf.renderers import TurtleRenderer, JsonLdRenderer
+
 from accounts.utils import user_to_uriref
-from triplestore.constants import OA, AS
-from triplestore.utils import triples_to_quads, sparql_multivalues
+from triplestore.constants import EDPOPREC, OA, AS, EDPOPCOL
+from triplestore.utils import (
+    replace_blank_nodes_in_triples,
+    replace_node,
+    sparql_multivalues,
+    triples_to_quads,
+)
 
 ANNOTATION_GRAPH_URI = settings.RDF_NAMESPACE_ROOT + "annotations/"
 ANNOTATION_GRAPH_IDENTIFIER = URIRef(ANNOTATION_GRAPH_URI)
 
 RDF_ANNOTATION_ROOT = settings.RDF_NAMESPACE_ROOT + "annotations/"
 
+NS = {
+    'rdfs': RDFS,
+    'edpoprec': EDPOPREC,
+    'edpopcol': EDPOPCOL,
+    'oa': OA,
+    'as': AS,
+    'dcterms': DCTERMS,
+}
+
 JSON_LD_CONTEXT = {
-    'rdfs': str(RDFS),
-    'edpoprec': str(EDPOPREC),
-    'edpopcol': str(EDPOPCOL),
-    'oa': str(OA),
-    'as': str(AS),
-    'dcterms': str(DCTERMS),
+    prefix: str(namespace)
+    for prefix, namespace in NS.items()
 }
 
 
-# Argument: target_uris
-collection_records_query = '''
-construct {{
-  ?s ?p ?o .
-}}
-where {{
-  values ?annotation {{ {target_uris} }}
-  graph ?annotations {{
-    ?s ?p ?o.
-    ?s <http://www.w3.org/ns/oa#hasTarget> ?annotation.
-  }}
-}}
-'''.format
+record_annotations_query = '''
+construct {
+  ?a ?pa ?oa .
+  ?t ?pt ?ot .
+  ?s ?ps ?os .
+}
+where {
+  graph ?annotations {
+    ?a ?pa ?oa ;
+       oa:hasTarget ?t .
+    ?t ?pt ?ot ;
+       oa:hasSource ?record .
+    optional {
+      ?t oa:hasSelector ?s .
+      ?s ?ps ?os .
+    }
+  }
+}
+'''
 
 delete_annotation_update = '''
 delete {
   graph ?annotations {
-    ?annotation ?p ?o.
+    ?annotation ?pa ?oa .
+    ?target ?pt ?ot .
+    ?selector ?ps ?os .
   }
 }
 where {
   graph ?annotations {
-    ?annotation ?p ?o.
+    ?annotation ?pa ?oa .
+    optional {
+      ?annotation oa:hasTarget ?target .
+      ?target ?pt ?ot .
+      optional {
+        ?target oa:hasSelector ?selector .
+        ?selector ?ps ?os .
+      }
+    }
   }
 }
 '''
 
-delete_annotation_body_update = '''
+update_annotation_body = '''
 delete {
   graph ?annotations {
-    ?annotation <http://www.w3.org/ns/oa#hasBody> ?o.
+    ?annotation oa:hasBody ?o .
+  }
+}
+insert {
+  graph ?annotations {
+    ?annotation oa:hasBody ?body ;
+                as:updated ?updated .
   }
 }
 where {
   graph ?annotations {
-    ?annotation <http://www.w3.org/ns/oa#hasBody> ?o.
+    ?annotation oa:hasBody ?o .
   }
 }
 '''
-
-
-def get_edpoprec_uriref(string: str) -> URIRef:
-    partial = string.removeprefix("edpoprec:")
-    return EDPOPREC[partial]
-
-
-def create_field_selectors_triples(data: dict, subject_node: URIRef) -> list:
-    triples = []
-    select_field = data.get("edpopcol:selectField")
-    select_original_text = data.get("edpopcol:selectOriginalText")
-    if select_field:
-        select_field_uriref = get_edpoprec_uriref(select_field)
-        triples.append((subject_node, EDPOPCOL.selectField, select_field_uriref))
-    if select_original_text:
-        triples.append((subject_node, EDPOPCOL.selectOriginalText, Literal(select_original_text)))
-    return triples
 
 
 def create_annotation_subject_node() -> URIRef:
@@ -94,49 +106,70 @@ def create_annotation_subject_node() -> URIRef:
 
 
 class AnnotationView(RDFView):
-    parser_classes = (JSONParser,)
     renderer_classes = (JsonLdRenderer, TurtleRenderer)
     json_ld_context = JSON_LD_CONTEXT
 
     def post(self, request, **kwargs):
-        subject_node = create_annotation_subject_node()
-        graph = Graph(identifier=ANNOTATION_GRAPH_IDENTIFIER)
-        if not all(x in request.data.keys() for x in ["oa:hasTarget", "oa:hasBody"]):
-            return Response({"error": "Missing required fields"}, status=400)
-        oa_has_target = URIRef(request.data.get("oa:hasTarget"))
-        oa_motivated_by_value = request.data.get("oa:motivatedBy")
-        oa_motivated_by_id = oa_motivated_by_value and oa_motivated_by_value.get("@id")
-        oa_has_body_value = request.data.get("oa:hasBody")
-        if oa_motivated_by_id in ("oa:commenting", None):
-            oa_has_body = Literal(oa_has_body_value)
-            oa_motivated_by = OA.commenting
-        elif oa_motivated_by_id == "oa:tagging":
-            oa_has_body = URIRef(oa_has_body_value)
-            oa_motivated_by = OA.tagging
+        request_graph = graph_from_request(request)
+
+        # Step 1: validate the incoming data.
+        bodies = list(request_graph.subject_objects(OA.hasBody))
+        targets = list(request_graph.subject_objects(OA.hasTarget))
+        sources = list(request_graph.subject_objects(OA.hasSource))
+        if len(bodies) == 1:
+            s1, body = bodies[0]
         else:
-            return Response({"error": "Invalid oa:motivatedBy value"}, status=400)
-        as_published = Literal(datetime.datetime.now())
-        dcterms_creator = user_to_uriref(request.user)
-        triples = [
-            (subject_node, RDF.type, EDPOPCOL.Annotation),
-            (subject_node, OA.hasTarget, oa_has_target),
-            (subject_node, OA.motivatedBy, oa_motivated_by),
-            (subject_node, OA.hasBody, oa_has_body),
-            (subject_node, AS.published, as_published),
-            (subject_node, DCTERMS.creator, dcterms_creator),
-        ]
-        triples.extend(create_field_selectors_triples(request.data, subject_node))
-        quads = list(triples_to_quads(triples, graph))
+            raise ValidationError('Needs exactly one body')
+        if len(targets) == 1:
+            s2, target = targets[0]
+        else:
+            raise ValidationError('Needs exactly one target')
+        if len(sources) == 1:
+            s3, source = sources[0]
+        else:
+            raise ValidationError('Needs exactly one source')
+        if s1 != s2:
+            raise ValidationError('Body and target must be annotation properties')
+        if s3 != target:
+            raise ValidationError('Source must be a property of the target')
+        motivation = request_graph.value(s1, OA.motivatedBy, None, OA.commenting)
+        if motivation == OA.commenting:
+            if not isinstance(body, Literal):
+                raise ValidationError('Comment must be a literal')
+        elif motivation == OA.tagging:
+            if not isinstance(body, URIRef):
+                raise ValidationError('Tag must be a URI')
+        else:
+            raise ValidationError('Only commenting or tagging is supported at this time')
+
+        # Step 2: normalize the data. We modify the request_graph in place
+        # because this is convenient.
+        published = Literal(datetime.datetime.now())
+        creator = user_to_uriref(request.user)
+        request_graph.set((s1, RDF.type, EDPOPCOL.Annotation))
+        request_graph.set((s1, AS.published, published))
+        request_graph.set((s1, DCTERMS.creator, creator))
+
+        # Step 3: deanonymize all the blank nodes. We give the annotation
+        # subject a proper URI, then wrap the remaing ones with the bnode:
+        # scheme.
+        subject_node = create_annotation_subject_node()
+        triples_with_subject = replace_node(request_graph, s1, subject_node)
+        triples_wo_blank = replace_blank_nodes_in_triples(triples_with_subject)
+        clean_triples = list(triples_wo_blank)
+
+        # Finish: store the final clean data and send them back to the client.
+        graph = Graph(identifier=ANNOTATION_GRAPH_IDENTIFIER)
+        quads = list(triples_to_quads(clean_triples, graph))
         # Get the existing graph from Blazegraph
         store = settings.RDFLIB_STORE
         store.addN(quads)
         store.commit()
-        graph = graph_from_triples(triples)
-        return Response(graph)
+        response_graph = graph_from_triples(clean_triples)
+        return Response(response_graph)
 
 
 class AnnotationEditView(RDFView):
-    parser_classes = (JSONParser,)
     renderer_classes = (JsonLdRenderer, TurtleRenderer)
     json_ld_context = JSON_LD_CONTEXT
 
@@ -146,29 +179,27 @@ class AnnotationEditView(RDFView):
         store.update(delete_annotation_update, initBindings={
             'annotations': ANNOTATION_GRAPH_IDENTIFIER,
             'annotation': id_uriref,
-        })
+        }, initNs=NS)
         store.commit()
         return Response(Graph())
 
     def put(self, request, **kwargs):
         # Allow editing of the body. Other properties cannot be edited.
         id_uriref = URIRef(kwargs.get("annotation"))
-        oa_has_body = Literal(request.data.get("oa:hasBody"))
-        as_updated = Literal(datetime.datetime.now())
+        graph = graph_from_request(request)
+        body = graph.value(id_uriref, OA.hasBody, None)
+
+        updated = Literal(datetime.datetime.now())
         store = settings.RDFLIB_STORE
         # Delete the current body
-        store.update(delete_annotation_body_update, initBindings={
+        store.update(update_annotation_body, initBindings={
             'annotations': ANNOTATION_GRAPH_IDENTIFIER,
             'annotation': id_uriref,
-        })
-        triples = [
-            (id_uriref, OA.hasBody, oa_has_body),
-            (id_uriref, AS.updated, as_updated),
-        ]
-        quads = list(triples_to_quads(triples, Graph(identifier=ANNOTATION_GRAPH_IDENTIFIER)))
-        store.addN(quads)
+            'body': body,
+            'updated': updated,
+        }, initNs=NS)
         store.commit()
-        graph = graph_from_triples(triples)
+        graph.set((id_uriref, AS.updated, updated))
         return Response(graph)
 
 
@@ -183,10 +214,8 @@ class AnnotationsPerTargetView(RDFView):
     def get_graph(self, request: Request, record: str, **kwargs) -> Graph:
         record_uri = URIRef(record)
         store = settings.RDFLIB_STORE
-        target_uris = sparql_multivalues([record_uri])
-        query = collection_records_query(target_uris=target_uris)
-        return graph_from_triples(store.query(query, initNs={
-            'rdfs': RDFS,
-        }, initBindings={
+        query = record_annotations_query
+        return graph_from_triples(store.query(query, initBindings={
             'annotations': ANNOTATION_GRAPH_IDENTIFIER,
-        }))
+            'record': record_uri,
+        }, initNs=NS))
