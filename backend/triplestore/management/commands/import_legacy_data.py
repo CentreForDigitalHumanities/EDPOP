@@ -48,7 +48,7 @@ def add_records(records: list[str]) -> RecordMapping:
                 if not record_exists(URIRef(record_iri)):
                     record = HPBReader.get_by_id(record_id)
                     time.sleep(2)  # Sleep a few seconds to avoid rate limiting
-                    assert record.iri == record_iri  # Sanity check
+                    assert record.iri == record_iri
                 else:
                     already_exists = True
                     print(f"Record {record_iri} already exists in triplestore; skipping.")
