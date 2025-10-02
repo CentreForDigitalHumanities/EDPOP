@@ -21,7 +21,8 @@ from triplestore.utils import triples_to_quads
 
 RecordMapping = dict[str, str]
 
-glossary_mapping = {  # There are more entries, but these are the only ones that are in use
+glossary_mapping = {
+    # There are more entries, but these are the only ones that are in use
     "Chapbook": "https://popular-print-glossary.sites.uu.nl/glossary/chapbook/",
     "Almanac": "https://popular-print-glossary.sites.uu.nl/glossary/almanac/",
     "Abecedarium": "https://popular-print-glossary.sites.uu.nl/glossary/abecedarium/",
