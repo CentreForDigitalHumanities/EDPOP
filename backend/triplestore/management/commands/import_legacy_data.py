@@ -64,7 +64,6 @@ def add_records(records: list[str]) -> RecordMapping:
         record_mapping[record_uri] = record_iri
         if not already_exists:
             graph = record.to_graph()
-            remove_from_triplestore([record])
             save_to_triplestore(graph, [URIRef(record.iri)])
             print(f"Record {record.iri} added to triplestore.")
     return record_mapping
