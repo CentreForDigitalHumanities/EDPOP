@@ -83,8 +83,8 @@ export var Annotation = JsonLdModel.extend({
     },
 
     toJSON: function(options) {
-        var jsonld = parent(Annotation.prototype).
-            toJSON.call(this, options),
+        var jsonld = parent(Annotation.prototype)
+            .toJSON.call(this, options),
             flatMotivation = jsonld.motivation,
             flatTagURL = jsonld.tagURL,
             target = jsonld['oa:hasTarget'] || {},
