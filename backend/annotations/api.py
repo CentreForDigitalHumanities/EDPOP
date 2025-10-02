@@ -101,6 +101,10 @@ where {
 '''
 
 
+def create_annotation_subject_node() -> URIRef:
+    return URIRef(RDF_ANNOTATION_ROOT + uuid.uuid4().hex)
+
+
 class AnnotationView(RDFView):
     renderer_classes = (JsonLdRenderer, TurtleRenderer)
     json_ld_context = JSON_LD_CONTEXT
@@ -149,7 +153,7 @@ class AnnotationView(RDFView):
         # Step 3: deanonymize all the blank nodes. We give the annotation
         # subject a proper URI, then wrap the remaing ones with the bnode:
         # scheme.
-        subject_node = URIRef(RDF_ANNOTATION_ROOT + uuid.uuid4().hex)
+        subject_node = create_annotation_subject_node()
         triples_with_subject = replace_node(request_graph, s1, subject_node)
         triples_wo_blank = replace_blank_nodes_in_triples(triples_with_subject)
         clean_triples = list(triples_wo_blank)
