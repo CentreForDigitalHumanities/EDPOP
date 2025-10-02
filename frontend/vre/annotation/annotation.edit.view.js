@@ -35,27 +35,26 @@ export var AnnotationEditView = View.extend({
             confirmSelector,
             this.cancelTrash.bind(this),
         );
-        if (this.model.getAnnotationType() === 'tag') {
+        if (this.model.get('motivation') === 'oa:tagging') {
             glossary.on('update', this.render);
         }
     },
     render: function() {
-        if (this.model.getAnnotationType() === 'tag') {
+        if (this.model.get('motivation') === 'oa:tagging') {
             this.$('select').select2('destroy');
             this.$el.html(this.glossaryTemplate({
-                choices: glossary.toJSON(),
+                choices: glossary.parse(glossary.toJSON()),
                 cid: this.cid,
             }));
             this.$('select').select2({
                 dropdownParent: $('.modal-content'),
             });
-            if (this.model.getBody()) {
-                this.$('select').val(this.model.getBody()["@id"]);
-            }
+            var tag = this.model.get('tagURL');
+            if (tag) this.$('select').val(tag);
             this.$('select').trigger('change');
         } else {
             this.$el.html(this.template({
-                currentText: this.model.getBody(),
+                currentText: this.model.get('oa:hasBody'),
                 cid: this.cid,
             }));
         }
@@ -65,15 +64,15 @@ export var AnnotationEditView = View.extend({
         this.$el.popover('dispose');
         this.trashConfirmer.off();
         this.trashCanceller.off();
-        if (this.model.getAnnotationType() === 'tag') {
+        if (this.model.get('motivation') === 'oa:tagging') {
             this.$('select').select2('destroy');
         }
         return View.prototype.remove.call(this);
     },
     submit: function(event) {
         event.preventDefault();
-        if (this.model.getAnnotationType() === 'tag') {
-            this.model.set("oa:hasBody", this.$('select').val());
+        if (this.model.get('motivation') === 'oa:tagging') {
+            this.model.set("tagURL", this.$('select').val());
         } else {
             this.model.set("oa:hasBody", this.$('textarea').val());
         }

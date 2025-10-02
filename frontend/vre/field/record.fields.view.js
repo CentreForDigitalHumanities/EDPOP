@@ -3,14 +3,12 @@ import { FilteredCollection } from "../utils/filtered.collection";
 import fieldListTemplate from "./record.fields.view.mustache";
 import {FieldView} from "./field.view";
 
-function annotationMatchesField(model, field) {
+function annotationMatchesField(model, targetField) {
     return function(annotation) {
-        var selectField = annotation.get('edpopcol:selectField');
-        var selectOriginalText = annotation.get('edpopcol:selectOriginalText');
-        if (!selectField) return false;
-        var selectFieldId = selectField["@id"];
-        if (selectFieldId !== field) return false;
-        return !selectOriginalText || selectOriginalText === model.get('value')["edpoprec:originalText"];
+        var field = annotation.get('edpopcol:field');
+        if (field !== targetField) return false;
+        var originalText = annotation.get('edpopcol:originalText');
+        return !originalText || originalText === model.get('value')["edpoprec:originalText"];
     }
 }
 
