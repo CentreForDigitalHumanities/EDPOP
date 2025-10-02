@@ -4,20 +4,20 @@ import time
 
 from django.conf import settings
 from django.core.management import BaseCommand
-from rdflib import Graph, URIRef, Literal, RDF, DCTERMS
+from rdflib import Graph, URIRef, Literal, RDF, DCTERMS, BNode
 
 from edpop_explorer.readers import HPBReader
 from edpop_explorer import NotFoundError
 
 from accounts.utils import IMPORT_USER_URIREF
 from annotations.api import create_annotation_subject_node, ANNOTATION_GRAPH_IDENTIFIER
-from catalogs.triplestore import save_to_triplestore, remove_from_triplestore
+from catalogs.triplestore import save_to_triplestore
 from catalogs.utils import record_exists
-from collect.blank_record import BlankRecordReader, create_blank_record
+from collect.blank_record import create_blank_record
 from collect.rdf_models import EDPOPCollection
 from collect.utils import collection_uri, collection_graph, collection_exists
 from triplestore.constants import AS, EDPOPCOL, OA
-from triplestore.utils import triples_to_quads
+from triplestore.utils import triples_to_quads, replace_blank_node
 
 RecordMapping = dict[str, str]
 
@@ -130,12 +130,14 @@ def add_annotation(record_iri: str, annotation_key: str, annotation_value: str):
         body = Literal(f"{annotation_key}: {annotation_value}")
         motivation = OA.commenting
     subject_node = create_annotation_subject_node()
+    target_node = replace_blank_node(BNode())
     as_published = Literal(datetime.datetime.now())
     dcterms_creator = IMPORT_USER_URIREF
     graph = Graph(identifier=ANNOTATION_GRAPH_IDENTIFIER)
     triples = [
         (subject_node, RDF.type, EDPOPCOL.Annotation),
-        (subject_node, OA.hasTarget, URIRef(record_iri)),
+        (subject_node, OA.hasTarget, target_node),
+        (target_node, OA.hasSource, URIRef(record_iri)),
         (subject_node, OA.motivatedBy, motivation),
         (subject_node, OA.hasBody, body),
         (subject_node, AS.published, as_published),
