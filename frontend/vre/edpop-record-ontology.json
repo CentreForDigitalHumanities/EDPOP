@@ -1,0 +1,721 @@
+{
+  "@context": {
+    "dc": "http://purl.org/dc/elements/1.1/",
+    "dcterms": "http://purl.org/dc/terms/",
+    "edpoprec": "https://dhstatic.hum.uu.nl/edpop-records/0.1.0/",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {
+      "@id": "edpoprec:fromCatalog",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:Record"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:Catalog"
+      },
+      "skos:description": "The catalog this record was originally taken from",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "From catalog"
+      }
+    },
+    {
+      "@id": "edpoprec:relation",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:ContributorField"
+      },
+      "skos:description": "Role of the contributor (normalized)",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Relation"
+      }
+    },
+    {
+      "@id": "edpoprec:LanguageField",
+      "rdfs:subClassOf": {
+        "@id": "edpoprec:Field"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Language"
+      }
+    },
+    {
+      "@id": "edpoprec:originalText",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:Field"
+      },
+      "rdfs:range": {
+        "@id": "xsd:string"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Original text"
+      }
+    },
+    {
+      "@id": "edpoprec:LocationField",
+      "rdfs:subClassOf": {
+        "@id": "edpoprec:Field"
+      },
+      "skos:description": "A location, such as a town, country or region",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Location field"
+      }
+    },
+    {
+      "@id": "edpoprec:Record",
+      "@type": "rdfs:Class",
+      "skos:description": "Bibliographical or biographical record",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Record"
+      }
+    },
+    {
+      "@id": "edpoprec:locality",
+      "@type": "edpoprec:LocationType",
+      "skos:description": "A place of residence such as a village, town or city",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Locality"
+      }
+    },
+    {
+      "@id": "edpoprec:identifier",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:Record"
+      },
+      "skos:description": "Unique identifier used by the source catalog",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Identifier"
+      }
+    },
+    {
+      "@id": "edpoprec:placeOfBirth",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BiographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:LocationField"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Place of birth"
+      }
+    },
+    {
+      "@id": "edpoprec:gender",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BiographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:FieldField"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Gender"
+      }
+    },
+    {
+      "@id": "edpoprec:language",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BibliographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:LanguageField"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Language"
+      }
+    },
+    {
+      "@id": "edpoprec:BiographicalRecord",
+      "rdfs:subClassOf": {
+        "@id": "edpoprec:Record"
+      }
+    },
+    {
+      "@id": "edpoprec:holdings",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BibliographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:Field"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Holdings"
+      }
+    },
+    {
+      "@id": "edpoprec:languageCode",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:LanguageField"
+      },
+      "rdfs:range": {
+        "@id": "xsd:string"
+      },
+      "skos:description": "Three-character language code according to ISO 639-3",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Language code"
+      }
+    },
+    {
+      "@id": "edpoprec:normalizedText",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:Field"
+      },
+      "rdfs:range": {
+        "@id": "xsd:string"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Normalized text"
+      }
+    },
+    {
+      "@id": "edpoprec:title",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BibliographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:Field"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Title"
+      }
+    },
+    {
+      "@id": "edpoprec:physicalDescription",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BibliographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:Field"
+      },
+      "skos:description": "Comments about the physical appearance of the described item",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Physical description"
+      }
+    },
+    {
+      "@id": "edpoprec:placeOfDeath",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BiographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:LocationField"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Place of death"
+      }
+    },
+    {
+      "@id": "edpoprec:Catalog",
+      "@type": "rdfs:Class",
+      "skos:description": "External repository of bibliographical or biographical data",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Catalog"
+      }
+    },
+    {
+      "@id": "edpoprec:placeOfActivity",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BiographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:LocationField"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Place of activity"
+      }
+    },
+    {
+      "@id": "edpoprec:contributor",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BibliographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:ContributorField"
+      },
+      "skos:description": "Author or other contributor to the work",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Contributor"
+      }
+    },
+    {
+      "@id": "edpoprec:genre",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BibliographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:Field"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Genre"
+      }
+    },
+    {
+      "@id": "edpoprec:timespan",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BiographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:DatingField"
+      },
+      "skos:description": "The years that the person was alive or the entity was existing",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Timespan"
+      }
+    },
+    {
+      "@id": "edpoprec:edtfDate",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:DatingField"
+      },
+      "rdfs:range": {
+        "@id": "http://id.loc.gov/datatypes/edtf/EDTF"
+      },
+      "skos:description": "Normalized date in Extended Date/Time Format",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "EDTF date"
+      }
+    },
+    {
+      "@id": "edpoprec:name",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BiographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:Field"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Name"
+      }
+    },
+    {
+      "@id": "edpoprec:DatingField",
+      "rdfs:subClassOf": {
+        "@id": "edpoprec:Field"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Dating field"
+      }
+    },
+    {
+      "@id": "edpoprec:bibliographicalFormat",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BibliographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:Field"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Bibliographical format"
+      }
+    },
+    {
+      "@id": "edpoprec:alternativeTitle",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BibliographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:Field"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Alternative title"
+      }
+    },
+    {
+      "@id": "edpoprec:digitization",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BibliographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:Field"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Digitization"
+      }
+    },
+    {
+      "@id": "edpoprec:BibliographicalRecord",
+      "rdfs:subClassOf": {
+        "@id": "edpoprec:Record"
+      }
+    },
+    {
+      "@id": "edpoprec:Field",
+      "@type": "rdfs:Class",
+      "rdfs:subClassOf": {
+        "@id": "_:nb4fbb8f0a62f406e925edf7e9cf795b8b1"
+      },
+      "skos:description": "A catalog field",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Field"
+      }
+    },
+    {
+      "@id": "_:nb4fbb8f0a62f406e925edf7e9cf795b8b1",
+      "@type": "owl:Restriction",
+      "owl:cardinality": 1,
+      "owl:onProperty": {
+        "@id": "edpoprec:originalText"
+      }
+    },
+    {
+      "@id": "edpoprec:bookseller",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BibliographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:Field"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Bookseller"
+      }
+    },
+    {
+      "@id": "edpoprec:variantName",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BiographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:Field"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Variant name"
+      }
+    },
+    {
+      "@id": "edpoprec:",
+      "@type": "owl:Ontology"
+    },
+    {
+      "@id": "edpoprec:bibliographicalRecord",
+      "rdfs:subClassOf": {
+        "@id": "_:nb4fbb8f0a62f406e925edf7e9cf795b8b2"
+      }
+    },
+    {
+      "@id": "_:nb4fbb8f0a62f406e925edf7e9cf795b8b2",
+      "@type": "owl:Restriction",
+      "owl:maxCardinality": 1,
+      "owl:onProperty": {
+        "@id": "edpoprec:title"
+      }
+    },
+    {
+      "@id": "edpoprec:typographicalFeatures",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BibliographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:Field"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Typographical features"
+      }
+    },
+    {
+      "@id": "edpoprec:LocationType",
+      "@type": "rdfs:Class",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Location type"
+      }
+    },
+    {
+      "@id": "edpoprec:unknown",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:Field"
+      },
+      "rdfs:range": {
+        "@id": "xsd:boolean"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Unknown"
+      }
+    },
+    {
+      "@id": "edpoprec:location",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BibliographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:Field"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Location"
+      }
+    },
+    {
+      "@id": "edpoprec:activity",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BiographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:Field"
+      },
+      "skos:description": "An activity that the entity is known for",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Activity"
+      }
+    },
+    {
+      "@id": "edpoprec:publisherOrPrinter",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BibliographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:LocationField"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Publisher or printer"
+      }
+    },
+    {
+      "@id": "edpoprec:publicURL",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:Record"
+      },
+      "rdfs:range": {
+        "@id": "xsd:anyURI"
+      },
+      "skos:description": "Public URL in the source catalog",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Public URL"
+      }
+    },
+    {
+      "@id": "edpoprec:authorityRecord",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:Field"
+      },
+      "skos:description": "Link to an authority record as given in the record",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Authority record"
+      }
+    },
+    {
+      "@id": "edpoprec:fingerprint",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BibliographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:Field"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Fingerprint"
+      }
+    },
+    {
+      "@id": "edpoprec:BibliographicalCatalog",
+      "rdfs:subClassOf": {
+        "@id": "edpoprec:Catalog"
+      },
+      "skos:description": "External repository of bibliographical data",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Bibliographical catalog"
+      }
+    },
+    {
+      "@id": "edpoprec:originalData",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:Record"
+      },
+      "rdfs:range": {
+        "@id": "rdf:JSON"
+      },
+      "skos:description": "All data from the original catalogue record in JSON format",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Original data"
+      }
+    },
+    {
+      "@id": "edpoprec:country",
+      "@type": "edpoprec:LocationType",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Country"
+      }
+    },
+    {
+      "@id": "edpoprec:size",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BibliographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:Field"
+      },
+      "skos:description": "Length in centimeters or other way of measuring size",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Dimensions"
+      }
+    },
+    {
+      "@id": "edpoprec:placeOfPublication",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BibliographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:LocationField"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Place of publication"
+      }
+    },
+    {
+      "@id": "edpoprec:activityTimespan",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BiographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:DatingField"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Activity timespan"
+      }
+    },
+    {
+      "@id": "edpoprec:extent",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BibliographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:Field"
+      },
+      "skos:description": "Number of pages or other way of measuring length",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Extent"
+      }
+    },
+    {
+      "@id": "edpoprec:ContributorField",
+      "rdfs:subClassOf": {
+        "@id": "edpoprec:Field"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Contributor field"
+      }
+    },
+    {
+      "@id": "edpoprec:collationFormula",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BibliographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:Field"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Collation formula"
+      }
+    },
+    {
+      "@id": "edpoprec:BiographicalCatalog",
+      "rdfs:subClassOf": {
+        "@id": "edpoprec:Catalog"
+      },
+      "skos:description": "External repository of biographical data",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Biographical catalog"
+      }
+    },
+    {
+      "@id": "edpoprec:dating",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BibliographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:DatingField"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Dating"
+      }
+    }
+  ]
+}

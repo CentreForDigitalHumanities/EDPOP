@@ -1,0 +1,52 @@
+<div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="btn-group me-2">
+                {{#inContext}}<button
+                    class="btn btn-outline-primary"
+                    id="load_previous"
+                    {{#first}}disabled{{/first}}
+                >
+                    <span class="fa fa-arrow-left" aria-hidden="true"></span>
+                </button>{{/inContext}}
+                <button
+                    class="btn btn-outline-primary"
+                    id="reload"
+                    title="Refresh from source catalogue"
+                >
+                    <span class="fa fa-rotate-right" aria-hidden="true"></span>
+                </button>
+                {{#inContext}}<button
+                    class="btn btn-outline-primary"
+                    id="load_next"
+                    {{#last}}disabled{{/last}}
+                >
+                    <span class="fa fa-arrow-right" aria-hidden="true"></span>
+                </button>{{/inContext}}
+            </div>
+            <h4 class="modal-title text-truncate">
+                {{>typeIcon}}
+                {{title}}
+            </h4>
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+            ></button>
+        </div>
+        <div class="modal-body">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-9 px-0" id="main-content">
+                    </div>
+                    <div class="col-md-3 pe-0" id="side-content">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer" style="justify-content: space-between">
+            <button type=button class="btn btn-light" data-bs-dismiss="modal">Close</button>
+        </div>
+    </div>
+</div>

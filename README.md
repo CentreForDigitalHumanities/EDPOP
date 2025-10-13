@@ -1,44 +1,38 @@
 # EDPOP
-Creating a virtual research environment (VRE) from CERL resources.
 
-## Database
-The project uses PostgreSQL, to make use of JSON fields (the format in which resources from external databases will be imported, and annotated).
+[![DOI](https://zenodo.org/badge/103948690.svg)](https://doi.org/10.5281/zenodo.17093901)
 
-A guide for setting up PostgreSQL in Django can be found here:
-[][https://www.digitalocean.com/community/tutorials/how-to-use-postgresql-with-your-django-application-on-ubuntu-14-04]
+This [web application provides a virtual research environment (VRE)](https://edpop.wp.hum.uu.nl/virtual-research-environment-vre) that lets you collect, align and annotate bibliographical and biographical records from several online catalogs.
 
-## Installing
-Switch to a virtual environment with Python 3.5+ installed, then:
+The VRE consists of separate backend and frontend applications. They are documented in more detail in their respective directories. To run them jointly during development, take the following steps:
 
-```bash
-pip install -r requirements.txt
-python manage.py migrate # create the database
-python manage.py createsuperuser # ask to specify a new admin name, email and password
+## With Docker (recommended)
+
+When running with Docker for the first time, you need to take the following steps:
+
+1. Run `docker-compose up -d blazegraph`.
+2. Visit the [Blazegraph web interface](http://localhost:9999/bigdata) and create the `edpop` and `edpop_testing` namespaces, as explained in more detail in the backend README. Note that the URL of the web interface ends in `/bigdata` when running Docker.
+
+From then on, running the application is just a single command:
+
+``` shell
+docker-compose up -d
 ```
 
-## Running
+You can then access the application at `localhost:8000`. Manually refresh the browser to see code changes reflected.
 
-```bash
-python manage.py runserver
+You can still run all the other commands that are discussed in the backend and frontend READMEs. You just have to prefix them with `docker-compose exec $SERVICE` in order to execute them within the right container. The services are listed in the `docker-compose.yml`. For example, to create a Django superuser, run this:
+
+``` shell
+docker-compose exec backend python manage.py createsuperuser
 ```
 
-The Django server will run on `localhost:8000`, and the admin should be available with the credentials provided during installation.
+## Without Docker
 
-## Frontend
-Install the dependencies of the frontend via npm install.
-```bash
-npm install
-```
+1. Make sure you have taken all preparation steps in the READMEs of both applications. Consult the `docker-compose.yml` and the `Dockerfile`s for recommended software versions.
+2. Open a new terminal in the `frontend` directory and run `npm run watch`.
+3. Open a new terminal in the `backend` directory and run `python manage.py runserver`.
+4. Open `localhost:8000`.
+5. Manually refresh the browser to see code changes reflected.
 
-Then, use browserify to package the modules into a bundle, and convert from ES6 to ES5 JavaScript with babelify. Watchify will watch for any changes and reconvert if needed, and the `debug` flag creates a source map.
-```bash
-npx watchify vre/static/vre/main.js -o vre/static/vre/bundle.js -t babelify -t [browserify-shim --global] --debug
-```
-
-It is necessary to reload the browser every time.
-
-For deployment, copy the stable bundle.js in the vre/static/vre directory.
-
-## Gulpfile
-This is work in progress and doesn't work yet. Therefore the dependencies in this file have been removed from package.json for now. Eventually, the gulpfile might run more tasks, such as uglify and source maps, livereload and starting up python.
-
+Tests of both applications can be run at any time, independently from each other.

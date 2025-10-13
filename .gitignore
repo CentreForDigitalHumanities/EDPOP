@@ -3,10 +3,10 @@
 
 # Virtual environment
 ENV/
+.env/
 
 # node
 node_modules
-package-lock.json
 
 db*
 *__pycache*
@@ -14,4 +14,15 @@ db*
 
 # build output
 /build
-/vre/static/vre/bundle.js
+/frontend/vre/*bundle*.js*
+
+# Visual Studio Code
+.vscode/
+
+# emacs
+.\#*
+*~
+\#*\#
+
+# edpop-explorer datafiles
+/backend/edpopx-data/

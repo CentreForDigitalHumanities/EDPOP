@@ -1,0 +1,4 @@
+django-debug-toolbar
+pytest
+pytest-django
+six

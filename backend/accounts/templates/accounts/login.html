@@ -1,0 +1,16 @@
+{% extends "accounts/base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+  <div class="container">
+  <h2>Login</h2>
+  <p>Welcome to the EDPOP VRE!</p>
+  <form method="post" style="margin-bottom: 3px">
+    {% csrf_token %}
+    {{ form.as_div }}
+    <input class="btn btn-primary" type="submit" value="Login">
+  </form>
+  <p>If you don't have an account yet, please ask a staff user to create one for you.</p>
+  <p><a href="{% url "password_reset" %}">Reset password</a></p>
+  </div>
+{% endblock %}

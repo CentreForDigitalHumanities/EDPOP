@@ -1,0 +1,271 @@
+import _ from "lodash";
+import { APIModel, APICollection } from "./api.model";
+import { parent } from "@uu-cdh/backbone-collection-transformers/src/inheritance.js";
+
+/**
+ * The @graph property inside JSON-LD
+ * @typedef {Object} JSONLDGraph
+ */
+
+/**
+ * An individual subject definition inside JSON-LD
+ * @typedef {Object} JSONLDSubject
+ */
+
+
+/**
+ * Get a string literal from JSON-LD. This function probes whether the literal
+ * is of xsd:string or rdf:langString format and if multiple string literals
+ * are given. In the latter case, return only one string with a preference
+ * for an rdf:langString that matches the user interface's language.
+ * If no string literal is found, return null.
+ * @param literalObject
+ * @return {?string}
+ */
+export function getStringLiteral(literalObject) {
+    // If the property occurs multiple time, literalObject is an array. Normalize to array.
+    if (!Array.isArray(literalObject)) {
+        literalObject = [literalObject];
+    }
+    return literalObject.reduce((agg, item) => {
+        if (typeof item === "string" && agg === null) {
+            // If a string (data type xsd:string), only prefer this value if no other value was chosen yet.
+            return item;
+        } else if (typeof(item) === "object" && Object.hasOwn(item, "@language") && Object.hasOwn(item, "@value")) {
+            // This is a language-tagged string. Prefer it if no other value was chosen yet, OR if it matches
+            // the language of the user interface. Only support English for now.
+            const language = item["@language"];
+            if (agg === null || language.startsWith("en")) {
+                return item["@value"];
+            }
+        } else {
+            return agg;
+        }
+    }, null);
+}
+
+/**
+ * Check whether the given literal is of the given data type.
+ * @param literalObject - the object to be checked
+ * @param expectedType - the expected XSD type (part after xsd:)
+ * @returns {boolean}
+ */
+function hasDataType(literalObject, expectedType) {
+    if (expectedType === "string")
+        return typeof literalObject === "string";
+    return typeof literalObject === "object" && Object.hasOwn(literalObject, "@type") && literalObject["@type"] === "http://www.w3.org/2001/XMLSchema#" + expectedType;
+}
+
+/**
+ * Get a date literal from JSON-LD. This function probes whether the literal
+ * is of xsd:string or xsd:date format and tries to return a Date object.
+ * If the date cannot be reliably parsed, return null.
+ * @param literalObject
+ * @return {?Date}
+ */
+export function getDateLiteral(literalObject) {
+    if (hasDataType(literalObject, "date")) {
+        return new Date(literalObject["@value"]);
+    } else {
+        return null;
+    }
+}
+
+export function getDateTimeLiteral(literalObject) {
+    if (hasDataType(literalObject, "dateTime")) {
+        return new Date(literalObject["@value"]);
+    } else {
+        return null;
+    }
+}
+
+/**
+ * Dynamically retrieve the super.method of an override method.
+ *
+ * When providing a standalone override method that can be plugged into any part
+ * of an inheritance hierarchy (such as {@link jsonLdSync}), a problem presents
+ * itself if that override also has to call the method that it overrides. The
+ * author of the override cannot know in advance what version of the method is
+ * being overridden, nor can they know the prototype on which the override will
+ * be assigned. To address this, the override method can internally call
+ * `priorMethod` in order to determine the ancestor method at the time of
+ * invocation.
+ *
+ * @param {object} instance - Instance or prototype from which to start
+ * traversing the prototype chain.
+ * @param {string} name - Name of the method being overridden.
+ * @param {function} current - The override method of which the first ancestor
+ * is to be found.
+ * @returns {function} The underlying method, i.e., what may be referred to as
+ * super[name] in a statically resolvable situation.
+ */
+export function priorMethod(instance, name, current) {
+    var ancestor = parent(instance);
+    while (ancestor[name] === current) ancestor = parent(ancestor);
+    return ancestor[name];
+}
+
+export function jsonLdSync(method, model, options) {
+    options = options || {};
+    if (options.data == null && model && (
+        method === 'create' || method === 'update' || method === 'patch'
+    )) options = _.extend({contentType: 'application/ld+json'}, options);
+    var baseSync = this && priorMethod(this, 'sync', jsonLdSync) || Backbone.sync;
+    return baseSync.call(this, method, model, options);
+}
+
+export var JsonLdModel = APIModel.extend({
+    idAttribute: '@id',
+    sync: jsonLdSync,
+    parse: function(response) {
+        var result = response;
+        if (response.hasOwnProperty('@graph')) result = response['@graph'];
+        if (!_.isArray(result)) return result;
+        if (result.length === 1) return result[0];
+        if (response['@context']) return enforest(result, true)[0];
+        throw 'Expected exactly one resource but got zero or multiple';
+    },
+    toJSON: function(options) {
+        var json = parent(JsonLdModel.prototype).toJSON.call(this, options);
+        if (
+            this.collection &&
+            !this.collection.serializing &&
+            this.collection.context &&
+            !this.has('@context')
+        ) json['@context'] = this.collection.context;
+        return json;
+    },
+});
+
+/**
+ * Generic subclass of APICollection that parses incoming compacted JSON-LD to an
+ * array of all subjects. The contents of subjects are left unchanged.
+ */
+export var JsonLdCollection = APICollection.extend({
+    model: JsonLdModel,
+    sync: jsonLdSync,
+    parse: function(response) {
+        var result = response;
+        if (result.hasOwnProperty('@context')) this.context = result['@context'];
+        if (result.hasOwnProperty('@graph')) result = response['@graph'];
+        return _.isArray(result) ? result : [result];
+    },
+    toJSON: function(options) {
+        // By default, individual JsonLdModel instances without an internal
+        // `@context` will look for a context on their containing collection and
+        // copy it into their serialization. When we are serializing the entire
+        // collection, this is redundant. By marking the collection as currently
+        // being serialized, we signal to the invidual models that they need not
+        // copy the collection context.
+        this.serializing = true;
+        var json = parent(JsonLdCollection.prototype).toJSON.call(this, options);
+        // At this point all calls to `JsonLdModel#toJSON` have finished, so we
+        // can remove the mark again.
+        delete this.serializing;
+        if (this.context) return {
+            '@context': this.context,
+            '@graph': json,
+        };
+        return json;
+    },
+});
+
+/**
+ * Return a nested version of each given subject by adding to it the objects it
+ * refers to if they are found in the graph.
+ * The subjects passed to this function as an argument are not changed.
+ * The name of this function refers to the opposite of "deforestation".
+ * @param {JSONLDSubject[]} subjects - The subjects to create nested versions of
+ * @param {boolean} [toplevelOnly=false] - Indicates whether to return nested
+ * versions of all subjects (false, default), or only the ones that are not
+ * contained in other subjects (true).
+ * @returns {JSONLDSubject[]} Nested versions of the subjects that were passed
+ * in.
+ */
+export function enforest(subjects, toplevelOnly) {
+    // TODO substitute _.indexBy for Underscore
+    const subjectsByID = _.keyBy(subjects, '@id');
+    const nested = {}, internal = {};
+
+    function nest(subject) {
+        if (!_.has(subject, '@id')) return subject;
+        const id = subject['@id'];
+        if (!(id in nested) && (id in subjectsByID)) {
+            nested[id] = subject; // this prevents infinite recursion
+            nested[id] = _.mapValues(subjectsByID[id], nestProperty);
+        }
+        return nested[id] || subject;
+    }
+
+    function nestProperty(value) {
+        if (_.isArray(value)) return _.map(value, nestProperty);
+        if (_.has(value, '@list')) return _.mapValues(value, nestProperty);
+        if (_.has(value, '@id')) internal[value['@id']] = true;
+        return nest(value);
+    }
+
+    const completeSubjects = _.map(subjects, nest);
+    if (toplevelOnly) {
+        const isToplevel = subject => !(subject['@id'] in internal);
+        return _.filter(completeSubjects, isToplevel);
+    }
+    return completeSubjects;
+}
+
+/**
+ * Generic subclass of JsonLdCollection that parses incoming compacted JSON-LD
+ * to an array of subjects that are of RDF class `targetClass`. If these
+ * subjects refer to other objects, these are nested
+ */
+export var JsonLdNestedCollection = JsonLdCollection.extend({
+    /**
+     * The RDF class (as it is named in JSON-LD) of which nested subjects have
+     * to be put in the collection array when incoming data is parsed. If left
+     * undefined, all top-level subjects are included and all internal resources
+     * are omitted.
+     * @type {string}
+     */
+    targetClass: undefined,
+    parse: function(response, options) {
+        const allSubjects = parent(JsonLdNestedCollection.prototype)
+        .parse.call(this, response, options);
+        const completeSubjects = enforest(allSubjects, !this.targetClass);
+        if (!this.targetClass) return completeSubjects;
+        return _.filter(completeSubjects, {'@type': this.targetClass});
+    }
+})
+
+/**
+ * Generic subclass of JsonLdCollection that parses incoming compacted JSON-LD
+ * to an ordered array of subjects according to the information of the
+ * `OrderedCollection` entity (ActivityStreams ontology) from the same graph.
+ * Sets the `totalResults` attribute if available.
+ * The graph should contain exactly one `OrderedCollection`.
+ * @class
+ */
+export var JsonLdWithOCCollection = JsonLdCollection.extend({
+    /**
+     * The total number of results. This is filled by `parse` if the
+     * `OrderedCollection` subject comes with `totalItems`.
+     * @type {?number}
+     */
+    totalResults: undefined,
+    /**
+     * The prefix, used in JSON-LD, for the ActivityStreams namespace.
+     * Defaults to `as:` but can be overridden.
+     * @type {string}
+     */
+    activityStreamsPrefix: "as:",
+    parse: function(response, options) {
+        // Get all subjects of the graph with their predicates and objects as an array
+        const allSubjects = parent(JsonLdWithOCCollection.prototype)
+        .parse.call(this, response, options);
+        const completeSubjects = enforest(allSubjects);
+        const as = this.activityStreamsPrefix;
+        const ocType = `${as}OrderedCollection`;
+        const orderedCollection = _.find(completeSubjects, {"@type": ocType});
+        this.totalResults = orderedCollection[`${as}totalItems`];
+        const orderedItems = orderedCollection[`${as}orderedItems`]["@list"]
+        return orderedItems || [];
+    }
+});

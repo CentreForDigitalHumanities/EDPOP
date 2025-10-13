@@ -1,0 +1,57 @@
+services:
+    postgres:
+        image: postgres:14
+        environment:
+            - POSTGRES_PASSWORD=postgres
+        healthcheck:
+            test: 'psql -c "\l" postgres postgres'
+        restart: always
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+            - ./backend/create_db.sql:/docker-entrypoint-initdb.d/edpop.sql
+    blazegraph:
+        image: islandora/blazegraph:main
+        healthcheck:
+            test: 'curl -f http://blazegraph:8080/bigdata/'
+        volumes:
+            - bzdata:/data
+        ports:
+            - 127.0.0.1:9999:8080
+    backend:
+        build:
+            context: ./backend
+        environment:
+            EDPOP_TRIPLESTORE_BASE_URL: 'http://blazegraph:8080/bigdata'
+            EDPOP_DATABASE_HOST: postgres
+            EDPOP_STATICFILES_DIRS: '/usr/src/app/frontend/vre'
+        depends_on:
+            postgres:
+                condition: service_healthy
+            blazegraph:
+                condition: service_healthy
+        healthcheck:
+            test: 'curl -f localhost:8000'
+        volumes:
+            - ./backend:/usr/src/app/backend
+            - bapyca:/usr/src/app/backend/__pycache__
+            - ./frontend/vre:/usr/src/app/frontend/vre
+            - ./backend/edpopx-data:/root/.local/share/edpop-explorer
+        ports:
+            - 127.0.0.1:8000:8000
+    frontend:
+        build:
+            context: ./frontend
+        healthcheck:
+            test: 'test -f bundle.js'
+        volumes:
+            - ./frontend:/usr/src/app
+            - frnomo:/usr/src/app/node_modules
+        ports:
+            - 127.0.0.1:9876:9876
+        command: npm run watch
+
+volumes:
+    pgdata:
+    bzdata:
+    bapyca:
+    frnomo:

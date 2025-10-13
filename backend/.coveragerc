@@ -1,0 +1,6 @@
+[run]
+omit = 
+    *_test.py
+    manage.py
+    edpop/wsgi.py
+    */migrations/*.py

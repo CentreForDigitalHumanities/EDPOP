@@ -1,0 +1,394 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "skos": "http://www.w3.org/2004/02/skos/core#"
+  },
+  "@graph": [
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/plague-sheet-book/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Plague sheet/book"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/game-printed-on-paper/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Game (printed on paper)"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/playbill/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Playbill/Playbook"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/topical-poetry/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:altLabel": "News poem",
+      "skos:prefLabel": "Topical poetry"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/broadsheet-broadside/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Broadsheet (broadside)"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/ballad/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:altLabel": [
+        "Song/Song book",
+        "Cantari"
+      ],
+      "skos:prefLabel": "Ballad"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/relation/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Relation"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/journal/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Journal"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/criminal-narrative/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Criminal narrative"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/prayer-book/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Prayer book"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/new-year-prints/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "New Year prints"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/form/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:altLabel": "Indulgence",
+      "skos:prefLabel": "Form"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/pamphlet/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Pamphlet"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/devotional-literature/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Devotional literature"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/medical-literature/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Medical literature"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/gazette/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Gazette"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/herbal/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Herbal"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/catechism-primer/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:altLabel": "Rooster primer",
+      "skos:prefLabel": "Catechism primer"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/chapbook/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Chapbook"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/prognostication/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Prognostication"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/lottery-ticket/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Lottery ticket"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/tidings/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Tidings"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/nouvelle/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Nouvelle"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/mercury/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Mercury"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/sermon/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Sermon"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/travel-accounts-and-guides/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Travel accounts and guides"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/household-manual/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Household manual"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/cookbook/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Cookbook"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/news-pamphlet/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:altLabel": [
+        "History print",
+        "Canard"
+      ],
+      "skos:prefLabel": "News pamphlet"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/history/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:altLabel": "Narrative",
+      "skos:prefLabel": "History"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/saints-life/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:altLabel": "Lives of saints",
+      "skos:prefLabel": "Saint's life"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/catechism/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Catechism"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/report/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Report"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/coranto/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Coranto"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/how-to-book/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "How-to book"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/book-of-secrets/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:altLabel": "Recipe book",
+      "skos:prefLabel": "Book of secrets"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/romance/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:altLabel": [
+        "Prose romance",
+        "Novel"
+      ],
+      "skos:prefLabel": "Romance"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/jestbook/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Jestbook"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/aviso/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Aviso"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/libel-pasquil/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:altLabel": "Pasquil",
+      "skos:prefLabel": "Libel/pasquil"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/abecedarium/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Abecedarium"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/martyr-story/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Martyr story"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/childrens-book-and-schoolbook/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:altLabel": "Schoolbook",
+      "skos:prefLabel": "Children's book and schoolbook"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/penny-print/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Penny print"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/newspaper/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Newspaper"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/regimen-book/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Regimen book"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/proclamation/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:altLabel": "Ordinance",
+      "skos:prefLabel": "Proclamation"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/chronicle-chronology/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Chronicle/Chronology"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/almanac/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Almanac"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/hornbook/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:altLabel": "Battledore",
+      "skos:prefLabel": "Hornbook"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/newsbook/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Newsbook"
+    },
+    {
+      "@id": "https://popular-print-glossary.sites.uu.nl/glossary/rooster-primer-2/",
+      "rdfs:member": {
+        "@id": "https://popular-print-glossary.sites.uu.nl/glossary/"
+      },
+      "skos:prefLabel": "Rooster primer"
+    }
+  ]
+}
