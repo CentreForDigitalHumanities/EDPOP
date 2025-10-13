@@ -10,4 +10,4 @@ sruthi
 rdflib
 restframework-rdf>=1.2.0,<2
 dj-rest-auth
-edpop-explorer>=0.13.0
+edpop-explorer>=0.14.1
