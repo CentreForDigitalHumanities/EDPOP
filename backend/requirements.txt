@@ -36,7 +36,7 @@ djangorestframework==3.15.2
     #   -r requirements.in
     #   dj-rest-auth
     #   restframework-rdf
-edpop-explorer==0.14.1
+edpop-explorer==0.15.0
     # via -r requirements.in
 flatten-dict==0.4.2
     # via sruthi
