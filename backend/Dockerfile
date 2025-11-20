@@ -1,7 +1,7 @@
 FROM python:3.9-bullseye
 
 WORKDIR /usr/src/app/backend
-COPY requirements.txt requirements-test.txt .
+COPY requirements.txt requirements-test.txt ./
 RUN pip install -U pip pip-tools && \
     pip-sync requirements.txt requirements-test.txt
 
