@@ -1,15 +1,9 @@
-import pytest
 from urllib.parse import quote_plus
 
 from rdflib import RDF, URIRef, Literal
 from triplestore.constants import EDPOPCOL, OA
 
 from .api import JSON_LD_CONTEXT
-
-
-@pytest.fixture
-def django_test_user(django_user_model):
-    return django_user_model.objects.create_user(username='tester', password='secret')
 
 
 def annotation_exists_for_source(triplestore, source):
