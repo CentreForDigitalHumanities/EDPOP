@@ -103,7 +103,7 @@ def add_collections(collections: dict, project_uri: str, record_mapping: RecordM
         add_records_to_collection(record_iris, collection_iri)
 
 
-def add_annotations(annotations: dict, record_mapping: dict):
+def add_annotations(annotations: dict, project_uri: str, record_mapping: dict):
     for record_uri in annotations:
         try:
             record_iri = record_mapping[record_uri]
@@ -114,10 +114,12 @@ def add_annotations(annotations: dict, record_mapping: dict):
             # We expect a dict with annotation keys as keys and annotation values as values
             assert isinstance(annotation, dict)
             for key in annotation:
-                add_annotation(record_iri, key, annotation[key])
+                add_annotation(record_iri, key, annotation[key], project_uri)
 
 
-def add_annotation(record_iri: str, annotation_key: str, annotation_value: str):
+def add_annotation(
+        record_iri: str, annotation_key: str, annotation_value: str, project: str
+):
     if annotation_key == "EDPOP Glossary":
         try:
             body = URIRef(glossary_mapping[annotation_value.strip()])
@@ -136,6 +138,7 @@ def add_annotation(record_iri: str, annotation_key: str, annotation_value: str):
     graph = Graph(identifier=ANNOTATION_GRAPH_IDENTIFIER)
     triples = [
         (subject_node, RDF.type, EDPOPCOL.Annotation),
+        (subject_node, AS.context, URIRef(project)),
         (subject_node, OA.hasTarget, target_node),
         (target_node, OA.hasSource, URIRef(record_iri)),
         (subject_node, OA.motivatedBy, motivation),
@@ -167,4 +170,4 @@ class Command(BaseCommand):
 
         record_mapping = add_records(records)
         add_collections(collections, project_uri, record_mapping)
-        add_annotations(annotations, record_mapping)
+        add_annotations(annotations, project_uri, record_mapping)
