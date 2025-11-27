@@ -10,6 +10,7 @@ from rdf.utils import graph_from_triples
 from rdf.renderers import TurtleRenderer, JsonLdRenderer
 
 from accounts.utils import user_to_uriref
+from collect.serializers import check_user_project_authorization
 from triplestore.constants import EDPOPREC, OA, AS, EDPOPCOL
 from triplestore.utils import (
     replace_blank_nodes_in_triples,
@@ -100,9 +101,31 @@ where {
 }
 '''
 
+annotation_in_project_query = '''
+select ?project
+where {
+  graph ?annotations {
+    ?annotation as:context ?project .
+  }
+}
+'''
+
 
 def create_annotation_subject_node() -> URIRef:
     return URIRef(RDF_ANNOTATION_ROOT + uuid.uuid4().hex)
+
+
+def check_user_annotation_authorization(user, annotation):
+    store = settings.RDFLIB_STORE
+    projects = [binds.project for binds in store.query(
+        annotation_in_project_query,
+        initNs=NS,
+        initBindings={
+            'annotations': ANNOTATION_GRAPH_IDENTIFIER,
+            'annotation': annotation,
+        })]
+    assert len(projects) == 1
+    check_user_project_authorization(user, projects[0])
 
 
 class AnnotationView(RDFView):
@@ -116,6 +139,7 @@ class AnnotationView(RDFView):
         bodies = list(request_graph.subject_objects(OA.hasBody))
         targets = list(request_graph.subject_objects(OA.hasTarget))
         sources = list(request_graph.subject_objects(OA.hasSource))
+        contexts = list(request_graph.subject_objects(AS.context))
         if len(bodies) == 1:
             s1, body = bodies[0]
         else:
@@ -128,8 +152,13 @@ class AnnotationView(RDFView):
             s3, source = sources[0]
         else:
             raise ValidationError('Needs exactly one source')
-        if s1 != s2:
-            raise ValidationError('Body and target must be annotation properties')
+        if len(contexts) == 1:
+            s4, context = contexts[0]
+        else:
+            raise ValidationError('Needs exactly one context')
+        if s1 != s2 or s1 != s4:
+            raise ValidationError('Body, target and context must be annotation properties')
+        check_user_project_authorization(request.user, context)
         if s3 != target:
             raise ValidationError('Source must be a property of the target')
         motivation = request_graph.value(s1, OA.motivatedBy, None, OA.commenting)
@@ -176,6 +205,7 @@ class AnnotationEditView(RDFView):
     def delete(self, request, **kwargs):
         id_uriref = URIRef(kwargs.get("annotation"))
         store = settings.RDFLIB_STORE
+        check_user_annotation_authorization(request.user, id_uriref)
         store.update(delete_annotation_update, initBindings={
             'annotations': ANNOTATION_GRAPH_IDENTIFIER,
             'annotation': id_uriref,
@@ -186,11 +216,12 @@ class AnnotationEditView(RDFView):
     def put(self, request, **kwargs):
         # Allow editing of the body. Other properties cannot be edited.
         id_uriref = URIRef(kwargs.get("annotation"))
+        store = settings.RDFLIB_STORE
+        check_user_annotation_authorization(request.user, id_uriref)
+
         graph = graph_from_request(request)
         body = graph.value(id_uriref, OA.hasBody, None)
-
         updated = Literal(datetime.datetime.now())
-        store = settings.RDFLIB_STORE
         # Delete the current body
         store.update(update_annotation_body, initBindings={
             'annotations': ANNOTATION_GRAPH_IDENTIFIER,
