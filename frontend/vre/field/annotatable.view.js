@@ -18,7 +18,7 @@ export var AnnotatableView = AggregateView.extend({
     },
 
     edit: function(model) {
-        var project = vreChannel.request('projects:current').get('name'),
+        var project = vreChannel.request('projects:current').id,
             editTarget = model.clone().set('context', project),
             preExisting = this.collection.get(editTarget),
             newRow;
