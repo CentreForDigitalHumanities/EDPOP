@@ -57,15 +57,24 @@ export var Annotation = JsonLdModel.extend({
     // Fields that are normally nested in JSON-LD, but get hoisted to the
     // top-level `attributes` for more convenient access. See the overridden
     // `parse` and `toJSON` methods below.
-    flatFields: ['motivation', 'tagURL', 'oa:hasSource', 'edpopcol:field', 'edpopcol:originalText'],
+    flatFields: [
+        'context',
+        'motivation',
+        'tagURL',
+        'oa:hasSource',
+        'edpopcol:field',
+        'edpopcol:originalText',
+    ],
 
     parse: function(response, options) {
         var anno = parent(Annotation.prototype)
             .parse.call(this, response, options),
             flat = {},
+            context = anno['as:context'],
             motivation = anno['oa:motivatedBy'],
             body = anno['oa:hasBody'],
             target = anno['oa:hasTarget'];
+        if (context) flat.context = context['@id'];
         if (motivation) flat.motivation = motivation['@id'];
         if (body && body['@id']) flat.tagURL = body['@id'];
         if (target) {
@@ -85,6 +94,7 @@ export var Annotation = JsonLdModel.extend({
     toJSON: function(options) {
         var jsonld = parent(Annotation.prototype)
             .toJSON.call(this, options),
+            flatContext = jsonld.context,
             flatMotivation = jsonld.motivation,
             flatTagURL = jsonld.tagURL,
             target = jsonld['oa:hasTarget'] || {},
@@ -100,6 +110,7 @@ export var Annotation = JsonLdModel.extend({
         if (flatSource || flatSelector) jsonld['oa:hasTarget'] = target;
         if (flatTagURL) jsonld['oa:hasBody'] = {'@id': flatTagURL};
         if (flatMotivation) jsonld['oa:motivatedBy'] = {'@id': flatMotivation};
+        if (flatContext) jsonld['as:context'] = {'@id': flatContext};
         _.each(this.flatFields, stripAttribute(jsonld));
         return jsonld;
     },
