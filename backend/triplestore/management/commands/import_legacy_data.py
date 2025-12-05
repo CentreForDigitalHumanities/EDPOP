@@ -98,7 +98,7 @@ def add_collections(collections: dict, project_uri: str, record_mapping: RecordM
         collection_iri = create_collection(collection, project_uri)
         if not contents:
             print(f"Warning: {collection} is empty")
-            return
+            continue
         record_iris = [record_mapping[record_uri] for record_uri in contents if record_uri in record_mapping]
         add_records_to_collection(record_iris, collection_iri)
 
