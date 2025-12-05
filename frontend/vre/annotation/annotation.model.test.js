@@ -5,6 +5,7 @@ import { Annotation } from './annotation.model';
 
 const deepAnnotation = {
     '@id': 'http://example.com/anno',
+    'as:context': {'@id': 'http://example.com/project'},
     'oa:motivatedBy': {'@id': 'oa:commenting'},
     'oa:hasBody': 'awesome',
     'oa:hasTarget': {
@@ -18,6 +19,7 @@ const deepAnnotation = {
 
 const flatAnnotation = {
     '@id': deepAnnotation['@id'],
+    context: deepAnnotation['as:context']['@id'],
     motivation: deepAnnotation['oa:motivatedBy']['@id'],
     'oa:hasBody': deepAnnotation['oa:hasBody'],
     'oa:hasSource': deepAnnotation['oa:hasTarget']['oa:hasSource']['@id'],
@@ -27,6 +29,7 @@ const flatAnnotation = {
 
 const serverMod = {
     '@id': 'http://example.com/anno2',
+    'as:context': deepAnnotation['as:context'],
     'oa:motivatedBy': {'@id': 'oa:tagging'},
     'oa:hasBody': {'@id': 'http://example.com/almanac'},
     'oa:hasTarget': {
@@ -40,6 +43,7 @@ const serverMod = {
 
 const clientMod = {
     '@id': serverMod['@id'],
+    context: serverMod['as:context']['@id'],
     motivation: serverMod['oa:motivatedBy']['@id'],
     tagURL: serverMod['oa:hasBody']['@id'],
     'oa:hasSource': serverMod['oa:hasTarget']['oa:hasSource']['@id'],
