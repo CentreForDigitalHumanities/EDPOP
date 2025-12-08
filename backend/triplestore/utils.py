@@ -10,16 +10,6 @@ Triples = Iterable[Triple]
 Quad = tuple[Node, Node, Node, Graph]
 Quads = Iterable[Quad]
 
-
-def union_graphs(graphs: Iterator[Graph]) -> Graph:
-    '''
-    Return the union of a collection of graphs
-
-    `union_graphs([g1, g2, g3])` is equivalent to `g1 + g2 + g3`
-    '''
-    return reduce(Graph.__iadd__, graphs, Graph())
-
-
 def triple_exists(graph: Graph, triple: Tuple[URIRef]) -> bool:
     '''
     Check whether a triple exists in a graph.
@@ -28,9 +18,6 @@ def triple_exists(graph: Graph, triple: Tuple[URIRef]) -> bool:
 
 def all_triples(graph: Graph) -> Iterable[Any]:
     return graph.triples((None, None, None))
-
-
-ObjectURIs = Dict[int, URIRef]
 
 def replace_blank_node(node: Node) -> Node:
     """Replace a blank node by a node with a URIRef node based on the
