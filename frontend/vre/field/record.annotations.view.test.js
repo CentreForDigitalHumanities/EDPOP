@@ -15,6 +15,7 @@ var currentContext = 'monsters';
 
 var fakeProjectMenu = {
     model: {
+        id: `http://example.com/${currentContext}`,
         get() {
             return currentContext;
         }
@@ -28,12 +29,12 @@ var TestCollection = Collection.extend({
 var annotation = new Annotation({
     "@id": "http://example.org/annotations/1",
     "oa:hasBody": "moss",
-    context: "me, myself and I",
+    context: "http://example.com/me-myself-and-i",
 });
 var annotation2 = new Annotation({
     "@id": "http://example.org/annotations/2",
     "oa:hasBody": "bright",
-    context: "monsters",
+    context: fakeProjectMenu.model.id,
 });
 var testAnnotations = [annotation, annotation2];
 
@@ -169,7 +170,7 @@ describe('RecordAnnotationsView', function() {
             this.fieldView = this.view.items[this.position];
             this.affectedModel = this.fieldView.model;
             assert(this.affectedModel === this.collection.at(this.position));
-            assert(this.affectedModel.get('context') === currentContext);
+            assert(this.affectedModel.get('context') === fakeProjectMenu.model.id);
             this.affectedElement = this.fieldView.$el;
             assert(this.affectedElement.get(0) === this.view.$('tr').get(this.position));
             this.affectedElement.click();
