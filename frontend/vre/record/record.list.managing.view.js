@@ -1,7 +1,6 @@
 import { CompositeView } from '../core/view.js';
 import { AddToCollectionView } from '../collection/add-to-collection.view';
 import { RemoveFromCollectionView } from '../collection/remove-from-collection.view.js';
-import { GlobalVariables } from '../globals/variables';
 import recordListManagingTemplate from './record.list.managing.view.mustache';
 import {RecordListView} from "./record.list.view";
 import {vreChannel} from "../radio";
@@ -42,7 +41,7 @@ export var RecordListManagingView = CompositeView.extend({
         this.vreCollectionsSelect = new AddToCollectionView()
             .render().on('addRecords', this.submitToCollections, this);
         this.removeButton = new RemoveFromCollectionView({
-            collection: GlobalVariables.myCollections,
+            collection: vreChannel.request('allcollections'),
         }).on('removeRecords', this.removeFromCollection, this);
         this.recordListView = new RecordListView({
             collection: this.collection,

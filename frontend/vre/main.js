@@ -9,13 +9,12 @@ window.DEBUGGING = true;
 
 import './record/record.opening.aspect';
 import { vreChannel } from './radio';
-import { VRECollections } from './collection/collection.model';
 import { CatalogSearchView } from './catalog/catalog.search.view';
 import { BrowseCollectionView } from './collection/browse-collection.view';
 import { FilteredCollection } from "./utils/filtered.collection";
 
 import { SelectCollectionView } from './collection/select-collection.view';
-import { GlobalVariables } from './globals/variables';
+import { myCollections, unsalientCollections } from './globals/collections.js';
 import './globals/user';
 import './globals/projects.js';
 import { accountMenu } from './globals/accountMenu';
@@ -25,13 +24,6 @@ import { StateModel } from './utils/state.model.js';
 import { WelcomeView } from './utils/welcome.view.js';
 import {Record} from "./record/record.model";
 
-// Dangerously global variable (accessible from dependency modules).
-GlobalVariables.myCollections = new VRECollections();
-
-// Regular global variables, only visible in this module.
-
-// All collections except for the one currently selected.
-var unsalientCollections = new VRECollections();
 var catalogs = new Catalogs([], {comparator: 'name'});
 var visibleCatalogs = new FilteredCollection(catalogs, (catalog) => {
     // Do not show the blank records catalogue
@@ -41,7 +33,7 @@ var catalogDropdown = new SelectCatalogView({
     collection: visibleCatalogs
 });
 var collectionDropdown = new SelectCollectionView({
-    collection: GlobalVariables.myCollections
+    collection: myCollections
 });
 var navigationState = new StateModel;
 
@@ -64,7 +56,7 @@ var router = new VRERouter();
 router.on({
     'route:showCollection': id => navigationState.set({
         browsingType: 'collection',
-        browsingContext: GlobalVariables.myCollections.find({name: id})
+        browsingContext: myCollections.find({name: id})
     }),
     'route:showCatalog': id => navigationState.set({
         browsingType: 'catalog',
@@ -113,18 +105,10 @@ function showRecord(id) {
     });
 }
 
-GlobalVariables.myCollections.on({
+myCollections.on({
     focus: showCollection,
     blur: hideCollection,
 });
-
-// We ensure that unsalientCollections stays in sync with myCollections and that
-// it is available via the radio.
-GlobalVariables.myCollections.on({
-    add: collection => unsalientCollections.add(collection),
-    remove: collection => unsalientCollections.remove(collection),
-});
-vreChannel.reply('unsalientcollections', _.constant(unsalientCollections));
 
 // Make current browsing type and context available to all views via the radio.
 vreChannel.reply('browsingType', () => navigationState.get('browsingType'));
@@ -138,10 +122,9 @@ vreChannel.reply('getCatalog', (uri) => catalogs.get(uri));
 // 2. the CSRF cookie has been obtained.
 function prepareCollections() {
     $('#result-detail').modal({show: false});
-    VRECollections.mine(GlobalVariables.myCollections);
     catalogs.fetch();
     vreChannel.request('projects:fetch', finish);
-    GlobalVariables.myCollections.once('sync', finish);
+    vreChannel.request('collections:fetch', finish);
     catalogs.once('sync', finish);
 
     // Add account menu
@@ -151,7 +134,7 @@ function prepareCollections() {
 }
 
 // We want this code to run after prepareCollections has run and both
-// GlobalVariables.myCollections and all projects have fully loaded.
+// myCollections and all projects have fully loaded.
 function startRouting() {
     $('#navbar-left').append(
         catalogDropdown.el,
