@@ -77,7 +77,7 @@ export var AddToCollectionView = View.extend({
     },
     showAlert: function(level, message) {
         var alert = new AlertView({level: level, message: message});
-        alert.render().$el.prependTo(this.el);
+        alert.$el.prependTo(this.el);
         alert.animate('remove');
     },
 });
