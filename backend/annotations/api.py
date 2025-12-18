@@ -237,7 +237,7 @@ class AnnotationEditView(RDFView):
 
 class AnnotationsPerTargetView(RDFView):
     '''
-    View the records inside a collection
+    View the annotations associated with a record within a particular project.
     '''
 
     renderer_classes = (JsonLdRenderer, TurtleRenderer)
