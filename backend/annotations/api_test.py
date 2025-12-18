@@ -16,7 +16,7 @@ def create_annotation(client, target, body, django_test_user, project) -> str:
         "@context": JSON_LD_CONTEXT,
         "oa:hasTarget": target,
         "oa:hasBody": body,
-        "as:context": project.uri,
+        "as:context": {'@id': project.uri},
     }
     client.force_login(django_test_user)
     response = client.post('/api/annotation/', data, content_type='application/ld+json')
@@ -56,7 +56,8 @@ def test_list_annotations(client, triplestore, django_test_user, project):
                             django_test_user, project)
     uri2 = create_annotation(client, target, 'This is another annotation',
                              django_test_user, project)
-    response = client.get(f'/api/record-annotations/{quote_plus(source)}/')
+    endpoint = f'/api/record-annotations/{quote_plus(source)}/?project={quote_plus(project.uri)}'
+    response = client.get(endpoint)
     assert response.status_code == 200
     graph = response.data
     assert len(list(graph.triples((None, OA.hasSource, URIRef(source))))) == 2
