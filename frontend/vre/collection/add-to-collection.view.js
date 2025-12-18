@@ -58,7 +58,7 @@ export var AddToCollectionView = View.extend({
             'records': _.map(selected_records, 'id'),
             'collections': selected_collections,
         });
-        records_and_collections.save().then(
+        records_and_collections.save(null, {records: selected_records}).then(
             this.showSuccess.bind(this),
             this.showError.bind(this),
         );
