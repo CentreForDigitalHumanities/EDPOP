@@ -72,7 +72,7 @@ export var RecordListManagingView = CompositeView.extend({
     removeFromCollection: function() {
         var selection = this.recordListView.currentSelection();
         this.removeButton.submitForm({
-            records: selection,
+            records: _.map(selection, 'id'),
             collection: this.model.get('uri'),
         }).then(this.purgeRemoved.bind(this, selection));
     },

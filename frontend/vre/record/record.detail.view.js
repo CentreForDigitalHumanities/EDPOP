@@ -109,7 +109,7 @@ export var RecordDetailView = CompositeView.extend({
     },
 
     submitToCollections: function() {
-        this.addSelect.submitForm([this.model.id]);
+        this.addSelect.submitForm([this.model]);
     },
 
     removeFromCollection: function() {
