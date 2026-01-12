@@ -69,6 +69,19 @@ export const columnChooseMenu = function(){
         });
     }
 
+    menu.push({
+        separator: true
+    }, {
+        label: "Restore ordering",
+        action: function (e) {
+            if (this.options.initialSort) {
+                this.setSort(this.options.initialSort);
+            } else {
+                this.clearSort();
+            }
+        }.bind(this)
+    });
+
     return menu;
 };
 
