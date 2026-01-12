@@ -10,6 +10,12 @@ function getModelId(rowData) {
     return rowData.model.id;
 }
 
+/**
+ *
+ * @param recordClass
+ * @param type
+ * @returns {[{column: string, dir: string}]|null}
+ */
 function getDefaultSort(recordClass, type) {
     if (type === "catalog") {
         /* Do not sort catalog results by default, because the API's original
@@ -47,7 +53,7 @@ export var RecordListView = Backbone.View.extend({
     recordClass: null,
 
     initialize: function(options) {
-        _.assign(this, _.pick(options, ['recordClass']));
+        _.assign(this, _.pick(options, ['recordClass', 'type']));
         this.render().listenTo(this.collection, 'update', this.render);
     },
 
@@ -66,7 +72,7 @@ export var RecordListView = Backbone.View.extend({
             autoColumns: true,
             autoColumnsDefinitions: (autodetected) => {return adjustDefinitions(autodetected, this.recordClass)},
             layout: "fitColumns",
-            initialSort: getDefaultSort(this.recordClass),
+            initialSort: getDefaultSort(this.recordClass, this.type),
             resizableColumnFit: true,
             movableColumns: true,
             clipboard: "copy",
