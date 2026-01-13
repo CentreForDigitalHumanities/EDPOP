@@ -104,6 +104,8 @@ export var RecordListView = Backbone.View.extend({
             const model = cell.getRow().getData().model;
             vreChannel.trigger('displayRecord', model);
         });
+        vreChannel.reply('getNextRecord', this.getNextRecord.bind(this));
+        vreChannel.reply('getPreviousRecord', this.getPreviousRecord.bind(this));
         return this;
     },
 
@@ -127,5 +129,28 @@ export var RecordListView = Backbone.View.extend({
     downloadCSV: function() {
         this.table.download("csv", "edpop.csv");
         return this;
+    },
+
+    getNextRecord: function(recordModel) {
+        var currentRow = this.table.getRow(recordModel.id);
+        var nextRow = currentRow.getNextRow();
+        if (nextRow) {
+            return nextRow.getData().model;
+        }
+    },
+
+    getPreviousRecord: function(recordModel) {
+        var currentRow = this.table.getRow(recordModel.id);
+        var previousRow = currentRow.getPrevRow();
+        if (previousRow) {
+            return previousRow.getData().model;
+        }
+    },
+
+    remove: function() {
+        vreChannel.off('getNextRecord');
+        vreChannel.off('getPreviousRecord');
+        this.removeTable();
+        Backbone.View.prototype.remove.call(this);
     },
 });
