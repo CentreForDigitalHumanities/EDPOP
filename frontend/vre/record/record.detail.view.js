@@ -8,7 +8,6 @@ import { Field, FlatterFields } from '../field/field.model';
 import { AddToCollectionView } from '../collection/add-to-collection.view';
 import { RemoveFromCollectionView } from '../collection/remove-from-collection.view.js';
 import { typeTranslation } from '../utils/generic-functions.js';
-import { GlobalVariables } from '../globals/variables';
 import recordDetailTemplate from './record.detail.view.mustache';
 import typeIconTemplate from './record.type.icon.mustache';
 import {DigitizationsView} from "../digitization/digitizations.view";
@@ -82,11 +81,12 @@ export var RecordDetailView = CompositeView.extend({
             collection: recordAnnotations,
         }).render();
         this.annotationsView.listenTo(this.fieldsView, 'edit', this.annotationsView.edit);
+        var myCollections = vreChannel.request('allcollections');
         this.addSelect = new AddToCollectionView({
-            collection: GlobalVariables.myCollections,
+            collection: myCollections,
         }).on('addRecords', this.submitToCollections, this);
         this.removeButton = new RemoveFromCollectionView({
-            collection: GlobalVariables.myCollections,
+            collection: myCollections,
         }).on('removeRecords', this.removeFromCollection, this);
         this.render();
     },
@@ -113,7 +113,7 @@ export var RecordDetailView = CompositeView.extend({
     },
 
     submitToCollections: function() {
-        this.addSelect.submitForm([this.model.id]);
+        this.addSelect.submitForm([this.model]);
     },
 
     removeFromCollection: function() {

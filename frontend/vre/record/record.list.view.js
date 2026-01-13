@@ -10,12 +10,6 @@ function getModelId(rowData) {
     return rowData.model.id;
 }
 
-/**
- *
- * @param recordClass
- * @param type
- * @returns {[{column: string, dir: string}]|null}
- */
 function getDefaultSort(recordClass, type) {
     if (type === "catalog") {
         /* Do not sort catalog results by default, because the API's original
@@ -129,7 +123,7 @@ export var RecordListView = Backbone.View.extend({
     },
 
     currentSelection: function() {
-        return _.map(this.table.getSelectedData(), getModelId);
+        return _.map(this.table.getSelectedData(), 'model');
     },
 
     downloadXLSX: function() {

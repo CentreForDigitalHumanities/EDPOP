@@ -223,9 +223,14 @@ RDFLIB_STORE = SPARQLUpdateStore(
     autocommit=False,
 )
 
+# Names of edpop-explorer readers that we want to exclude from the VRE.
+OMITTED_READERS = ['FBTEEReader']
+
 # CATALOG_READERS: a list of Reader classes from the edpop-explorer package.
 # These readers will be registered for use in the VRE.
-CATALOG_READERS = readers.ALL_READERS + [BlankRecordReader]
+CATALOG_READERS = [
+    r for r in readers.ALL_READERS if r.__name__ not in OMITTED_READERS
+] + [BlankRecordReader]
 
 # Settings required to enable Django Debug Toolbar
 local_ip = socket.gethostbyname(socket.gethostname())
