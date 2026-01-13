@@ -32,6 +32,8 @@ export var BrowseCollectionView = CompositeView.extend({
         });
         overlay.listenTo(editor, 'submit reset', overlay.uncover);
 
+        this.listenTo(this.model.records, 'complete', this.render);
+
         this.render().listenTo(this.model, 'change', this.render);
     },
 
@@ -45,7 +47,10 @@ export var BrowseCollectionView = CompositeView.extend({
     },
 
     renderContainer: function() {
-        this.$el.html(this.template(this.model.attributes));
+        this.$el.html(this.template(Object.assign(this.model.attributes, {
+            numberOfRecords: this.collection.length,
+            loaded: this.model.loaded,
+        })));
         return this;
     },
 
