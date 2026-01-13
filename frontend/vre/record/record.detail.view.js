@@ -51,15 +51,15 @@ export var RecordDetailView = CompositeView.extend({
         'click #load_next': 'next',
         'click #load_previous': 'previous',
         'click #reload': 'reload',
+        'hidden.bs.modal': 'triggerRemove',
     },
 
     initialize: function(options) {
         var model = this.model;
         model.getAnnotations();
         if (model.collection) {
-            var index = model.collection.indexOf(model);
-            this.isFirst = (index === 0);
-            this.isLast = (index === model.collection.length - 1);
+            this.previousRecord = vreChannel.request('getPreviousRecord', this.model);
+            this.nextRecord = vreChannel.request('getNextRecord', this.model);
         }
         var fields = new FlatterFields(null, {record: model});
         var digitizations = new FilteredCollection(fields, {
@@ -93,8 +93,8 @@ export var RecordDetailView = CompositeView.extend({
 
     renderContainer: function() {
         this.$el.html(this.template(_.assign({
-            first: this.isFirst,
-            last: this.isLast,
+            first: !this.previousRecord,
+            last: !this.nextRecord,
             title: this.model.getMainDisplay(),
             uri: this.model.id,
             inContext: this.model.collection ? true : false,
@@ -105,6 +105,10 @@ export var RecordDetailView = CompositeView.extend({
     remove: function() {
         this.$el.modal('hide');
         RecordDetailView.__super__.remove.call(this);
+        return this.trigger('remove');
+    },
+
+    triggerRemove: function() {
         return this.trigger('remove');
     },
 
@@ -131,12 +135,12 @@ export var RecordDetailView = CompositeView.extend({
 
     next: function(event) {
         event && event.preventDefault();
-        vreChannel.trigger('displayNextRecord');
+        if (this.nextRecord) vreChannel.trigger('displayRecord', this.nextRecord);
     },
 
     previous: function(event) {
         event.preventDefault();
-        vreChannel.trigger('displayPreviousRecord');
+        if (this.previousRecord) vreChannel.trigger('displayRecord', this.previousRecord);
     },
 
     reload: function(event) {

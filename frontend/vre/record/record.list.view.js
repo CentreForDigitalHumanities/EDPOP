@@ -6,6 +6,10 @@ import {vreChannel} from "../radio";
 import {adjustDefinitions} from "../utils/tabulator-utils";
 import {BIBLIOGRAPHICAL, BIOGRAPHICAL} from "../utils/record-ontology";
 
+function getModelId(rowData) {
+    return rowData.model.id;
+}
+
 function getDefaultSort(recordClass, type) {
     if (type === "catalog") {
         /* Do not sort catalog results by default, because the API's original
@@ -41,9 +45,10 @@ export var RecordListView = Backbone.View.extend({
      * @type {?string}
      */
     recordClass: null,
+    highlightedRow: null,
 
     initialize: function(options) {
-        _.assign(this, _.pick(options, ['recordClass']));
+        _.assign(this, _.pick(options, ['recordClass', 'type']));
         this.render().listenTo(this.collection, 'update', this.render);
     },
 
@@ -62,7 +67,7 @@ export var RecordListView = Backbone.View.extend({
             autoColumns: true,
             autoColumnsDefinitions: (autodetected) => {return adjustDefinitions(autodetected, this.recordClass)},
             layout: "fitColumns",
-            initialSort: getDefaultSort(this.recordClass),
+            initialSort: getDefaultSort(this.recordClass, this.type),
             resizableColumnFit: true,
             movableColumns: true,
             clipboard: "copy",
@@ -80,6 +85,14 @@ export var RecordListView = Backbone.View.extend({
                     cell.getRow().toggleSelect();
                 },
             },
+            rowFormatter: function(row) {
+                var data = row.getData();
+                if (data.highlighted === true) {
+                    row.getElement().classList.add("highlighted");
+                } else {
+                    row.getElement().classList.remove("highlighted");
+                }
+            },
             headerFilterLiveFilterDelay: 0,
         });
         this.table.on("cellClick", (e, cell) => {
@@ -94,6 +107,10 @@ export var RecordListView = Backbone.View.extend({
             const model = cell.getRow().getData().model;
             vreChannel.trigger('displayRecord', model);
         });
+        vreChannel.on('highlightRecord', this.highlightRecord.bind(this));
+        vreChannel.on('unhighlightRecord', this.unhighlightRecord.bind(this));
+        vreChannel.reply('getNextRecord', this.getNextRecord.bind(this));
+        vreChannel.reply('getPreviousRecord', this.getPreviousRecord.bind(this));
         return this;
     },
 
@@ -117,5 +134,46 @@ export var RecordListView = Backbone.View.extend({
     downloadCSV: function() {
         this.table.download("csv", "edpop.csv");
         return this;
+    },
+
+    highlightRecord: function(recordModel) {
+        this.unhighlightRecord();
+        var toHighlight = this.table.getRow(recordModel.id);
+        toHighlight.scrollTo("center", false);
+        toHighlight.getData().highlighted = true;
+        toHighlight.reformat();
+        this.highlightedRow = toHighlight;
+    },
+
+    unhighlightRecord: function() {
+        if (this.highlightedRow) {
+            this.highlightedRow.getData().highlighted = false;
+            this.highlightedRow.reformat();
+        }
+    },
+
+    getNextRecord: function(recordModel) {
+        var currentRow = this.table.getRow(recordModel.id);
+        var nextRow = currentRow.getNextRow();
+        if (nextRow) {
+            return nextRow.getData().model;
+        }
+    },
+
+    getPreviousRecord: function(recordModel) {
+        var currentRow = this.table.getRow(recordModel.id);
+        var previousRow = currentRow.getPrevRow();
+        if (previousRow) {
+            return previousRow.getData().model;
+        }
+    },
+
+    remove: function() {
+        vreChannel.off('highlightRecord');
+        vreChannel.off('unhighlightRecord');
+        vreChannel.off('getNextRecord');
+        vreChannel.off('getPreviousRecord');
+        this.removeTable();
+        Backbone.View.prototype.remove.call(this);
     },
 });

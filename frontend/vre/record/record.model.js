@@ -39,6 +39,7 @@ export var Record = JsonLdModel.extend({
         const data = {
             model: this,
             type: this.get('@type'),
+            id: this.id,  // id is used for identification by Tabular by default
         };
         fields.forEach((field) => {
             data[field.id] = field.getMainDisplay();
