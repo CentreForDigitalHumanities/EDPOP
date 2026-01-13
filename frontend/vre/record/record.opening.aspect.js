@@ -5,6 +5,7 @@ var currentModal = null;
 
 function purgeModal() {
     currentModal = null;
+    vreChannel.trigger('unhighlightRecord');
 }
 
 function displayRecord(model) {
@@ -14,6 +15,7 @@ function displayRecord(model) {
         .on('remove', purgeModal);
     }
     currentModal.display();
+    vreChannel.trigger('highlightRecord', model);
 }
 
 vreChannel.on({

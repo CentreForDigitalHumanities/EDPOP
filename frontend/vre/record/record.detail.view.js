@@ -52,6 +52,7 @@ export var RecordDetailView = CompositeView.extend({
         'click #load_next': 'next',
         'click #load_previous': 'previous',
         'click #reload': 'reload',
+        'hidden.bs.modal': 'triggerRemove',
     },
 
     initialize: function(options) {
@@ -104,6 +105,10 @@ export var RecordDetailView = CompositeView.extend({
     remove: function() {
         this.$el.modal('hide');
         RecordDetailView.__super__.remove.call(this);
+        return this.trigger('remove');
+    },
+
+    triggerRemove: function() {
         return this.trigger('remove');
     },
 

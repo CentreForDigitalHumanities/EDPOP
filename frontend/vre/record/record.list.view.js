@@ -51,6 +51,7 @@ export var RecordListView = Backbone.View.extend({
      * @type {?string}
      */
     recordClass: null,
+    highlightedRow: null,
 
     initialize: function(options) {
         _.assign(this, _.pick(options, ['recordClass', 'type']));
@@ -90,6 +91,14 @@ export var RecordListView = Backbone.View.extend({
                     cell.getRow().toggleSelect();
                 },
             },
+            rowFormatter: function(row) {
+                var data = row.getData();
+                if (data.highlighted === true) {
+                    row.getElement().classList.add("highlighted");
+                } else {
+                    row.getElement().classList.remove("highlighted");
+                }
+            },
             headerFilterLiveFilterDelay: 0,
         });
         this.table.on("cellClick", (e, cell) => {
@@ -104,6 +113,8 @@ export var RecordListView = Backbone.View.extend({
             const model = cell.getRow().getData().model;
             vreChannel.trigger('displayRecord', model);
         });
+        vreChannel.on('highlightRecord', this.highlightRecord.bind(this));
+        vreChannel.on('unhighlightRecord', this.unhighlightRecord.bind(this));
         vreChannel.reply('getNextRecord', this.getNextRecord.bind(this));
         vreChannel.reply('getPreviousRecord', this.getPreviousRecord.bind(this));
         return this;
@@ -131,6 +142,22 @@ export var RecordListView = Backbone.View.extend({
         return this;
     },
 
+    highlightRecord: function(recordModel) {
+        this.unhighlightRecord();
+        var toHighlight = this.table.getRow(recordModel.id);
+        toHighlight.scrollTo("center", false);
+        toHighlight.getData().highlighted = true;
+        toHighlight.reformat();
+        this.highlightedRow = toHighlight;
+    },
+
+    unhighlightRecord: function() {
+        if (this.highlightedRow) {
+            this.highlightedRow.getData().highlighted = false;
+            this.highlightedRow.reformat();
+        }
+    },
+
     getNextRecord: function(recordModel) {
         var currentRow = this.table.getRow(recordModel.id);
         var nextRow = currentRow.getNextRow();
@@ -148,6 +175,8 @@ export var RecordListView = Backbone.View.extend({
     },
 
     remove: function() {
+        vreChannel.off('highlightRecord');
+        vreChannel.off('unhighlightRecord');
         vreChannel.off('getNextRecord');
         vreChannel.off('getPreviousRecord');
         this.removeTable();
