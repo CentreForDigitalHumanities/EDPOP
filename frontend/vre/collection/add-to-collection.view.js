@@ -55,10 +55,10 @@ export var AddToCollectionView = View.extend({
         var selected_collections = this.$('select').val();
         if (!selected_collections.length) return;
         var records_and_collections = new AdditionsToCollections({
-            'records': selected_records,
+            'records': _.map(selected_records, 'id'),
             'collections': selected_collections,
         });
-        records_and_collections.save().then(
+        records_and_collections.save(null, {records: selected_records}).then(
             this.showSuccess.bind(this),
             this.showError.bind(this),
         );
@@ -77,7 +77,7 @@ export var AddToCollectionView = View.extend({
     },
     showAlert: function(level, message) {
         var alert = new AlertView({level: level, message: message});
-        alert.render().$el.prependTo(this.el);
+        alert.$el.prependTo(this.el);
         alert.animate('remove');
     },
 });

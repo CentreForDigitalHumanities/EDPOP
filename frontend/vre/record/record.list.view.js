@@ -6,10 +6,6 @@ import {vreChannel} from "../radio";
 import {adjustDefinitions} from "../utils/tabulator-utils";
 import {BIBLIOGRAPHICAL, BIOGRAPHICAL} from "../utils/record-ontology";
 
-function getModelId(rowData) {
-    return rowData.model.id;
-}
-
 function getDefaultSort(recordClass, type) {
     if (type === "catalog") {
         /* Do not sort catalog results by default, because the API's original
@@ -110,7 +106,7 @@ export var RecordListView = Backbone.View.extend({
     },
 
     currentSelection: function() {
-        return _.map(this.table.getSelectedData(), getModelId);
+        return _.map(this.table.getSelectedData(), 'model');
     },
 
     downloadXLSX: function() {
