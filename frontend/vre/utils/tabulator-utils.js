@@ -44,7 +44,7 @@ export const columnChooseMenu = function(){
         let label = document.createElement("span");
         let title = document.createElement("span");
 
-        title.textContent = " " + definition.title;
+        title.textContent = " " + (definition.titleInMenu || definition.title);
 
         label.appendChild(icon);
         label.appendChild(title);
@@ -171,6 +171,35 @@ const standardColumns = _.mapValues({
     );
 });
 
+function getAdditionalColumns(type) {
+    return [{
+        field: 'hasAnnotations',
+        title: "<i class='fa-regular fa-comment'></i>",
+        titleInMenu: "Has annotations",
+        headerTooltip: "Has annotations",
+        visible: type === 'collection',
+        formatter: 'tickCross',
+        formatterParams: {
+            tickElement: "<i class='fa-regular fa-comment'></i>",
+            crossElement: "",
+        },
+        width: 54,
+        tooltip: (e, cell) => cell.getValue() ? "Record has annotations" : "No annotations",
+        headerContextMenu: columnChooseMenu,
+    }, {
+        field: 'tags',
+        title: 'Glossary',
+        visible: type === 'collection',
+        headerContextMenu: columnChooseMenu,
+    }, {
+        field: 'fromCatalog',
+        title: 'From catalog',
+        visible: type === 'collection',
+        headerContextMenu: columnChooseMenu,
+        tooltip: (e, cell) => cell.getValue(),
+    }];
+}
+
 /**
  * Callback for Tabulator's `autoColumnsDefinitions`. It always returns all
  * columns defined in {@link standardColumns}, but leverages the autodetected
@@ -179,13 +208,15 @@ const standardColumns = _.mapValues({
  * invisible.
  * @param autodetected - list of automatically detected columns by Tabulator
  * @param {string} recordClass - the value of BIBLIOGRAPHICAL or BIOGRAPHICAL
+ * @param {string} type - the kind of record list: "catalog" or "collection"
  */
-export function adjustDefinitions(autodetected, recordClass) {
+export function adjustDefinitions(autodetected, recordClass, type) {
     const customizedColumns = standardColumns[recordClass].clone();
     _.each(autodetected, autoColumn => {
         if (!(autoColumn.field in columnProperties)) return;
         const customColumn = customizedColumns.get(autoColumn.field);
         customColumn && customColumn.set('visible', true);
     });
+    customizedColumns.add(getAdditionalColumns(type));
     return customizedColumns.toJSON();
 }
