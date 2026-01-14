@@ -57,6 +57,7 @@ export var RecordListView = Backbone.View.extend({
         const data = this.collection.toTabularData();
         if (this.table === null) return this.createTable(data);
         this.table.replaceData(data);
+        this.connectToData();
         return this;
     },
 
@@ -107,11 +108,24 @@ export var RecordListView = Backbone.View.extend({
             const model = cell.getRow().getData().model;
             vreChannel.trigger('displayRecord', model);
         });
+        this.table.on("tableBuilt", this.connectToData.bind(this));
         vreChannel.on('highlightRecord', this.highlightRecord.bind(this));
         vreChannel.on('unhighlightRecord', this.unhighlightRecord.bind(this));
         vreChannel.reply('getNextRecord', this.getNextRecord.bind(this));
         vreChannel.reply('getPreviousRecord', this.getPreviousRecord.bind(this));
         return this;
+    },
+
+    connectToData: function() {
+        var rows = this.table.getRows();
+        for (let row of rows) {
+            var record = row.getData().model;
+            record.on("annotations:loaded", function(model) {
+                var tabularData = model.toTabularData();
+                this.table.updateData([tabularData]);
+            }.bind(this));
+            record.getAnnotations();
+        }
     },
 
     removeTable: function() {

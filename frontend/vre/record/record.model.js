@@ -2,6 +2,7 @@ import { Annotations } from '../annotation/annotation.model';
 import { JsonLdModel, JsonLdNestedCollection} from "../utils/jsonld.model";
 import { FlatFields } from "../field/field.model";
 import {vreChannel} from "../radio";
+import { FilteredCollection } from "../utils/filtered.collection";
 
 /**
  * Get the URL to fetch the record on its own from the backend.
@@ -10,6 +11,16 @@ import {vreChannel} from "../radio";
  */
 function get_fetch_url(record_uri) {
     return record_uri.replace('https://edpop.hum.uu.nl/', '/');
+}
+
+function getRecordTags(annotations) {
+    if (!annotations) return undefined;
+    var recordAnnotations = FilteredCollection(annotations, (annotation) => {
+        return !annotation.get('edpopcol:field') && annotation.get('motivation') === 'oa:tagging';
+    });
+    return recordAnnotations.map((annotation) => {
+        return annotation.getDisplayText();
+    }).join(", ");
 }
 
 export var Record = JsonLdModel.extend({
@@ -39,6 +50,9 @@ export var Record = JsonLdModel.extend({
         const data = {
             model: this,
             type: this.get('@type'),
+            fromCatalog: this.getCatalogName(),
+            hasAnnotations: this.annotations && !!this.annotations.length,
+            tags: getRecordTags(this.annotations),
             id: this.id,  // id is used for identification by Tabular by default
         };
         fields.forEach((field) => {
@@ -52,6 +66,7 @@ export var Record = JsonLdModel.extend({
             if (!this.isNew()) {
                 this.annotations.fetch();
             }
+            this.annotations.on('sync', () => this.trigger('annotations:loaded', this));
         }
         return this.annotations;
     },
