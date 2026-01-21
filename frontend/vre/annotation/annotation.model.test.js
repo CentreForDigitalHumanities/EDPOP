@@ -1,7 +1,8 @@
 import assert from 'assert';
 import sinon from 'sinon';
 
-import { Annotation } from './annotation.model';
+import { Annotation, Annotations } from './annotation.model';
+import { vreChannel } from '../radio.js';
 
 const deepAnnotation = {
     '@id': 'http://example.com/anno',
@@ -95,5 +96,37 @@ describe('Annotation model', () => {
         // finally, toJSON tells us what will be sent to the server
         const serialized = model.toJSON();
         assert.deepStrictEqual(serialized, serverMod);
+    });
+});
+
+describe('Annotations collection', () => {
+    const target = 'http://example.com/target',
+          project = {id: 'http://example.com/project'};
+    let collection;
+
+    beforeEach(() => {
+        collection = new Annotations(null, {target});
+        vreChannel.reply('projects:current', _.constant(project));
+    });
+
+    afterEach(() => {
+        vreChannel.stopReplying('projects:current');
+        collection.off().stopListening().reset();
+    });
+
+    describe('url method', () => {
+        it('addresses the record-annotations endpoint', () => {
+            assert(collection.url().startsWith('/api/record-annotations/'))
+        });
+
+        it('includes the escaped URI of the target record', () => {
+            const targetPart = `/${encodeURIComponent(target)}/`;
+            assert(collection.url().includes(targetPart));
+        });
+
+        it('ends with the current project', () => {
+            const projectPart = `/?project=${encodeURIComponent(project.id)}`;
+            assert(collection.url().endsWith(projectPart));
+        });
     });
 });
