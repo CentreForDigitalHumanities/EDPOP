@@ -171,6 +171,24 @@ const standardColumns = _.mapValues({
     );
 });
 
+function getUniqueValues(cell) {
+    var cells = cell.getColumn().getCells();
+    var data = _.map(cells, c => c.getValue() && c.getValue().split(', '));
+    data = _.flatten(data);
+    _.remove(data, _.isEmpty);
+    data = _.uniq(data);
+    data = _.sortBy(data);
+    data.unshift({
+        label: '(all)',
+        value: '',
+    })
+    return data;
+}
+
+/**
+ * Get additional column definitions based on the type of record list (catalog or collection).
+ * @param {string} type - the kind of record list: "catalog" or "collection"
+ */
 function getAdditionalColumns(type) {
     return [{
         field: 'hasAnnotations',
@@ -189,6 +207,10 @@ function getAdditionalColumns(type) {
     }, {
         field: 'tags',
         title: 'Glossary',
+        headerFilter: 'list',
+        headerFilterParams: {
+            valuesLookup: getUniqueValues,
+        },
         visible: type === 'collection',
         headerContextMenu: columnChooseMenu,
     }, {
