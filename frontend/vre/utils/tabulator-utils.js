@@ -44,7 +44,8 @@ export const columnChooseMenu = function(){
         let label = document.createElement("span");
         let title = document.createElement("span");
 
-        title.textContent = " " + (definition.titleInMenu || definition.title);
+        // For textContent, prefer the headerTooltip, which is the text representation in case the field
+        title.textContent = " " + (definition.headerTooltip || definition.title);
 
         label.appendChild(icon);
         label.appendChild(title);
@@ -193,7 +194,6 @@ function getAdditionalColumns(type) {
     return [{
         field: 'hasAnnotations',
         title: "<i class='fa-regular fa-comment'></i>",
-        titleInMenu: "Has annotations",
         headerTooltip: "Has annotations",
         visible: type === 'collection',
         formatter: 'tickCross',
