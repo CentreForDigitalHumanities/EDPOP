@@ -47,10 +47,10 @@ export var BrowseCollectionView = CompositeView.extend({
     },
 
     renderContainer: function() {
-        this.$el.html(this.template(Object.assign(this.model.attributes, {
+        this.$el.html(this.template(_.assign({
             numberOfRecords: this.collection.length,
             loaded: this.model.loaded,
-        })));
+        }, this.model.attributes)));
         return this;
     },
 
