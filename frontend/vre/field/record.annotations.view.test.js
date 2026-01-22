@@ -121,6 +121,7 @@ function newAnnotationTrashed() {
 
 describe('RecordAnnotationsView', function() {
     before(function() {
+        this.xhr = sinon.useFakeXMLHttpRequest();
         vreChannel.reply('projects:current', () => fakeProjectMenu.model);
     });
 
@@ -142,6 +143,7 @@ describe('RecordAnnotationsView', function() {
 
     after(function() {
         vreChannel.stopReplying('projects:current');
+        this.xhr.restore();
     });
 
     it('has a button for adding new fields', function() {

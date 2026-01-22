@@ -4,6 +4,7 @@ import { parent } from '@uu-cdh/backbone-collection-transformers/src/inheritance
 import {getDateTimeLiteral, JsonLdModel, JsonLdNestedCollection} from '../utils/jsonld.model';
 import {UserLd} from '../user/user.ld.model';
 import {glossary} from '../utils/glossary';
+import { vreChannel } from '../radio.js';
 
 // Helper function for removing multiple properties from an object in iteration.
 function stripAttribute(container) {
@@ -135,11 +136,17 @@ export var Annotations = JsonLdNestedCollection.extend({
 
     initialize: function(model, options) {
         _.assign(this, _.pick(options, ['target']));
-        this.url = `/api/record-annotations/${encodeURIComponent(this.target)}/`;
         this.on('remove', this.deleteAnnotation);
     },
 
     deleteAnnotation: function(annotation) {
         annotation.destroy();
+    },
+
+    url: function() {
+        var targetPart = encodeURIComponent(this.target);
+        var projectId = vreChannel.request('projects:current').id;
+        var projectPart = encodeURIComponent(projectId);
+        return `/api/record-annotations/${targetPart}/?project=${projectPart}`;
     },
 });
