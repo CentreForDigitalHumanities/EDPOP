@@ -182,10 +182,7 @@ const standardColumns = _.mapValues({
 function getUniqueValues(cell) {
     var cells = cell.getColumn().getCells();
     var data = _.map(cells, c => c.getValue() && c.getValue().split(', '));
-    data = _.flatten(data);
-    _.remove(data, _.isEmpty);
-    data = _.uniq(data);
-    data = _.sortBy(data);
+    data = _.chain(data).flatten().filter(_.negate(_.isEmpty)).uniq().sortBy().value();
     data.unshift({
         label: '(all)',
         value: '',
