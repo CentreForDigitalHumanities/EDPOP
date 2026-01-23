@@ -172,6 +172,13 @@ const standardColumns = _.mapValues({
     );
 });
 
+/**
+ * To be used as the `valuesLookup` parameter of the `headerFilterParams`
+ * option of a Tabulator column definition. The return value is an array
+ * of filter options. The options we want to show are all unique values
+ * of the column, with support for cells that contain multiple values
+ * separated by a comma.
+ */
 function getUniqueValues(cell) {
     var cells = cell.getColumn().getCells();
     var data = _.map(cells, c => c.getValue() && c.getValue().split(', '));
