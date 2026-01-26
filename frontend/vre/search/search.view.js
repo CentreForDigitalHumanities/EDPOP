@@ -8,18 +8,20 @@ export var SearchView = CompositeView.extend({
     template: searchViewTemplate,
     events: {
         'submit': 'firstSearch',
+        'input #query-input': 'queryChanged',
     },
     subviews: [{
         view: 'alert',
         method: 'prepend',
     }],
     initialize: function() {
+        this.allowEmptyQuery = this.model.get('allowEmptyQuery');
         this.render().listenTo(this.collection, {
             moreRequested: this.nextSearch,
         });
     },
     renderContainer: function() {
-        this.$el.html(this.template());
+        this.$el.html(this.template(this.model.toJSON()));
         return this;
     },
     showPending: function() {
@@ -96,5 +98,14 @@ export var SearchView = CompositeView.extend({
     },
     fill: function(fillText) {
         this.$('#query-input').val(fillText);
+        this.queryChanged();
+    },
+    queryChanged: function(event) {
+        var value = event.target.value;
+        if (value.trim().length > 0 || this.model.get('allowEmptyQuery')) {
+            this.$('#query-submit').prop('disabled', false);
+        } else {
+            this.$('#query-submit').prop('disabled', true);
+        }
     },
 });
