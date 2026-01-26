@@ -153,7 +153,7 @@ class SearchGraphBuilder:
     def _get_partial_results(self) -> list[Record]:
         start = self._start
         end = min(self._end, self.reader.number_of_results)
-        results = [self.reader.records[x] for x in range(start, end)]
+        results = [self.reader.records[x] for x in range(start, end) if x in self.reader.records]
         return results  # type: ignore
 
     def _get_content_graph(self) -> Graph:
