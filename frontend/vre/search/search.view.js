@@ -101,8 +101,7 @@ export var SearchView = CompositeView.extend({
         this.queryChanged();
     },
     queryChanged: function(event) {
-        var value = event.target.value;
-        if (value.trim().length > 0 || this.model.get('allowEmptyQuery')) {
+        if (event.target.value.trim().length > 0 || this.model.get('allowEmptyQuery')) {
             this.$('#query-submit').prop('disabled', false);
         } else {
             this.$('#query-submit').prop('disabled', true);
