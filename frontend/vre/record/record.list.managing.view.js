@@ -29,7 +29,7 @@ export var RecordListManagingView = CompositeView.extend({
 
     events: {
         'click .more-records': 'loadMore',
-        'click .500-more-records': 'load500More',
+        'click .many-more-records': 'loadManyMore',
         'click .download-xlsx': 'downloadXLSX',
         'click .download-csv': 'downloadCSV',
         'click .create-blank': 'createBlank',
@@ -56,12 +56,23 @@ export var RecordListManagingView = CompositeView.extend({
         // template and use the isCollection method directly from the template.
         // TODO: remove this workaround when wontache#84 is fixed.
         const isCollection = this.isCollection();
-        this.$el.html(this.template({isCollection}));
+        const requestMoreMaximum = this.requestMoreMaximum();
+        this.$el.html(this.template({isCollection, requestMoreMaximum}));
         return this;
     },
 
     isCollection: function() {
         return this.type === 'collection';
+    },
+
+    requestMoreMaximum: function() {
+        var maximumForCatalogue = this.model.get('maximumRecordsPerPage');
+        var maximum = 500;
+        if (maximumForCatalogue && maximumForCatalogue < maximum) {
+            return maximumForCatalogue;
+        } else {
+            return maximum;
+        }
     },
 
     submitToCollections: function() {
@@ -85,8 +96,8 @@ export var RecordListManagingView = CompositeView.extend({
         this.collection.trigger('moreRequested', event, 50);
     },
 
-    load500More: function(event) {
-        this.collection.trigger('moreRequested', event, 500);
+    loadManyMore: function(event) {
+        this.collection.trigger('moreRequested', event, this.requestMoreMaximum());
     },
 
     downloadXLSX: function() {
