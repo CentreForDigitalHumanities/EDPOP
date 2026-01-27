@@ -49,14 +49,17 @@ export var RecordListView = Backbone.View.extend({
 
     initialize: function(options) {
         _.assign(this, _.pick(options, ['recordClass', 'type']));
+        this.listenTo(this.collection, 'annotations:loaded', this.insertRowAnnotations);
         this.render().listenTo(this.collection, 'update', this.render);
     },
 
     render: function() {
         if (this.collection.length === 0) return this.removeTable();
         const data = this.collection.toTabularData();
+        _.invokeMap(this.collection.models, 'getAnnotations');
         if (this.table === null) return this.createTable(data);
         this.table.replaceData(data);
+        // TODO: replace by _.invoke when switching to Underscore
         return this;
     },
 
@@ -65,7 +68,7 @@ export var RecordListView = Backbone.View.extend({
             height: "calc(100vh - 360px)", // set height to table approximately to what is left of viewport height
             data: initialData,
             autoColumns: true,
-            autoColumnsDefinitions: (autodetected) => {return adjustDefinitions(autodetected, this.recordClass)},
+            autoColumnsDefinitions: (autodetected) => {return adjustDefinitions(autodetected, this.recordClass, this.type)},
             layout: "fitColumns",
             initialSort: getDefaultSort(this.recordClass, this.type),
             resizableColumnFit: true,
@@ -112,6 +115,11 @@ export var RecordListView = Backbone.View.extend({
         vreChannel.reply('getNextRecord', this.getNextRecord.bind(this));
         vreChannel.reply('getPreviousRecord', this.getPreviousRecord.bind(this));
         return this;
+    },
+
+    insertRowAnnotations: function(model) {
+        var tabularData = model.toTabularData();
+        this.table.updateData([tabularData]);
     },
 
     removeTable: function() {

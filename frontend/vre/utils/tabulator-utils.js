@@ -44,7 +44,10 @@ export const columnChooseMenu = function(){
         let label = document.createElement("span");
         let title = document.createElement("span");
 
-        title.textContent = " " + definition.title;
+        /* For textContent, prefer the headerTooltip, which is the text representation
+           in case the column header consists of an icon
+         */
+        title.textContent = " " + (definition.headerTooltip || definition.title);
 
         label.appendChild(icon);
         label.appendChild(title);
@@ -172,6 +175,61 @@ const standardColumns = _.mapValues({
 });
 
 /**
+ * To be used as the `valuesLookup` parameter of the `headerFilterParams`
+ * option of a Tabulator column definition. The return value is an array
+ * of filter options. The options we want to show are all unique values
+ * of the column, with support for cells that contain multiple values
+ * separated by a comma.
+ */
+function getUniqueValues(cell) {
+    var cells = cell.getColumn().getCells();
+    var data = _.map(cells, c => c.getValue() && c.getValue().split(', '));
+    // TODO: replace sortedUniq() by uniq(true) when switching to Underscore
+    data = _.chain(data).flatten().filter(_.negate(_.isEmpty)).sort().sortedUniq().value();
+    data.unshift({
+        label: '(all)',
+        value: '',
+    })
+    return data;
+}
+
+/**
+ * Get additional column definitions based on the type of record list (catalog or collection).
+ * @param {string} type - the kind of record list: "catalog" or "collection"
+ */
+function getAdditionalColumns(type) {
+    return [{
+        field: 'hasAnnotations',
+        title: "<i class='fa-regular fa-comment'></i>",
+        headerTooltip: "Has annotations",
+        visible: type === 'collection',
+        formatter: 'tickCross',
+        formatterParams: {
+            tickElement: "<i class='fa-regular fa-comment'></i>",
+            crossElement: "",
+        },
+        width: 54,
+        tooltip: (e, cell) => cell.getValue() ? "Record has annotations" : "No annotations",
+        headerContextMenu: columnChooseMenu,
+    }, {
+        field: 'tags',
+        title: 'Glossary',
+        headerFilter: 'list',
+        headerFilterParams: {
+            valuesLookup: getUniqueValues,
+        },
+        visible: type === 'collection',
+        headerContextMenu: columnChooseMenu,
+    }, {
+        field: 'fromCatalog',
+        title: 'From catalog',
+        visible: type === 'collection',
+        headerContextMenu: columnChooseMenu,
+        tooltip: (e, cell) => cell.getValue(),
+    }];
+}
+
+/**
  * Callback for Tabulator's `autoColumnsDefinitions`. It always returns all
  * columns defined in {@link standardColumns}, but leverages the autodetected
  * columns to determine which columns should be visible. Columns that are both
@@ -179,13 +237,15 @@ const standardColumns = _.mapValues({
  * invisible.
  * @param autodetected - list of automatically detected columns by Tabulator
  * @param {string} recordClass - the value of BIBLIOGRAPHICAL or BIOGRAPHICAL
+ * @param {string} type - the kind of record list: "catalog" or "collection"
  */
-export function adjustDefinitions(autodetected, recordClass) {
+export function adjustDefinitions(autodetected, recordClass, type) {
     const customizedColumns = standardColumns[recordClass].clone();
     _.each(autodetected, autoColumn => {
         if (!(autoColumn.field in columnProperties)) return;
         const customColumn = customizedColumns.get(autoColumn.field);
         customColumn && customColumn.set('visible', true);
     });
+    customizedColumns.add(getAdditionalColumns(type));
     return customizedColumns.toJSON();
 }
