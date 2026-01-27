@@ -98,6 +98,8 @@ class CatalogsView(RDFView):
         "name": "schema:name",
         "description": "schema:description",
         "identifier": "schema:identifier",
+        "maximumRecordsPerPage": "edpoprec:maximumRecordsPerPage",
+        "allowEmptyQuery": "edpoprec:allowEmptyQuery",
     }
 
     def get_graph(self, request: views.Request, **kwargs) -> Graph:
