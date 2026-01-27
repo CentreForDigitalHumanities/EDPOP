@@ -153,6 +153,7 @@ class SearchGraphBuilder:
     def _get_partial_results(self) -> list[Record]:
         start = self._start
         end = min(self._end, self.reader.number_of_results)
+        # Get all applicable records from self.reader.records. Note that this is a dict with integers as keys
         results = [self.reader.records[x] for x in range(start, end) if x in self.reader.records]
         return results  # type: ignore
 
