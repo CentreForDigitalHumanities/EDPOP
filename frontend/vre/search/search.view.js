@@ -15,7 +15,6 @@ export var SearchView = CompositeView.extend({
         method: 'prepend',
     }],
     initialize: function() {
-        this.allowEmptyQuery = this.model.get('allowEmptyQuery');
         this.render().listenTo(this.collection, {
             moreRequested: this.nextSearch,
         });
