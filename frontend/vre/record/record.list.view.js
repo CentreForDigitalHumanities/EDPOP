@@ -49,15 +49,17 @@ export var RecordListView = Backbone.View.extend({
 
     initialize: function(options) {
         _.assign(this, _.pick(options, ['recordClass', 'type']));
+        this.listenTo(this.collection, 'annotations:loaded', this.insertRowAnnotations);
         this.render().listenTo(this.collection, 'update', this.render);
     },
 
     render: function() {
         if (this.collection.length === 0) return this.removeTable();
         const data = this.collection.toTabularData();
+        _.invokeMap(this.collection.models, 'getAnnotations');
         if (this.table === null) return this.createTable(data);
         this.table.replaceData(data);
-        this.connectToData();
+        // TODO: replace by _.invoke when switching to Underscore
         return this;
     },
 
@@ -108,7 +110,6 @@ export var RecordListView = Backbone.View.extend({
             const model = cell.getRow().getData().model;
             vreChannel.trigger('displayRecord', model);
         });
-        this.table.on("tableBuilt", this.connectToData.bind(this));
         vreChannel.on('highlightRecord', this.highlightRecord.bind(this));
         vreChannel.on('unhighlightRecord', this.unhighlightRecord.bind(this));
         vreChannel.reply('getNextRecord', this.getNextRecord.bind(this));
@@ -116,16 +117,9 @@ export var RecordListView = Backbone.View.extend({
         return this;
     },
 
-    connectToData: function() {
-        var rows = this.table.getRows();
-        for (let row of rows) {
-            var record = row.getData().model;
-            record.on("annotations:loaded", function(model) {
-                var tabularData = model.toTabularData();
-                this.table.updateData([tabularData]);
-            }.bind(this));
-            record.getAnnotations();
-        }
+    insertRowAnnotations: function(model) {
+        var tabularData = model.toTabularData();
+        this.table.updateData([tabularData]);
     },
 
     removeTable: function() {
