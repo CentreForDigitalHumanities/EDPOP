@@ -15,12 +15,12 @@ function get_fetch_url(record_uri) {
 
 function getRecordTags(annotations) {
     if (!annotations) return undefined;
-    var recordAnnotations = FilteredCollection(annotations, (annotation) => {
-        return !annotation.get('edpopcol:field') && annotation.get('motivation') === 'oa:tagging';
-    });
-    return recordAnnotations.map((annotation) => {
-        return annotation.getDisplayText();
-    }).join(", ");
+    return annotations.chain()
+    .filter((anno) => !anno.get('edpopcol:field') && anno.get('motivation') === 'oa:tagging')
+    // TODO: replace by _.invoke when switching to Underscore
+    .invokeMap('getDisplayText')
+    .join(', ')
+    .value();
 }
 
 export var Record = JsonLdModel.extend({
