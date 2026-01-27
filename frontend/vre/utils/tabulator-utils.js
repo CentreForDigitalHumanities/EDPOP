@@ -44,7 +44,9 @@ export const columnChooseMenu = function(){
         let label = document.createElement("span");
         let title = document.createElement("span");
 
-        // For textContent, prefer the headerTooltip, which is the text representation in case the field
+        /* For textContent, prefer the headerTooltip, which is the text representation
+           in case the column header consists of an icon
+         */
         title.textContent = " " + (definition.headerTooltip || definition.title);
 
         label.appendChild(icon);
