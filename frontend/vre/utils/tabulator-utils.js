@@ -182,7 +182,8 @@ const standardColumns = _.mapValues({
 function getUniqueValues(cell) {
     var cells = cell.getColumn().getCells();
     var data = _.map(cells, c => c.getValue() && c.getValue().split(', '));
-    data = _.chain(data).flatten().filter(_.negate(_.isEmpty)).uniq().sortBy().value();
+    // TODO: replace sortedUniq() by uniq(true) when switching to Underscore
+    data = _.chain(data).flatten().filter(_.negate(_.isEmpty)).sort().sortedUniq().value();
     data.unshift({
         label: '(all)',
         value: '',
