@@ -4,9 +4,9 @@
 #
 #    pip-compile requirements-test.in
 #
-asgiref==3.8.1
+asgiref==3.11.1
     # via django
-django==4.2.27
+django==4.2.29
     # via django-debug-toolbar
 django-debug-toolbar==5.2.0
     # via -r requirements-test.in
@@ -26,11 +26,11 @@ pytest-django==4.8.0
     # via -r requirements-test.in
 six==1.17.0
     # via -r requirements-test.in
-sqlparse==0.5.3
+sqlparse==0.5.5
     # via
     #   django
     #   django-debug-toolbar
 tomli==2.0.1
     # via pytest
-typing-extensions==4.12.2
+typing-extensions==4.15.0
     # via asgiref
