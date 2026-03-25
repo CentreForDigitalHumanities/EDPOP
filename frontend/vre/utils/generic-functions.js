@@ -15,43 +15,47 @@ export function canonicalSort(key) {
     return index;
 }
 
-var canonicalOrder = {
+var canonicalOrderList = [
+    // Placeholder to ensure positive indices
+    '',
     // Bibliographical fields
-    'edpoprec:title': 3,
-    'edpoprec:alternativeTitle': 6,
-    'edpoprec:contributor': 9,
-    'edpoprec:dating': 12,
-    'edpoprec:placeOfPublication': 15,
-    'edpoprec:publisherOrPrinter': 18,
-    'edpoprec:bookseller': 21,
-    'edpoprec:extent': 24,
-    'edpoprec:genre': 27,
-    'edpoprec:language': 30,
-    'edpoprec:fingerprint': 33,
-    'edpoprec:bibliographicalFormat': 36,
-    'edpoprec:location': 39,
-    'edpoprec:holdings': 42,
-    'edpoprec:size': 45,
-    'edpoprec:collationFormula': 48,
-    'edpoprec:physicalDescription': 51,
-    'edpoprec:typographicalFeatures': 54,
-    'edpoprec:digitization': 57,
+    'edpoprec:title',
+    'edpoprec:alternativeTitle',
+    'edpoprec:contributor',
+    'edpoprec:dating',
+    'edpoprec:placeOfPublication',
+    'edpoprec:publisherOrPrinter',
+    'edpoprec:bookseller',
+    'edpoprec:extent',
+    'edpoprec:genre',
+    'edpoprec:language',
+    'edpoprec:fingerprint',
+    'edpoprec:bibliographicalFormat',
+    'edpoprec:location',
+    'edpoprec:holdings',
+    'edpoprec:size',
+    'edpoprec:collationFormula',
+    'edpoprec:physicalDescription',
+    'edpoprec:typographicalFeatures',
+    'edpoprec:digitization',
     // Biographical fields
-    'edpoprec:name': 60,
-    'edpoprec:variantName': 63,
-    'edpoprec:timespan': 66,
-    'edpoprec:gender': 69,
-    'edpoprec:placeOfBirth': 72,
-    'edpoprec:placeOfDeath': 75,
-    'edpoprec:activity': 78,
-    'edpoprec:placeOfActivity': 81,
-    'edpoprec:activityTimespan': 84,
+    'edpoprec:name',
+    'edpoprec:variantName',
+    'edpoprec:timespan',
+    'edpoprec:gender',
+    'edpoprec:placeOfBirth',
+    'edpoprec:placeOfDeath',
+    'edpoprec:activity',
+    'edpoprec:placeOfActivity',
+    'edpoprec:activityTimespan',
     // Common fields
-    'edpoprec:fromCatalog': 87,
-    'edpoprec:identifier': 90,
-    'edpoprec:publicUrl': 93,
-    'edpoprec:originalData': 96,
-};
+    'edpoprec:fromCatalog',
+    'edpoprec:identifier',
+    'edpoprec:publicUrl',
+    'edpoprec:originalData',
+];
+
+var canonicalOrder = _.chain(canonicalOrderList).invert().mapValues(Number).value();
 
 /**
  * Translate from compacted JSON-LD `@type` strings to payload objects suitable
