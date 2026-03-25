@@ -28,12 +28,18 @@ describe('generic functions', function() {
     });
 
     describe('canonicalSort', function() {
-        it('sorts Title before Author', function() {
-            assert(canonicalSort('Title') < canonicalSort('Author'));
+        it('sorts title before contributor', function() {
+            assert(
+                canonicalSort('edpoprec:title') <
+                canonicalSort('edpoprec:contributor')
+            );
         });
 
-        it('sorts Author before Collaborator', function() {
-            assert(canonicalSort('Author') < canonicalSort('Collaborator'));
+        it('sorts contributor before holdings', function() {
+            assert(
+                canonicalSort('edpoprec:contributor') <
+                canonicalSort('edpoprec:holdings')
+            );
         });
 
         it('defaults to lowest priority', function() {
