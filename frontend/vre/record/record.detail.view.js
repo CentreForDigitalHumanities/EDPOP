@@ -8,7 +8,6 @@ import { Field, FlatterFields } from '../field/field.model';
 import { AddToCollectionView } from '../collection/add-to-collection.view';
 import { RemoveFromCollectionView } from '../collection/remove-from-collection.view.js';
 import { typeTranslation } from '../utils/generic-functions.js';
-import { GlobalVariables } from '../globals/variables';
 import recordDetailTemplate from './record.detail.view.mustache';
 import typeIconTemplate from './record.type.icon.mustache';
 import {DigitizationsView} from "../digitization/digitizations.view";
@@ -52,15 +51,15 @@ export var RecordDetailView = CompositeView.extend({
         'click #load_next': 'next',
         'click #load_previous': 'previous',
         'click #reload': 'reload',
+        'hidden.bs.modal': 'triggerRemove',
     },
 
     initialize: function(options) {
         var model = this.model;
         model.getAnnotations();
         if (model.collection) {
-            var index = model.collection.indexOf(model);
-            this.isFirst = (index === 0);
-            this.isLast = (index === model.collection.length - 1);
+            this.previousRecord = vreChannel.request('getPreviousRecord', this.model);
+            this.nextRecord = vreChannel.request('getNextRecord', this.model);
         }
         var fields = new FlatterFields(null, {record: model});
         var digitizations = new FilteredCollection(fields, {
@@ -82,19 +81,20 @@ export var RecordDetailView = CompositeView.extend({
             collection: recordAnnotations,
         }).render();
         this.annotationsView.listenTo(this.fieldsView, 'edit', this.annotationsView.edit);
+        var myCollections = vreChannel.request('allcollections');
         this.addSelect = new AddToCollectionView({
-            collection: GlobalVariables.myCollections,
+            collection: myCollections,
         }).on('addRecords', this.submitToCollections, this);
         this.removeButton = new RemoveFromCollectionView({
-            collection: GlobalVariables.myCollections,
+            collection: myCollections,
         }).on('removeRecords', this.removeFromCollection, this);
         this.render();
     },
 
     renderContainer: function() {
         this.$el.html(this.template(_.assign({
-            first: this.isFirst,
-            last: this.isLast,
+            first: !this.previousRecord,
+            last: !this.nextRecord,
             title: this.model.getMainDisplay(),
             uri: this.model.id,
             inContext: this.model.collection ? true : false,
@@ -108,8 +108,12 @@ export var RecordDetailView = CompositeView.extend({
         return this.trigger('remove');
     },
 
+    triggerRemove: function() {
+        return this.trigger('remove');
+    },
+
     submitToCollections: function() {
-        this.addSelect.submitForm([this.model.id]);
+        this.addSelect.submitForm([this.model]);
     },
 
     removeFromCollection: function() {
@@ -131,12 +135,12 @@ export var RecordDetailView = CompositeView.extend({
 
     next: function(event) {
         event && event.preventDefault();
-        vreChannel.trigger('displayNextRecord');
+        if (this.nextRecord) vreChannel.trigger('displayRecord', this.nextRecord);
     },
 
     previous: function(event) {
         event.preventDefault();
-        vreChannel.trigger('displayPreviousRecord');
+        if (this.previousRecord) vreChannel.trigger('displayRecord', this.previousRecord);
     },
 
     reload: function(event) {

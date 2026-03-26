@@ -23,6 +23,7 @@ export var CatalogSearchView = CompositeView.extend({
             collection: this.collection,
             type: "catalog",
             recordClass: this.recordClass,
+            model: this.model,
         });
         this.render();
     },

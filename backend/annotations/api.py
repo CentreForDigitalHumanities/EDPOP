@@ -48,7 +48,8 @@ construct {
 where {
   graph ?annotations {
     ?a ?pa ?oa ;
-       oa:hasTarget ?t .
+       oa:hasTarget ?t ;
+       as:context ?project .
     ?t ?pt ?ot ;
        oa:hasSource ?record .
     optional {
@@ -236,7 +237,7 @@ class AnnotationEditView(RDFView):
 
 class AnnotationsPerTargetView(RDFView):
     '''
-    View the records inside a collection
+    View the annotations associated with a record within a particular project.
     '''
 
     renderer_classes = (JsonLdRenderer, TurtleRenderer)
@@ -244,9 +245,11 @@ class AnnotationsPerTargetView(RDFView):
 
     def get_graph(self, request: Request, record: str, **kwargs) -> Graph:
         record_uri = URIRef(record)
+        project_uri = URIRef(request.GET['project'])
         store = settings.RDFLIB_STORE
         query = record_annotations_query
         return graph_from_triples(store.query(query, initBindings={
             'annotations': ANNOTATION_GRAPH_IDENTIFIER,
             'record': record_uri,
+            'project': project_uri,
         }, initNs=NS))

@@ -71,6 +71,15 @@ form.form-inline.inline-editor {
     z-index: 1060;
 }
 
+.highlighted {
+    font-weight: bold;
+}
+
+.tabulator-row {
+    transition-property: font-weight;
+    transition-duration: 0.15s;
+}
+
 @media (prefers-color-scheme: dark) {
     html {
         filter: invert(1) hue-rotate(180deg) contrast(0.9) brightness(0.9);

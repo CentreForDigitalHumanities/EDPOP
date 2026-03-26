@@ -45,17 +45,21 @@ export var RecordListView = Backbone.View.extend({
      * @type {?string}
      */
     recordClass: null,
+    highlightedRow: null,
 
     initialize: function(options) {
-        _.assign(this, _.pick(options, ['recordClass']));
+        _.assign(this, _.pick(options, ['recordClass', 'type']));
+        this.listenTo(this.collection, 'annotations:loaded', this.insertRowAnnotations);
         this.render().listenTo(this.collection, 'update', this.render);
     },
 
     render: function() {
         if (this.collection.length === 0) return this.removeTable();
         const data = this.collection.toTabularData();
+        _.invokeMap(this.collection.models, 'getAnnotations');
         if (this.table === null) return this.createTable(data);
         this.table.replaceData(data);
+        // TODO: replace by _.invoke when switching to Underscore
         return this;
     },
 
@@ -64,9 +68,9 @@ export var RecordListView = Backbone.View.extend({
             height: "calc(100vh - 360px)", // set height to table approximately to what is left of viewport height
             data: initialData,
             autoColumns: true,
-            autoColumnsDefinitions: (autodetected) => {return adjustDefinitions(autodetected, this.recordClass)},
+            autoColumnsDefinitions: (autodetected) => {return adjustDefinitions(autodetected, this.recordClass, this.type)},
             layout: "fitColumns",
-            initialSort: getDefaultSort(this.recordClass),
+            initialSort: getDefaultSort(this.recordClass, this.type),
             resizableColumnFit: true,
             movableColumns: true,
             clipboard: "copy",
@@ -84,6 +88,14 @@ export var RecordListView = Backbone.View.extend({
                     cell.getRow().toggleSelect();
                 },
             },
+            rowFormatter: function(row) {
+                var data = row.getData();
+                if (data.highlighted === true) {
+                    row.getElement().classList.add("highlighted");
+                } else {
+                    row.getElement().classList.remove("highlighted");
+                }
+            },
             headerFilterLiveFilterDelay: 0,
         });
         this.table.on("cellClick", (e, cell) => {
@@ -98,7 +110,16 @@ export var RecordListView = Backbone.View.extend({
             const model = cell.getRow().getData().model;
             vreChannel.trigger('displayRecord', model);
         });
+        vreChannel.on('highlightRecord', this.highlightRecord.bind(this));
+        vreChannel.on('unhighlightRecord', this.unhighlightRecord.bind(this));
+        vreChannel.reply('getNextRecord', this.getNextRecord.bind(this));
+        vreChannel.reply('getPreviousRecord', this.getPreviousRecord.bind(this));
         return this;
+    },
+
+    insertRowAnnotations: function(model) {
+        var tabularData = model.toTabularData();
+        this.table.updateData([tabularData]);
     },
 
     removeTable: function() {
@@ -110,7 +131,7 @@ export var RecordListView = Backbone.View.extend({
     },
 
     currentSelection: function() {
-        return _.map(this.table.getSelectedData(), getModelId);
+        return _.map(this.table.getSelectedData(), 'model');
     },
 
     downloadXLSX: function() {
@@ -121,5 +142,46 @@ export var RecordListView = Backbone.View.extend({
     downloadCSV: function() {
         this.table.download("csv", "edpop.csv");
         return this;
+    },
+
+    highlightRecord: function(recordModel) {
+        this.unhighlightRecord();
+        var toHighlight = this.table.getRow(recordModel.id);
+        toHighlight.scrollTo("center", false);
+        toHighlight.getData().highlighted = true;
+        toHighlight.reformat();
+        this.highlightedRow = toHighlight;
+    },
+
+    unhighlightRecord: function() {
+        if (this.highlightedRow) {
+            this.highlightedRow.getData().highlighted = false;
+            this.highlightedRow.reformat();
+        }
+    },
+
+    getNextRecord: function(recordModel) {
+        var currentRow = this.table.getRow(recordModel.id);
+        var nextRow = currentRow.getNextRow();
+        if (nextRow) {
+            return nextRow.getData().model;
+        }
+    },
+
+    getPreviousRecord: function(recordModel) {
+        var currentRow = this.table.getRow(recordModel.id);
+        var previousRow = currentRow.getPrevRow();
+        if (previousRow) {
+            return previousRow.getData().model;
+        }
+    },
+
+    remove: function() {
+        vreChannel.off('highlightRecord');
+        vreChannel.off('unhighlightRecord');
+        vreChannel.off('getNextRecord');
+        vreChannel.off('getPreviousRecord');
+        this.removeTable();
+        Backbone.View.prototype.remove.call(this);
     },
 });

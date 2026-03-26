@@ -7,13 +7,18 @@ import { Records } from '../record/record.model.js';
  */
 export var VRECollection = JsonLdModel.extend({
     idAttribute: 'uri',
+    loaded: false,
     getRecords: function(reload=false) {
-        if (!reload && this.records) return this.records;
+        if (!reload && this.records) {
+            this.loaded = true;
+            return this.records;
+        }
         var records = this.records = new Records();
         records.url = `/api/collection-records/${encodeURIComponent(this.id)}/`;
         records.fetch().then(function() {
+            this.loaded = true;
             records.trigger('complete');
-        });
+        }.bind(this));
         return records;
     },
 });

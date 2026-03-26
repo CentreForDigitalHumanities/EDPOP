@@ -5,6 +5,7 @@ var currentModal = null;
 
 function purgeModal() {
     currentModal = null;
+    vreChannel.trigger('unhighlightRecord');
 }
 
 function displayRecord(model) {
@@ -14,21 +15,9 @@ function displayRecord(model) {
         .on('remove', purgeModal);
     }
     currentModal.display();
-}
-
-function shift(direction) {
-    return function() {
-        if (!currentModal) return;
-        var model = currentModal.model;
-        var collection = model.collection;
-        var oldIndex = collection.indexOf(model);
-        var newIndex = oldIndex + direction;
-        displayRecord(collection.at(newIndex));
-    }
+    vreChannel.trigger('highlightRecord', model);
 }
 
 vreChannel.on({
     displayRecord: displayRecord,
-    displayNextRecord: shift(+1),
-    displayPreviousRecord: shift(-1),
 });

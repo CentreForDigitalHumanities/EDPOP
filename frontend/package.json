@@ -1,6 +1,6 @@
 {
   "name": "edpop",
-  "version": "1.0.0",
+  "version": "0.3.0",
   "description": "Creating a virtual research environment (VRE) from CERL resources.",
   "main": "main.js",
   "scripts": {
