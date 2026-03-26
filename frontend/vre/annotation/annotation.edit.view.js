@@ -5,7 +5,7 @@ import confirmDeletionTemplate from './annotation.confirm.deletion.mustache';
 import {glossary} from "../utils/glossary";
 
 export var AnnotationEditView = View.extend({
-    tagName: 'tr',
+    tagName: 'div',
     className: 'form-inline',
     template: annotationEditTemplate,
     glossaryTemplate: annotationTagEditTemplate,
