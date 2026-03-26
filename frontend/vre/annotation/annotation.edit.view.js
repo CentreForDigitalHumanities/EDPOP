@@ -14,7 +14,7 @@ export var AnnotationEditView = View.extend({
         'reset': 'reset',
     },
     initialize: function(options) {
-        _.assign(this, _.pick(options, ['existing']));
+        _.assign(this, _.pick(options, ['existing', 'defaultText']));
         this.render().$el.popover({
             container: 'body',
             content: confirmDeletionTemplate(this),
@@ -53,8 +53,9 @@ export var AnnotationEditView = View.extend({
             if (tag) this.$('select').val(tag);
             this.$('select').trigger('change');
         } else {
+            var text = this.model.get('oa:hasBody') || this.defaultText;
             this.$el.html(this.template({
-                currentText: this.model.get('oa:hasBody'),
+                currentText: text,
                 cid: this.cid,
             }));
         }
