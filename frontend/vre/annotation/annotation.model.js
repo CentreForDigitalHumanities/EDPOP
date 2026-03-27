@@ -35,7 +35,7 @@ export var Annotation = JsonLdModel.extend({
     urlRoot: '/api/annotation/',
 
     getDisplayText: function() {
-        if (this.get('motivation') === 'oa:commenting') {
+        if (this.get('motivation') === 'oa:commenting' || this.get('motivation') === 'oa:editing') {
             return this.get('oa:hasBody');
         } else if (this.get('motivation') === 'oa:tagging') {
             var id = this.get('tagURL');
