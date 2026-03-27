@@ -12,6 +12,7 @@ export var AnnotationEditView = View.extend({
     events: {
         'submit': 'submit',
         'reset': 'reset',
+        'keydown textarea': 'handleTextareaKeydown',
     },
     initialize: function(options) {
         _.assign(this, _.pick(options, ['existing', 'defaultText']));
@@ -38,6 +39,13 @@ export var AnnotationEditView = View.extend({
         if (this.model.get('motivation') === 'oa:tagging') {
             glossary.on('update', this.render);
         }
+        setTimeout(() => {
+            var el = this.$('textarea').get(0);
+            if (el) {
+                el.focus();
+                el.select();
+            }
+        }, 0);
     },
     render: function() {
         if (this.model.get('motivation') === 'oa:tagging') {
@@ -92,4 +100,12 @@ export var AnnotationEditView = View.extend({
         this.$('button[aria-label="Delete"]').popover('hide');
         this.trigger('trash', this);
     },
+    handleTextareaKeydown: function(event) {
+        /* We want to use a textarea to give the user more space, but
+           most of the time they will write only one line. */
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            this.submit(event);
+        }
+    }
 });
