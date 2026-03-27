@@ -24,6 +24,7 @@ export var RecordDetailView = CompositeView.extend({
     className: 'modal',
     attributes: {
         'role': 'dialog',
+        'data-bs-focus': 'false',
     },
 
     subviews: [{
