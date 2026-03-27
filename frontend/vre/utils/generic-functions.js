@@ -15,23 +15,47 @@ export function canonicalSort(key) {
     return index;
 }
 
-var canonicalOrder = {
-    'Title': 1,
-    'Uniform Title': 4,
-    'Varying Form of Title': 5,
-    'Author': 8,
-    'Collaborator': 12,
-    'Production': 16,
-    'Publisher': 20,
-    'Added Entry - Corporate Name': 24,
-    'Extent': 28,
-    'Language': 32,
-    'Citation/Reference': 36,
-    'Location of Originals': 40,
-    'Note': 44,
-    'With Note': 48,
-    'Subject Headings': 52,
-};
+var canonicalOrderList = [
+    // Placeholder to ensure positive indices
+    '',
+    // Bibliographical fields
+    'edpoprec:title',
+    'edpoprec:alternativeTitle',
+    'edpoprec:contributor',
+    'edpoprec:dating',
+    'edpoprec:placeOfPublication',
+    'edpoprec:publisherOrPrinter',
+    'edpoprec:bookseller',
+    'edpoprec:extent',
+    'edpoprec:genre',
+    'edpoprec:language',
+    'edpoprec:fingerprint',
+    'edpoprec:bibliographicalFormat',
+    'edpoprec:location',
+    'edpoprec:holdings',
+    'edpoprec:size',
+    'edpoprec:collationFormula',
+    'edpoprec:physicalDescription',
+    'edpoprec:typographicalFeatures',
+    'edpoprec:digitization',
+    // Biographical fields
+    'edpoprec:name',
+    'edpoprec:variantName',
+    'edpoprec:timespan',
+    'edpoprec:gender',
+    'edpoprec:placeOfBirth',
+    'edpoprec:placeOfDeath',
+    'edpoprec:activity',
+    'edpoprec:placeOfActivity',
+    'edpoprec:activityTimespan',
+    // Common fields
+    'edpoprec:fromCatalog',
+    'edpoprec:identifier',
+    'edpoprec:publicUrl',
+    'edpoprec:originalData',
+];
+
+var canonicalOrder = _.chain(canonicalOrderList).invert().mapValues(Number).value();
 
 /**
  * Translate from compacted JSON-LD `@type` strings to payload objects suitable
