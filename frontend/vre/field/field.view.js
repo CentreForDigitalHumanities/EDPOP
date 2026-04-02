@@ -35,6 +35,7 @@ export var FieldView = AnnotatableView.extend({
         const templateData = {
             field: this.model.get('key'),
             hasEdit: !this.hasEdit(),
+            isEmpty: typeof this.model.get('value') === 'undefined',
         };
         // Check if model is of Field model before using these methods, because
         // there are some tests relating to old-style annotations that assign
@@ -56,11 +57,11 @@ export var FieldView = AnnotatableView.extend({
     addEdit: function(event) {
         event.preventDefault();
         var fieldId = this.model.get('key');
-        var fieldContents = this.model.get('value');
+        var fieldContents = this.model.get('value'); // If undefined, this field did not exist in the original record
         var attributes = {
             "oa:hasSource": this.collection.underlying.target,
             "edpopcol:field": fieldId,
-            "motivation": "oa:editing",
+            "motivation": (fieldContents ? "oa:editing" : "oa:describing"),
         };
         if (fieldContents) {
             attributes['edpopcol:originalText'] = fieldContents['edpoprec:originalText'];

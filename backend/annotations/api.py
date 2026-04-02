@@ -163,14 +163,14 @@ class AnnotationView(RDFView):
         if s3 != target:
             raise ValidationError('Source must be a property of the target')
         motivation = request_graph.value(s1, OA.motivatedBy, None, OA.commenting)
-        if motivation in (OA.commenting, OA.editing):
+        if motivation in (OA.commenting, OA.editing, OA.describing):
             if not isinstance(body, Literal):
                 raise ValidationError('Body must be a literal when commenting or editing')
         elif motivation == OA.tagging:
             if not isinstance(body, URIRef):
                 raise ValidationError('Tag must be a URI')
         else:
-            raise ValidationError('Only commenting, tagging and editing are supported at this time')
+            raise ValidationError('Only commenting, tagging, editing and describing are supported')
 
         # Step 2: normalize the data. We modify the request_graph in place
         # because this is convenient.
