@@ -65,7 +65,10 @@ export var Record = JsonLdModel.extend({
             if (!this.isNew()) {
                 this.annotations.fetch();
             }
-            this.annotations.on('sync', () => this.trigger('annotations:loaded', this));
+            /* Trigger annotations:loaded to rerender the table row with annotations
+               on sync (which happens after fetching, creating and editing an annotation
+               and remove (which happens after deleting an annotation) */
+            this.annotations.on('sync remove', () => this.trigger('annotations:loaded', this));
         }
         return this.annotations;
     },
