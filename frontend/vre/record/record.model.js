@@ -2,7 +2,6 @@ import { Annotations } from '../annotation/annotation.model';
 import { JsonLdModel, JsonLdNestedCollection} from "../utils/jsonld.model";
 import { FlatFields } from "../field/field.model";
 import {vreChannel} from "../radio";
-import { FilteredCollection } from "../utils/filtered.collection";
 
 /**
  * Get the URL to fetch the record on its own from the backend.
@@ -56,7 +55,7 @@ export var Record = JsonLdModel.extend({
             id: this.id,  // id is used for identification by Tabular by default
         };
         fields.forEach((field) => {
-            data[field.id] = field.getMainDisplay();
+            data[field.id] = field.getMainDisplay(this.annotations);
         });
         return data;
     },

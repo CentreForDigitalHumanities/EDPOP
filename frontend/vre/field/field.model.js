@@ -12,14 +12,34 @@ import {
 import {getStringLiteral} from "../utils/jsonld.model";
 
 /**
+ * Get correction for a field value based on
+ * @param value
+ * @param {Annotations} [annotations] - annotations for the record
+ * @returns {string|undefined}
+ */
+function getCorrectedTextForFieldValue(value, annotations) {
+    if (!annotations) return undefined;
+    var annotation = annotations.find(x => {
+        return x.get('edpopcol:originalText') === value['edpoprec:originalText']
+    });
+    if (annotation) {
+        return annotation.get('oa:hasBody');
+    }
+    return undefined;
+}
+
+/**
  * Get a default main display string of the `value` attribute of a
  * field flattened using {@link FlatterFields}. Currently, this is
  * the normalized "summary text" if available and otherwise the
  * original text from the source database.
  * @param {object} value
+ * @param {Annotations} [annotations] - annotations for the field
  * @return {string}
  */
-function getMainDisplayOfFieldValue(value) {
+function getMainDisplayOfFieldValue(value, annotations = null) {
+    var correctedText = getCorrectedTextForFieldValue(value, annotations);
+    if (correctedText) return correctedText;
     return value['edpoprec:summaryText'] || value['edpoprec:originalText'];
 }
 
@@ -28,16 +48,18 @@ export var Field = Backbone.Model.extend({
     idAttribute: 'key',
     /**
      * Get the default rendering of the field
+     *
+     * @param {Annotations} annotations - Optional annotations for the field
      * @return {string}
      */
-    getMainDisplay() {
+    getMainDisplay(annotations = null) {
         // Currently, only normalizedText is supported.
         const value = this.get('value');
         if (!value) return value;
         if (_.isArray(value)) {
-            return _.map(value, getMainDisplayOfFieldValue).join(' ; ');
+            return _.map(value, (value) => getMainDisplayOfFieldValue(value, annotations)).join(' ; ');
         }
-        return getMainDisplayOfFieldValue(value);
+        return getMainDisplayOfFieldValue(value, annotations);
     },
     getFieldInfo() {
         const property = properties.get(this.id);
