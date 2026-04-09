@@ -704,6 +704,21 @@
       }
     },
     {
+      "@id": "edpoprec:annotations",
+      "@type": "rdf:Property",
+      "rdfs:domain": {
+        "@id": "edpoprec:BibliographicalRecord"
+      },
+      "rdfs:range": {
+        "@id": "edpoprec:Field"
+      },
+      "skos:description": "Annotations that were made on the described item",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Annotations"
+      }
+    },
+    {
       "@id": "edpoprec:dating",
       "@type": "rdf:Property",
       "rdfs:domain": {
