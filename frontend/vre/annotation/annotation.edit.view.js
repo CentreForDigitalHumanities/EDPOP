@@ -70,13 +70,22 @@ export var AnnotationEditView = View.extend({
         return this;
     },
     remove: function() {
+        var parentElement = this.el.parentElement;
         this.$el.popover('dispose');
         this.trashConfirmer.off();
         this.trashCanceller.off();
         if (this.model.get('motivation') === 'oa:tagging') {
             this.$('select').select2('destroy');
         }
-        return View.prototype.remove.call(this);
+        var result = View.prototype.remove.call(this);
+        if (parentElement) {
+            // Give focus to parent element to make escape key work
+            if (!parentElement.hasAttribute('tabindex')) {
+                parentElement.setAttribute('tabindex', '-1');
+            }
+            parentElement.focus();
+        }
+        return result;
     },
     submit: function(event) {
         event.preventDefault();
