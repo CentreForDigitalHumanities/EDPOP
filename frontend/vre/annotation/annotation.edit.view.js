@@ -106,6 +106,10 @@ export var AnnotationEditView = View.extend({
         if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
             this.submit(event);
+        } else if (event.key === 'Escape') {
+            event.preventDefault();
+            event.stopPropagation();
+            this.reset(event);
         }
     }
 });
