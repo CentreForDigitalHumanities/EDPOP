@@ -1,6 +1,9 @@
 <td><u title="{{fieldInfo.description}}">{{fieldInfo.name}}</u></td>
-<td><div>
+<td>{{#hasEdit}}<div>
     {{#linkedRecordUri}}<a href="/record/{{linkedRecordUri}}" target="_blank" title="Go to linked record">{{displayText}}</a>{{/linkedRecordUri}}
     {{^linkedRecordUri}}{{displayText}}{{/linkedRecordUri}}
-</div><div class="annotations"></div></td>
-<td><a class="fa-regular fa-message comment" role="button"></a></td>
+</div>{{/hasEdit}}<div class="annotations"></div></td>
+<td>{{#hasEdit}}
+    {{#isEmpty}}<a class="fa-solid fa-plus comment text-decoration-none" role="button" title="Make addition"></a>{{/isEmpty}}
+    {{^isEmpty}}<a class="fa-solid fa-pen comment text-decoration-none" role="button" title="Add correction"></a>{{/isEmpty}}
+{{/hasEdit}}</td>

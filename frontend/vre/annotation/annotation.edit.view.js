@@ -5,16 +5,17 @@ import confirmDeletionTemplate from './annotation.confirm.deletion.mustache';
 import {glossary} from "../utils/glossary";
 
 export var AnnotationEditView = View.extend({
-    tagName: 'tr',
+    tagName: 'div',
     className: 'form-inline',
     template: annotationEditTemplate,
     glossaryTemplate: annotationTagEditTemplate,
     events: {
         'submit': 'submit',
         'reset': 'reset',
+        'keydown textarea': 'handleTextareaKeydown',
     },
     initialize: function(options) {
-        _.assign(this, _.pick(options, ['existing']));
+        _.assign(this, _.pick(options, ['existing', 'defaultText']));
         this.render().$el.popover({
             container: 'body',
             content: confirmDeletionTemplate(this),
@@ -38,6 +39,13 @@ export var AnnotationEditView = View.extend({
         if (this.model.get('motivation') === 'oa:tagging') {
             glossary.on('update', this.render);
         }
+        setTimeout(() => {
+            var el = this.$('textarea').get(0);
+            if (el) {
+                el.focus();
+                el.select();
+            }
+        }, 0);
     },
     render: function() {
         if (this.model.get('motivation') === 'oa:tagging') {
@@ -53,21 +61,31 @@ export var AnnotationEditView = View.extend({
             if (tag) this.$('select').val(tag);
             this.$('select').trigger('change');
         } else {
+            var text = this.model.get('oa:hasBody') || this.defaultText;
             this.$el.html(this.template({
-                currentText: this.model.get('oa:hasBody'),
+                currentText: text,
                 cid: this.cid,
             }));
         }
         return this;
     },
     remove: function() {
+        var parentElement = this.el.parentElement;
         this.$el.popover('dispose');
         this.trashConfirmer.off();
         this.trashCanceller.off();
         if (this.model.get('motivation') === 'oa:tagging') {
             this.$('select').select2('destroy');
         }
-        return View.prototype.remove.call(this);
+        var result = View.prototype.remove.call(this);
+        if (parentElement) {
+            // Give focus to parent element to make escape key work
+            if (!parentElement.hasAttribute('tabindex')) {
+                parentElement.setAttribute('tabindex', '-1');
+            }
+            parentElement.focus();
+        }
+        return result;
     },
     submit: function(event) {
         event.preventDefault();
@@ -91,4 +109,16 @@ export var AnnotationEditView = View.extend({
         this.$('button[aria-label="Delete"]').popover('hide');
         this.trigger('trash', this);
     },
+    handleTextareaKeydown: function(event) {
+        /* We want to use a textarea to give the user more space, but
+           most of the time they will write only one line. */
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            this.submit(event);
+        } else if (event.key === 'Escape') {
+            event.preventDefault();
+            event.stopPropagation();
+            this.reset(event);
+        }
+    }
 });
