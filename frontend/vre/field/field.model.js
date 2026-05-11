@@ -10,6 +10,8 @@ import {
     bioProperties,
 } from "../utils/record-ontology";
 import {getStringLiteral} from "../utils/jsonld.model";
+import { FilteredCollection } from '../utils/filtered.collection.js';
+import { MappedCollection } from '../utils/mapped.collection.js';
 
 function annotationMatchesField(field, value) {
     var originalText = value && value['edpoprec:originalText'];
@@ -158,3 +160,119 @@ export var FlatterFields = FlatFields.extend({
         }, []);
     },
 });
+
+function valueAttribute(model) {
+    return model.get('value')['edpoprec:originalText'];
+}
+
+function originalTextSelector(correction) {
+    return correction.get('edpopcol:originalText');
+}
+
+function wrapUncorrected(original) {
+    return {
+        id: original.get('value')['edpoprec:originalText'],
+        uncorrected: true,
+        order: 'a',
+        original,
+    };
+}
+
+function wrapCorrection(pair) {
+    const original = pair[0];
+    const correction = pair[1];
+    const originalText = originalTextSelector(correction);
+    const correctedText = correction.get('oa:hasBody');
+    return {
+        id: originalText + ' → ' + correctedText,
+        correction,
+        order: (original ? 'b' : 'c'),
+        original,
+        originalText,
+        correctedText,
+    };
+}
+
+function wrapAddition(addition) {
+    const addedValue = addition.get('oa:hasBody');
+    return {
+        id: '→ ' + addedValue,
+        addition,
+        order: 'd',
+        addedValue,
+    };
+}
+
+export var CombinedFieldValues = Backbone.Collection.extend({
+    comparator: function(model) {
+        return model.get('order') + model.id;
+    },
+
+    initialize: function(models, options) {
+        _.assign(this, _.pick(options.recordField, ['values', 'annotations', 'id']));
+        this.combineValues()
+            // Why change and not just update? Because of Backbone#4306.
+            .listenTo(this.values, 'update change', this.combineValues)
+            .listenTo(this.annotations, 'update change', this.combineValues);
+    },
+
+    combineValues: function() {
+        // TODO replace keyBy by indexBy when moving to Underscore
+        // (will be able to use Collection#indexBy and 'value' shorthand)
+        const originalIndex = _.keyBy(this.values.models, valueAttribute);
+        const getOriginal = _.propertyOf(originalIndex);
+        const annotationTiers = this.annotations.groupBy('edpopcol:originalText');
+        const getAnnotations = _.propertyOf(annotationTiers);
+        const referencedOriginals = _.chain(annotationTiers)
+              .omit('undefined').keys().value();
+        const uncorrectedOriginals = _.omit(originalIndex, referencedOriginals);
+        const corrections = _.chain(referencedOriginals)
+              .map(getAnnotations).flatten().value();
+        const additions = annotationTiers['undefined'];
+        const correctedOriginals = _.chain(corrections)
+              .map(originalTextSelector)
+              .map(getOriginal).value();
+        const correctionPairs = _.zip(correctedOriginals, corrections);
+        const allAttributes = [
+            {id: this.id, field: true, order: 'e'},
+        ].concat(
+            _.map(uncorrectedOriginals, wrapUncorrected),
+            _.map(correctionPairs, wrapCorrection),
+            _.map(additions, wrapAddition),
+        );
+        this.set(allAttributes);
+        return this;
+    },
+});
+
+export var RecordField = Backbone.Model.extend({
+    initialize: function(attributes, options) {
+        var field = this.get('field');
+        if (field) this.set('id', field.id);
+        this.values = new FilteredCollection(options.values, {
+            key: this.id,
+        });
+        this.annotations = new FilteredCollection(options.annotations, {
+            'edpopcol:field': this.id,
+        });
+        this.content = new CombinedFieldValues(null, {recordField: this});
+    },
+});
+
+function field2recordField(record, values, annotations) {
+    return function(field) {
+        return new RecordField({field, record}, {values, annotations});
+    };
+}
+
+export function presentableContents(record) {
+    const values = new FlatterFields(null, {record});
+    const annotations = record.getAnnotations();
+    const fields = selectProperties(record);
+    const contents = new MappedCollection(
+        fields,
+        field2recordField(record, values, annotations)
+    );
+    _.assign(contents, {record, values, annotations});
+    return contents;
+}
