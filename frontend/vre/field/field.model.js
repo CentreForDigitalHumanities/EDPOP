@@ -154,7 +154,7 @@ export var FlatterFields = FlatFields.extend({
         const properties = selectProperties(record);
         return properties.reduce((fields, prop) => {
             let value = record.get(prop.id);
-            if (!value) return fields.concat({key: prop.id, value: value});
+            if (!value) return fields;
             if (!_.isArray(value)) value = [value];
             return fields.concat(_.map(value, v => ({key: prop.id, value: v})));
         }, []);
