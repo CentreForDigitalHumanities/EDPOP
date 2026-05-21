@@ -34,7 +34,7 @@ export var FieldView = AnnotatableView.extend({
     renderContainer: function() {
         const templateData = {
             field: this.model.get('key'),
-            hasEdit: !this.hasEdit(),
+            hasNoEdit: !this.hasEdit(),
             isEmpty: !this.model.has('value'),
         };
         // Check if model is of Field model before using these methods, because
