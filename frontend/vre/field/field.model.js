@@ -41,7 +41,8 @@ function getCorrectedTextForFieldValue(value, field, annotations) {
  * Get a default main display string of the `value` attribute of a
  * field flattened using {@link FlatterFields}. Currently, this is
  * the normalized "summary text" if available and otherwise the
- * original text from the source database. If
+ * original text from the source database. If there is a correction
+ * for the field value, use that instead.
  * @param {Object} value - the specific value to get the display of
  * @param {Field} field - the whole field object
  * @param {Annotations} [annotations] - annotations for the field
