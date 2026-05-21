@@ -35,7 +35,6 @@ function getCorrectedTextForFieldValue(value, field, annotations) {
     if (annotation) {
         return annotation.get('oa:hasBody');
     }
-    return undefined;
 }
 
 /**
