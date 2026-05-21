@@ -68,11 +68,7 @@ export var Field = Backbone.Model.extend({
         const value = this.get('value');
         if (!value) {
             // Field is missing in the source data: return annotation if present
-            var correctedText = getCorrectedTextForFieldValue(null, this, annotations);
-            if (correctedText)
-                return correctedText;
-            else
-                return '';
+            return getCorrectedTextForFieldValue(null, this, annotations) || '';
         } else if (_.isArray(value)) {
             // Field is repeated: concatenate all values
             return _.map(value, (value) => getMainDisplayOfFieldValue(value, this, annotations)).join(' ; ');
