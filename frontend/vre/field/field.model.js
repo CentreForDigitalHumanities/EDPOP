@@ -11,6 +11,15 @@ import {
 } from "../utils/record-ontology";
 import {getStringLiteral} from "../utils/jsonld.model";
 
+function annotationMatchesField(field, value) {
+    var originalText = value && value['edpoprec:originalText'];
+    return function(anno) {
+        if (anno.get('edpopcol:field') !== field.id) return false;
+        var annoText = anno.get('edpopcol:originalText');
+        return originalText == null ? !annoText : annoText === originalText;
+    };
+}
+
 /**
  * Get correction for a field value based on
  * @param {Object} value - the specific value to get the display of
@@ -20,18 +29,7 @@ import {getStringLiteral} from "../utils/jsonld.model";
  */
 function getCorrectedTextForFieldValue(value, field, annotations) {
     if (!annotations) return undefined;
-    var annotation;
-    if (!value) {
-        // Field missing in the source data: edpopcol:originalText should not be present
-        annotation = annotations.find(x => {
-            return x.get('edpopcol:field') === field.id && !x.get('edpopcol:originalText');
-        });
-    } else {
-        // Field present in the source data: check if edpopcol:originalText matches
-        annotation = annotations.find(x => {
-            return x.get('edpopcol:field') === field.id && x.get('edpopcol:originalText') === value['edpoprec:originalText']
-        });
-    }
+    var annotation = annotations.find(annotationMatchesField(field, value));
     if (annotation) {
         return annotation.get('oa:hasBody');
     }
