@@ -106,7 +106,7 @@ describe('Annotation model', () => {
             }
         }, deepAnnotation);
         const parsed = model.parse(modifiedDeep);
-        assert parsed.marksDeletion === true;
+        assert(parsed.marksDeletion === true);
     });
 
     it('serializes field value deletions', () => {
