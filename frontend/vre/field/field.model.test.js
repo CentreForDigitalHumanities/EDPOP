@@ -6,7 +6,7 @@ import Backbone from 'backbone';
 
 import { Record } from '../record/record.model.js';
 import { Annotations } from '../annotation/annotation.model.js';
-import { presentableContents } from './field.model.js';
+import { presentableContents, fieldEntryTag } from './field.model.js';
 
 var bnode = _.partial(_.uniqueId, 'bnode:N');
 
@@ -141,15 +141,15 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: 'The one and only title.',
         uncorrected: true,
-        order: 'a'
+        order: fieldEntryTag.originalValue
     }), sinon.match({
         id: 'The other only title.',
         uncorrected: true,
-        order: 'a'
+        order: fieldEntryTag.originalValue
     }), sinon.match({
         id: 'edpoprec:title',
         field: true,
-        order: 'e'
+        order: fieldEntryTag.wholeField
     })],
 }), sinon.match({
     id: 'edpoprec:alternativeTitle',
@@ -157,7 +157,7 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: 'edpoprec:alternativeTitle',
         field: true,
-        order: 'e'
+        order: fieldEntryTag.wholeField
     })],
 }), sinon.match({
     id: 'edpoprec:genre',
@@ -165,14 +165,14 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: 'science fiction → fantasy and horror',
         correction: sinon.match.truthy,
-        order: 'b',
+        order: fieldEntryTag.correction,
         original: sinon.match.truthy,
         originalText: 'science fiction',
         correctedText: 'fantasy and horror'
     }), sinon.match({
         id: 'edpoprec:genre',
         field: true,
-        order: 'e'
+        order: fieldEntryTag.wholeField
     })],
 }), sinon.match({
     id: 'edpoprec:language',
@@ -180,7 +180,7 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: 'edpoprec:language',
         field: true,
-        order: 'e'
+        order: fieldEntryTag.wholeField
     })],
 }), sinon.match({
     id: 'edpoprec:contributor',
@@ -188,48 +188,48 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: contributor.value2.original2,
         uncorrected: true,
-        order: 'a'
+        order: fieldEntryTag.originalValue
     }), sinon.match({
         id: contributor.value3.original,
         uncorrected: true,
-        order: 'a'
+        order: fieldEntryTag.originalValue
     }), sinon.match({
         id: contributor.value4.id,
         correction: sinon.match.truthy,
-        order: 'b',
+        order: fieldEntryTag.correction,
         original: sinon.match.truthy,
         originalText: contributor.value4.original,
         correctedText: contributor.value4.correction
     }), sinon.match({
         id: contributor.value1.id2,
         correction: sinon.match.truthy,
-        order: 'b',
+        order: fieldEntryTag.correction,
         original: sinon.match.truthy,
         originalText: contributor.value1.original,
         correctedText: contributor.value1.correction2
     }), sinon.match({
         id: contributor.value1.id1,
         correction: sinon.match.truthy,
-        order: 'b',
+        order: fieldEntryTag.correction,
         original: sinon.match.truthy,
         originalText: contributor.value1.original,
         correctedText: contributor.value1.correction1
     }), sinon.match({
         id: contributor.value2.id1,
         correction: sinon.match.truthy,
-        order: 'c',
+        order: fieldEntryTag.danglingCorrection,
         original: undefined,
         originalText: contributor.value2.original1,
         correctedText: contributor.value2.correction
     }), sinon.match({
         id: contributor.value5.id,
         addition: sinon.match.truthy,
-        order: 'd',
+        order: fieldEntryTag.addition,
         addedValue: contributor.value5.addition
     }), sinon.match({
         id: 'edpoprec:contributor',
         field: true,
-        order: 'e'
+        order: fieldEntryTag.wholeField
     })],
 }), sinon.match({
     id: 'edpoprec:dating',
@@ -237,7 +237,7 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: 'edpoprec:dating',
         field: true,
-        order: 'e'
+        order: fieldEntryTag.wholeField
     })],
 }), sinon.match({
     id: 'edpoprec:publisherOrPrinter',
@@ -245,7 +245,7 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: 'edpoprec:publisherOrPrinter',
         field: true,
-        order: 'e'
+        order: fieldEntryTag.wholeField
     })],
 }), sinon.match({
     id: 'edpoprec:placeOfPublication',
@@ -253,14 +253,14 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: 'Shanghai → Bogotá',
         correction: sinon.match.truthy,
-        order: 'c',
+        order: fieldEntryTag.danglingCorrection,
         original: undefined,
         originalText: 'Shanghai',
         correctedText: 'Bogotá'
     }), sinon.match({
         id: 'edpoprec:placeOfPublication',
         field: true,
-        order: 'e'
+        order: fieldEntryTag.wholeField
     })],
 }), sinon.match({
     id: 'edpoprec:bookseller',
@@ -268,12 +268,12 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: '→ Kostunrix',
         addition: sinon.match.truthy,
-        order: 'd',
+        order: fieldEntryTag.addition,
         addedValue: 'Kostunrix'
     }), sinon.match({
         id: 'edpoprec:bookseller',
         field: true,
-        order: 'e'
+        order: fieldEntryTag.wholeField
     })],
 }), sinon.match({
     id: 'edpoprec:location',
@@ -281,7 +281,7 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: 'edpoprec:location',
         field: true,
-        order: 'e'
+        order: fieldEntryTag.wholeField
     })],
 }), sinon.match({
     id: 'edpoprec:bibliographicalFormat',
@@ -289,7 +289,7 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: 'edpoprec:bibliographicalFormat',
         field: true,
-        order: 'e'
+        order: fieldEntryTag.wholeField
     })],
 }), sinon.match({
     id: 'edpoprec:collationFormula',
@@ -297,7 +297,7 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: 'edpoprec:collationFormula',
         field: true,
-        order: 'e'
+        order: fieldEntryTag.wholeField
     })],
 }), sinon.match({
     id: 'edpoprec:fingerprint',
@@ -305,7 +305,7 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: 'edpoprec:fingerprint',
         field: true,
-        order: 'e'
+        order: fieldEntryTag.wholeField
     })],
 }), sinon.match({
     id: 'edpoprec:extent',
@@ -313,7 +313,7 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: 'edpoprec:extent',
         field: true,
-        order: 'e'
+        order: fieldEntryTag.wholeField
     })],
 }), sinon.match({
     id: 'edpoprec:size',
@@ -321,7 +321,7 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: 'edpoprec:size',
         field: true,
-        order: 'e'
+        order: fieldEntryTag.wholeField
     })],
 }), sinon.match({
     id: 'edpoprec:physicalDescription',
@@ -329,7 +329,7 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: 'edpoprec:physicalDescription',
         field: true,
-        order: 'e'
+        order: fieldEntryTag.wholeField
     })],
 }), sinon.match({
     id: 'edpoprec:typographicalFeatures',
@@ -337,7 +337,7 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: 'edpoprec:typographicalFeatures',
         field: true,
-        order: 'e'
+        order: fieldEntryTag.wholeField
     })],
 }), sinon.match({
     id: 'edpoprec:annotations',
@@ -345,7 +345,7 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: 'edpoprec:annotations',
         field: true,
-        order: 'e'
+        order: fieldEntryTag.wholeField
     })],
 }), sinon.match({
     id: 'edpoprec:holdings',
@@ -353,7 +353,7 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: 'edpoprec:holdings',
         field: true,
-        order: 'e'
+        order: fieldEntryTag.wholeField
     })],
 }), sinon.match({
     id: 'edpoprec:digitization',
@@ -361,7 +361,7 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: 'edpoprec:digitization',
         field: true,
-        order: 'e'
+        order: fieldEntryTag.wholeField
     })],
 })];
 

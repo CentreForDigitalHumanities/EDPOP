@@ -169,11 +169,26 @@ function originalTextSelector(correction) {
     return correction.get('edpopcol:originalText');
 }
 
+const fieldEntryTypeOrder = [
+    'originalValue',
+    'correction',
+    'danglingCorrection',
+    'addition',
+    'wholeField',
+];
+
+const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+
+export const fieldEntryTag = _.chain(fieldEntryTypeOrder)
+    .invert()
+    .mapValues(_.propertyOf(alphabet))
+    .value();
+
 function wrapUncorrected(original) {
     return {
         id: original.get('value')['edpoprec:originalText'],
         uncorrected: true,
-        order: 'a',
+        order: fieldEntryTag.originalValue,
         original,
     };
 }
@@ -186,7 +201,10 @@ function wrapCorrection(pair) {
     return {
         id: originalText + ' → ' + correctedText,
         correction,
-        order: (original ? 'b' : 'c'),
+        order: (
+            original ? fieldEntryTag.correction
+                     : fieldEntryTag.danglingCorrection
+        ),
         original,
         originalText,
         correctedText,
@@ -198,7 +216,7 @@ function wrapAddition(addition) {
     return {
         id: '→ ' + addedValue,
         addition,
-        order: 'd',
+        order: fieldEntryTag.addition,
         addedValue,
     };
 }
@@ -234,7 +252,7 @@ export var CombinedFieldValues = Backbone.Collection.extend({
               .map(getOriginal).value();
         const correctionPairs = _.zip(correctedOriginals, corrections);
         const allAttributes = [
-            {id: this.id, field: true, order: 'e'},
+            {id: this.id, field: true, order: fieldEntryTag.wholeField},
         ].concat(
             _.map(uncorrectedOriginals, wrapUncorrected),
             _.map(correctionPairs, wrapCorrection),
