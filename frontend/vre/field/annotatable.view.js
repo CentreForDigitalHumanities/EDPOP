@@ -17,7 +17,7 @@ export var AnnotatableView = AggregateView.extend({
         this.listenTo(this.collection, 'edit', this.edit);
     },
 
-    edit: function(model) {
+    edit: function(model, defaultText) {
         var project = vreChannel.request('projects:current').id,
             editTarget = model.clone().set('context', project),
             preExisting = this.collection.get(editTarget),
@@ -32,7 +32,10 @@ export var AnnotatableView = AggregateView.extend({
             this.items.splice(index, 1, newRow);
             oldRow.remove();
         } else {
-            newRow = new AnnotationEditView({model: editTarget});
+            newRow = new AnnotationEditView({
+                model: editTarget,
+                defaultText: defaultText,
+            });
             this.items.push(newRow);
         }
         this.placeItems();

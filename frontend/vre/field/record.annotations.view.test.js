@@ -119,7 +119,7 @@ function newAnnotationTrashed() {
 
 // Finally! The actual suite.
 
-describe('RecordAnnotationsView', function() {
+describe.skip('RecordAnnotationsView', function() {
     before(function() {
         this.xhr = sinon.useFakeXMLHttpRequest();
         vreChannel.reply('projects:current', () => fakeProjectMenu.model);

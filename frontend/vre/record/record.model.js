@@ -2,7 +2,6 @@ import { Annotations } from '../annotation/annotation.model';
 import { JsonLdModel, JsonLdNestedCollection} from "../utils/jsonld.model";
 import { FlatFields } from "../field/field.model";
 import {vreChannel} from "../radio";
-import { FilteredCollection } from "../utils/filtered.collection";
 
 /**
  * Get the URL to fetch the record on its own from the backend.
@@ -56,7 +55,7 @@ export var Record = JsonLdModel.extend({
             id: this.id,  // id is used for identification by Tabular by default
         };
         fields.forEach((field) => {
-            data[field.id] = field.getMainDisplay();
+            data[field.id] = field.getMainDisplay(this.annotations);
         });
         return data;
     },
@@ -66,7 +65,10 @@ export var Record = JsonLdModel.extend({
             if (!this.isNew()) {
                 this.annotations.fetch();
             }
-            this.annotations.on('sync', () => this.trigger('annotations:loaded', this));
+            /* Trigger annotations:loaded to rerender the table row with annotations
+               on sync (which happens after fetching, creating and editing an annotation
+               and remove (which happens after deleting an annotation) */
+            this.annotations.on('sync remove', () => this.trigger('annotations:loaded', this));
         }
         return this.annotations;
     },

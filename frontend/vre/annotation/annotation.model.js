@@ -35,7 +35,7 @@ export var Annotation = JsonLdModel.extend({
     urlRoot: '/api/annotation/',
 
     getDisplayText: function() {
-        if (this.get('motivation') === 'oa:commenting') {
+        if (['oa:commenting', 'oa:editing', 'oa:describing'].includes(this.get('motivation'))) {
             return this.get('oa:hasBody');
         } else if (this.get('motivation') === 'oa:tagging') {
             var id = this.get('tagURL');
@@ -62,6 +62,7 @@ export var Annotation = JsonLdModel.extend({
         'context',
         'motivation',
         'tagURL',
+        'marksDeletion',
         'oa:hasSource',
         'edpopcol:field',
         'edpopcol:originalText',
@@ -78,6 +79,9 @@ export var Annotation = JsonLdModel.extend({
         if (context) flat.context = context['@id'];
         if (motivation) flat.motivation = motivation['@id'];
         if (body && body['@id']) flat.tagURL = body['@id'];
+        if (flat.tagURL === 'edpopcol:incorrectFieldValue') {
+            flat.marksDeletion = true;
+        }
         if (target) {
             var source = target['oa:hasSource'],
                 selector = target['oa:hasSelector'];
@@ -98,6 +102,7 @@ export var Annotation = JsonLdModel.extend({
             flatContext = jsonld.context,
             flatMotivation = jsonld.motivation,
             flatTagURL = jsonld.tagURL,
+            marksDeletion = jsonld.marksDeletion,
             target = jsonld['oa:hasTarget'] || {},
             selector = target['oa:hasSelector'] || {},
             flatSource = jsonld['oa:hasSource'],
@@ -109,6 +114,7 @@ export var Annotation = JsonLdModel.extend({
         if (flatSource) target['oa:hasSource'] = {'@id': flatSource};
         if (flatSelector) target['oa:hasSelector'] = selector;
         if (flatSource || flatSelector) jsonld['oa:hasTarget'] = target;
+        if (marksDeletion) flatTagURL = 'edpopcol:incorrectFieldValue';
         if (flatTagURL) jsonld['oa:hasBody'] = {'@id': flatTagURL};
         if (flatMotivation) jsonld['oa:motivatedBy'] = {'@id': flatMotivation};
         if (flatContext) jsonld['as:context'] = {'@id': flatContext};
