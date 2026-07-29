@@ -160,6 +160,29 @@ var expectedCompoundData = [sinon.match({
         order: 'e'
     })],
 }), sinon.match({
+    id: 'edpoprec:genre',
+    field: sinon.match.truthy,
+    content: [sinon.match({
+        id: 'science fiction → fantasy and horror',
+        correction: sinon.match.truthy,
+        order: 'b',
+        original: sinon.match.truthy,
+        originalText: 'science fiction',
+        correctedText: 'fantasy and horror'
+    }), sinon.match({
+        id: 'edpoprec:genre',
+        field: true,
+        order: 'e'
+    })],
+}), sinon.match({
+    id: 'edpoprec:language',
+    field: sinon.match.truthy,
+    content: [sinon.match({
+        id: 'edpoprec:language',
+        field: true,
+        order: 'e'
+    })],
+}), sinon.match({
     id: 'edpoprec:contributor',
     field: sinon.match.truthy,
     content: [sinon.match({
@@ -217,6 +240,14 @@ var expectedCompoundData = [sinon.match({
         order: 'e'
     })],
 }), sinon.match({
+    id: 'edpoprec:publisherOrPrinter',
+    field: sinon.match.truthy,
+    content: [sinon.match({
+        id: 'edpoprec:publisherOrPrinter',
+        field: true,
+        order: 'e'
+    })],
+}), sinon.match({
     id: 'edpoprec:placeOfPublication',
     field: sinon.match.truthy,
     content: [sinon.match({
@@ -228,14 +259,6 @@ var expectedCompoundData = [sinon.match({
         correctedText: 'Bogotá'
     }), sinon.match({
         id: 'edpoprec:placeOfPublication',
-        field: true,
-        order: 'e'
-    })],
-}), sinon.match({
-    id: 'edpoprec:publisherOrPrinter',
-    field: sinon.match.truthy,
-    content: [sinon.match({
-        id: 'edpoprec:publisherOrPrinter',
         field: true,
         order: 'e'
     })],
@@ -253,41 +276,10 @@ var expectedCompoundData = [sinon.match({
         order: 'e'
     })],
 }), sinon.match({
-    id: 'edpoprec:extent',
+    id: 'edpoprec:location',
     field: sinon.match.truthy,
     content: [sinon.match({
-        id: 'edpoprec:extent',
-        field: true,
-        order: 'e'
-    })],
-}), sinon.match({
-    id: 'edpoprec:genre',
-    field: sinon.match.truthy,
-    content: [sinon.match({
-        id: 'science fiction → fantasy and horror',
-        correction: sinon.match.truthy,
-        order: 'b',
-        original: sinon.match.truthy,
-        originalText: 'science fiction',
-        correctedText: 'fantasy and horror'
-    }), sinon.match({
-        id: 'edpoprec:genre',
-        field: true,
-        order: 'e'
-    })],
-}), sinon.match({
-    id: 'edpoprec:language',
-    field: sinon.match.truthy,
-    content: [sinon.match({
-        id: 'edpoprec:language',
-        field: true,
-        order: 'e'
-    })],
-}), sinon.match({
-    id: 'edpoprec:fingerprint',
-    field: sinon.match.truthy,
-    content: [sinon.match({
-        id: 'edpoprec:fingerprint',
+        id: 'edpoprec:location',
         field: true,
         order: 'e'
     })],
@@ -300,18 +292,26 @@ var expectedCompoundData = [sinon.match({
         order: 'e'
     })],
 }), sinon.match({
-    id: 'edpoprec:location',
+    id: 'edpoprec:collationFormula',
     field: sinon.match.truthy,
     content: [sinon.match({
-        id: 'edpoprec:location',
+        id: 'edpoprec:collationFormula',
         field: true,
         order: 'e'
     })],
 }), sinon.match({
-    id: 'edpoprec:holdings',
+    id: 'edpoprec:fingerprint',
     field: sinon.match.truthy,
     content: [sinon.match({
-        id: 'edpoprec:holdings',
+        id: 'edpoprec:fingerprint',
+        field: true,
+        order: 'e'
+    })],
+}), sinon.match({
+    id: 'edpoprec:extent',
+    field: sinon.match.truthy,
+    content: [sinon.match({
+        id: 'edpoprec:extent',
         field: true,
         order: 'e'
     })],
@@ -320,14 +320,6 @@ var expectedCompoundData = [sinon.match({
     field: sinon.match.truthy,
     content: [sinon.match({
         id: 'edpoprec:size',
-        field: true,
-        order: 'e'
-    })],
-}), sinon.match({
-    id: 'edpoprec:collationFormula',
-    field: sinon.match.truthy,
-    content: [sinon.match({
-        id: 'edpoprec:collationFormula',
         field: true,
         order: 'e'
     })],
@@ -344,6 +336,22 @@ var expectedCompoundData = [sinon.match({
     field: sinon.match.truthy,
     content: [sinon.match({
         id: 'edpoprec:typographicalFeatures',
+        field: true,
+        order: 'e'
+    })],
+}), sinon.match({
+    id: 'edpoprec:annotations',
+    field: sinon.match.truthy,
+    content: [sinon.match({
+        id: 'edpoprec:annotations',
+        field: true,
+        order: 'e'
+    })],
+}), sinon.match({
+    id: 'edpoprec:holdings',
+    field: sinon.match.truthy,
+    content: [sinon.match({
+        id: 'edpoprec:holdings',
         field: true,
         order: 'e'
     })],
