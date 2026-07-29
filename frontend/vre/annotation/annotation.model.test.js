@@ -1,6 +1,7 @@
 import assert from 'assert';
 import sinon from 'sinon';
 
+import _ from 'lodash';
 import { Annotation, Annotations } from './annotation.model';
 import { vreChannel } from '../radio.js';
 
@@ -96,6 +97,26 @@ describe('Annotation model', () => {
         // finally, toJSON tells us what will be sent to the server
         const serialized = model.toJSON();
         assert.deepStrictEqual(serialized, serverMod);
+    });
+
+    it('recognizes field value deletions', () => {
+        const modifiedDeep = _.defaults({
+            'oa:hasBody': {
+                '@id': 'edpopcol:incorrectFieldValue'
+            }
+        }, deepAnnotation);
+        const parsed = model.parse(modifiedDeep);
+        assert parsed.marksDeletion === true;
+    });
+
+    it('serializes field value deletions', () => {
+        model.set(model.parse(deepAnnotation));
+        model.set('marksDeletion', true);
+        const serialized = model.toJSON();
+        assert(!('marksDeletion' in serialized));
+        assert.deepStrictEqual(serialized['oa:hasBody'], {
+            '@id': 'edpopcol:incorrectFieldValue'
+        });
     });
 });
 
