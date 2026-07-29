@@ -25,6 +25,7 @@ function stripAttribute(container) {
  *
  * motivation            ([oa:motivatedBy][@id])
  * tagURL                ([oa:hasBody][@id] if motivation === oa:tagging)
+ * marksDeletion         (true if [oa:hasBody][@id] === edpopcol:incorrectFieldValue)
  * oa:hasSource          ([oa:hasTarget][oa:hasSource][@id])
  * edpopcol:field        ([oa:hasTarget][oa:hasSelector][edpopcol:field][@id])
  * edpopcol:originalText ([oa:hasTarget][oa:hasSelector][edpopcol:originalText])
@@ -62,6 +63,7 @@ export var Annotation = JsonLdModel.extend({
         'context',
         'motivation',
         'tagURL',
+        'marksDeletion',
         'oa:hasSource',
         'edpopcol:field',
         'edpopcol:originalText',
@@ -78,6 +80,9 @@ export var Annotation = JsonLdModel.extend({
         if (context) flat.context = context['@id'];
         if (motivation) flat.motivation = motivation['@id'];
         if (body && body['@id']) flat.tagURL = body['@id'];
+        if (flat.tagURL === 'edpopcol:incorrectFieldValue') {
+            flat.marksDeletion = true;
+        }
         if (target) {
             var source = target['oa:hasSource'],
                 selector = target['oa:hasSelector'];
@@ -98,6 +103,7 @@ export var Annotation = JsonLdModel.extend({
             flatContext = jsonld.context,
             flatMotivation = jsonld.motivation,
             flatTagURL = jsonld.tagURL,
+            marksDeletion = jsonld.marksDeletion,
             target = jsonld['oa:hasTarget'] || {},
             selector = target['oa:hasSelector'] || {},
             flatSource = jsonld['oa:hasSource'],
@@ -109,6 +115,7 @@ export var Annotation = JsonLdModel.extend({
         if (flatSource) target['oa:hasSource'] = {'@id': flatSource};
         if (flatSelector) target['oa:hasSelector'] = selector;
         if (flatSource || flatSelector) jsonld['oa:hasTarget'] = target;
+        if (marksDeletion) flatTagURL = 'edpopcol:incorrectFieldValue';
         if (flatTagURL) jsonld['oa:hasBody'] = {'@id': flatTagURL};
         if (flatMotivation) jsonld['oa:motivatedBy'] = {'@id': flatMotivation};
         if (flatContext) jsonld['as:context'] = {'@id': flatContext};
