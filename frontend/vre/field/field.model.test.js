@@ -862,6 +862,31 @@ describe('presentableContents', function() {
                     assert(entry2.get('addition') === add);
                     assert(entry2.get('addedValue') === newName);
                 });
+
+                it('when an original value is marked as deleted', () => {
+                    var incorrect = contributor.value3.original;
+                    var entry1 = content.get(incorrect);
+                    assert(entry1);
+                    var del = model.annotations.underlying.add({
+                        '@id': bnode(),
+                        '@type': 'oa:Annotation',
+                        'edpopcol:field': fieldName,
+                        'edpopcol:originalText': incorrect,
+                        'marksDeletion': true,
+                    });
+                    assert(del instanceof Backbone.Model);
+                    assert(removeSpy.calledOnceWith(entry1));
+                    assert(changeSpy.notCalled);
+                    assert(addSpy.calledOnce);
+                    var entry2 = addSpy.lastCall.firstArg;
+                    assert(entry2 instanceof Backbone.Model);
+                    assert(content.get(entry2));
+                    assert(entry2 !== entry1);
+                    assert(entry2.get('original') === entry1.get('original'));
+                    assert(entry2.get('originalText') === incorrect);
+                    assert(entry2.get('deletion') === del);
+                    assert(content.length === 8);
+                });
             });
         });
     });

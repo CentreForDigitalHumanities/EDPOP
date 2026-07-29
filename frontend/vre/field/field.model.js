@@ -171,6 +171,8 @@ function originalTextSelector(correction) {
 
 const fieldEntryTypeOrder = [
     'originalValue',
+    'deletion',
+    'danglingDeletion',
     'correction',
     'danglingCorrection',
     'addition',
@@ -197,6 +199,16 @@ function wrapCorrection(pair) {
     const original = pair[0];
     const correction = pair[1];
     const originalText = originalTextSelector(correction);
+    if (correction.get('marksDeletion')) return {
+        id: originalText + ' →',
+        deletion: correction,
+        order: (
+            original ? fieldEntryTag.deletion
+                     : fieldEntryTag.danglingDeletion
+        ),
+        original,
+        originalText,
+    };
     const correctedText = correction.get('oa:hasBody');
     return {
         id: originalText + ' → ' + correctedText,
