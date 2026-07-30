@@ -6,7 +6,7 @@ import {glossary} from "../utils/glossary";
 
 export var AnnotationEditView = View.extend({
     tagName: 'div',
-    className: 'form-inline',
+    className: 'form-inline annotation-editor',
     template: annotationEditTemplate,
     glossaryTemplate: annotationTagEditTemplate,
     events: {
