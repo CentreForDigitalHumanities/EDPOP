@@ -225,7 +225,7 @@ var expectedCompoundData = [sinon.match({
         id: contributor.value5.id,
         addition: sinon.match.truthy,
         order: fieldEntryTag.addition,
-        addedValue: contributor.value5.addition
+        correctedText: contributor.value5.addition
     }), sinon.match({
         id: 'edpoprec:contributor',
         field: true,
@@ -269,7 +269,7 @@ var expectedCompoundData = [sinon.match({
         id: '→ Kostunrix',
         addition: sinon.match.truthy,
         order: fieldEntryTag.addition,
-        addedValue: 'Kostunrix'
+        correctedText: 'Kostunrix'
     }), sinon.match({
         id: 'edpoprec:bookseller',
         field: true,
@@ -583,7 +583,7 @@ describe('presentableContents', function() {
                     var entry = content.get(`→ ${value}`);
                     assert(entry instanceof Backbone.Model);
                     assert(entry.get('addition') === anno);
-                    assert(entry.get('addedValue') === value);
+                    assert(entry.get('correctedText') === value);
                     assert(addSpy.calledOnceWith(entry));
                     assert(changeSpy.notCalled);
                     assert(removeSpy.notCalled);
@@ -860,7 +860,7 @@ describe('presentableContents', function() {
                     assert(removeSpy.calledOnceWith(entry1));
                     assert(content.length === 8);
                     assert(entry2.get('addition') === add);
-                    assert(entry2.get('addedValue') === newName);
+                    assert(entry2.get('correctedText') === newName);
                 });
 
                 it('when an original value is marked as deleted', () => {

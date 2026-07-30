@@ -187,11 +187,13 @@ export const fieldEntryTag = _.chain(fieldEntryTypeOrder)
     .value();
 
 function wrapUncorrected(original) {
+    var originalText = original.get('value')['edpoprec:originalText'];
     return {
-        id: original.get('value')['edpoprec:originalText'],
+        id: originalText,
         uncorrected: true,
         order: fieldEntryTag.originalValue,
         original,
+        originalText,
     };
 }
 
@@ -229,7 +231,7 @@ function wrapAddition(addition) {
         id: '→ ' + addedValue,
         addition,
         order: fieldEntryTag.addition,
-        addedValue,
+        correctedText: addedValue,
     };
 }
 
