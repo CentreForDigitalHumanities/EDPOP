@@ -26,7 +26,8 @@ export var CommentView = View.extend({
         var updatedDate = this.model.getUpdatedDate();
         var author = this.model.getAuthor();
         Object.assign(templateData, {
-            isFieldAnnotation: this.fieldAnnotation,
+            isFieldComment: this.fieldAnnotation && this.model.get('motivation') === 'oa:commenting',
+            originalText: this.model.get('motivation') === 'oa:editing' && this.model.get('edpopcol:originalText'),
             isTag: this.model.get('motivation') === 'oa:tagging',
             displayText: this.model.getDisplayText(),
             author: (author ? author.getUsername() : null),

@@ -11,15 +11,44 @@ import {
 } from "../utils/record-ontology";
 import {getStringLiteral} from "../utils/jsonld.model";
 
+function annotationMatchesField(field, value) {
+    var originalText = value && value['edpoprec:originalText'];
+    return function(anno) {
+        if (anno.get('edpopcol:field') !== field.id) return false;
+        var annoText = anno.get('edpopcol:originalText');
+        return originalText == null ? !annoText : annoText === originalText;
+    };
+}
+
+/**
+ * Get correction for a field value based on
+ * @param {Object} value - the specific value to get the display of
+ * @param {Field} field - the whole field object
+ * @param {Annotations} [annotations] - annotations for the record
+ * @returns {string|undefined}
+ */
+function getCorrectedTextForFieldValue(value, field, annotations) {
+    if (!annotations) return undefined;
+    var annotation = annotations.find(annotationMatchesField(field, value));
+    if (annotation) {
+        return annotation.get('oa:hasBody');
+    }
+}
+
 /**
  * Get a default main display string of the `value` attribute of a
  * field flattened using {@link FlatterFields}. Currently, this is
  * the normalized "summary text" if available and otherwise the
- * original text from the source database.
- * @param {object} value
+ * original text from the source database. If there is a correction
+ * for the field value, use that instead.
+ * @param {Object} value - the specific value to get the display of
+ * @param {Field} field - the whole field object
+ * @param {Annotations} [annotations] - annotations for the field
  * @return {string}
  */
-function getMainDisplayOfFieldValue(value) {
+function getMainDisplayOfFieldValue(value, field, annotations = null) {
+    var correctedText = getCorrectedTextForFieldValue(value, field, annotations);
+    if (correctedText) return correctedText;
     return value['edpoprec:summaryText'] || value['edpoprec:originalText'];
 }
 
@@ -28,16 +57,22 @@ export var Field = Backbone.Model.extend({
     idAttribute: 'key',
     /**
      * Get the default rendering of the field
+     *
+     * @param {Annotations} annotations - Optional annotations for the field
      * @return {string}
      */
-    getMainDisplay() {
+    getMainDisplay(annotations = null) {
         // Currently, only normalizedText is supported.
         const value = this.get('value');
-        if (!value) return value;
-        if (_.isArray(value)) {
-            return _.map(value, getMainDisplayOfFieldValue).join(' ; ');
+        if (!value) {
+            // Field is missing in the source data: return annotation if present
+            return getCorrectedTextForFieldValue(null, this, annotations) || '';
+        } else if (_.isArray(value)) {
+            // Field is repeated: concatenate all values
+            return _.map(value, (value) => getMainDisplayOfFieldValue(value, this, annotations)).join(' ; ');
+        } else {
+            return getMainDisplayOfFieldValue(value, this, annotations);
         }
-        return getMainDisplayOfFieldValue(value);
     },
     getFieldInfo() {
         const property = properties.get(this.id);

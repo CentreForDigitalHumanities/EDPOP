@@ -25,6 +25,8 @@ export var RecordDetailView = CompositeView.extend({
     attributes: {
         'role': 'dialog',
         'data-bs-focus': 'false',
+        'data-bs-keyboard': 'true',
+        'tabindex': '-1',
     },
 
     subviews: [{
@@ -131,6 +133,7 @@ export var RecordDetailView = CompositeView.extend({
 
     display: function() {
         this.$el.modal('show');
+        this.$el.focus();
         return this;
     },
 
