@@ -34,8 +34,8 @@ export var FieldView = AnnotatableView.extend({
     renderContainer: function() {
         const templateData = {
             field: this.model.get('key'),
-            hasEdit: !this.hasEdit(),
-            isEmpty: typeof this.model.get('value') === 'undefined',
+            hasNoEdit: !this.hasEdit(),
+            isEmpty: !this.model.has('value'),
         };
         // Check if model is of Field model before using these methods, because
         // there are some tests relating to old-style annotations that assign

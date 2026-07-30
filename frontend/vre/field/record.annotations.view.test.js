@@ -46,9 +46,9 @@ var oneDown = numAnnotations - 1;
 
 function assertEditorAppended() {
     assert(this.view.items.length === oneUp);
-    assert(this.view.$('tr').length === oneUp);
+    assert(this.view.$('tr').length === numAnnotations);
     assert(this.editor instanceof AnnotationEditView);
-    assert(this.view.$('tr').get(-1) === this.editor.el);
+    assert(this.view.$('div.annotation-editor').get(0) === this.editor.el);
 }
 
 function assertEditorRemoved() {
@@ -189,9 +189,9 @@ describe('RecordAnnotationsView', function() {
 
         it('inserts a new AnnotationEditView', function() {
             assert(this.view.items.length === numAnnotations);
-            assert(this.view.$('tr').length === numAnnotations);
+            assert(this.view.$('div.annotation-editor').length === 1);
             assert(this.editor instanceof AnnotationEditView);
-            assert(this.view.$('tr').get(this.position) === this.editor.el);
+            assert(this.view.$('div.annotation-editor').get(0) === this.editor.el);
         });
 
         it('edits the pre-existing model', function() {

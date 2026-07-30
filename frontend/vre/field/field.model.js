@@ -11,6 +11,15 @@ import {
 } from "../utils/record-ontology";
 import {getStringLiteral} from "../utils/jsonld.model";
 
+function annotationMatchesField(field, value) {
+    var originalText = value && value['edpoprec:originalText'];
+    return function(anno) {
+        if (anno.get('edpopcol:field') !== field.id) return false;
+        var annoText = anno.get('edpopcol:originalText');
+        return originalText == null ? !annoText : annoText === originalText;
+    };
+}
+
 /**
  * Get correction for a field value based on
  * @param {Object} value - the specific value to get the display of
@@ -20,29 +29,18 @@ import {getStringLiteral} from "../utils/jsonld.model";
  */
 function getCorrectedTextForFieldValue(value, field, annotations) {
     if (!annotations) return undefined;
-    var annotation;
-    if (!value) {
-        // Field missing in the source data: edpopcol:originalText should not be present
-        annotation = annotations.find(x => {
-            return x.get('edpopcol:field') === field.id && !x.get('edpopcol:originalText');
-        });
-    } else {
-        // Field present in the source data: check if edpopcol:originalText matches
-        annotation = annotations.find(x => {
-            return x.get('edpopcol:field') === field.id && x.get('edpopcol:originalText') === value['edpoprec:originalText']
-        });
-    }
+    var annotation = annotations.find(annotationMatchesField(field, value));
     if (annotation) {
         return annotation.get('oa:hasBody');
     }
-    return undefined;
 }
 
 /**
  * Get a default main display string of the `value` attribute of a
  * field flattened using {@link FlatterFields}. Currently, this is
  * the normalized "summary text" if available and otherwise the
- * original text from the source database. If
+ * original text from the source database. If there is a correction
+ * for the field value, use that instead.
  * @param {Object} value - the specific value to get the display of
  * @param {Field} field - the whole field object
  * @param {Annotations} [annotations] - annotations for the field
@@ -68,11 +66,7 @@ export var Field = Backbone.Model.extend({
         const value = this.get('value');
         if (!value) {
             // Field is missing in the source data: return annotation if present
-            var correctedText = getCorrectedTextForFieldValue(null, this, annotations);
-            if (correctedText)
-                return correctedText;
-            else
-                return '';
+            return getCorrectedTextForFieldValue(null, this, annotations) || '';
         } else if (_.isArray(value)) {
             // Field is repeated: concatenate all values
             return _.map(value, (value) => getMainDisplayOfFieldValue(value, this, annotations)).join(' ; ');

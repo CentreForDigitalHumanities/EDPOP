@@ -6,7 +6,7 @@ import {glossary} from "../utils/glossary";
 
 export var AnnotationEditView = View.extend({
     tagName: 'div',
-    className: 'form-inline',
+    className: 'form-inline annotation-editor',
     template: annotationEditTemplate,
     glossaryTemplate: annotationTagEditTemplate,
     events: {
@@ -39,6 +39,7 @@ export var AnnotationEditView = View.extend({
         if (this.model.get('motivation') === 'oa:tagging') {
             glossary.on('update', this.render);
         }
+        // Focus on textarea, but wait for one cycle to ensure DOM is ready
         setTimeout(() => {
             var el = this.$('textarea').get(0);
             if (el) {
