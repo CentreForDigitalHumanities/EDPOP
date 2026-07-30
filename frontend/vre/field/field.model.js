@@ -287,6 +287,14 @@ export var RecordField = Backbone.Model.extend({
         });
         this.content = new CombinedFieldValues(null, {recordField: this});
     },
+
+    fieldInfo() {
+        const field = this.get('field');
+        return {
+            name: getStringLiteral(field.get("skos:prefLabel")),
+            description: getStringLiteral(field.get("skos:description")),
+        };
+    },
 });
 
 function field2recordField(record, values, annotations) {
