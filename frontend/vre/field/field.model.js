@@ -199,11 +199,12 @@ function wrapUncorrected(original) {
 
 function wrapCorrection(pair) {
     const original = pair[0];
-    const correction = pair[1];
-    const originalText = originalTextSelector(correction);
-    if (correction.get('marksDeletion')) return {
+    const edit = pair[1];
+    const originalText = originalTextSelector(edit);
+    if (edit.get('marksDeletion')) return {
         id: originalText + ' →',
-        deletion: correction,
+        deletion: true,
+        edit,
         order: (
             original ? fieldEntryTag.deletion
                      : fieldEntryTag.danglingDeletion
@@ -211,10 +212,11 @@ function wrapCorrection(pair) {
         original,
         originalText,
     };
-    const correctedText = correction.get('oa:hasBody');
+    const correctedText = edit.get('oa:hasBody');
     return {
         id: originalText + ' → ' + correctedText,
-        correction,
+        correction: true,
+        edit,
         order: (
             original ? fieldEntryTag.correction
                      : fieldEntryTag.danglingCorrection
@@ -225,11 +227,12 @@ function wrapCorrection(pair) {
     };
 }
 
-function wrapAddition(addition) {
-    const addedValue = addition.get('oa:hasBody');
+function wrapAddition(edit) {
+    const addedValue = edit.get('oa:hasBody');
     return {
         id: '→ ' + addedValue,
-        addition,
+        addition: true,
+        edit,
         order: fieldEntryTag.addition,
         correctedText: addedValue,
     };

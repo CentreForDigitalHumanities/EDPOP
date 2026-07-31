@@ -562,7 +562,7 @@ describe('presentableContents', function() {
                     assert(content.length === size + 1);
                     var entry = content.get(`${pastValue} → ${value}`);
                     assert(entry instanceof Backbone.Model);
-                    assert(entry.get('correction') === anno);
+                    assert(entry.get('edit') === anno);
                     assert(!entry.has('original'));
                     assert(entry.get('originalText') === pastValue);
                     assert(entry.get('correctedText') === value);
@@ -582,7 +582,7 @@ describe('presentableContents', function() {
                     assert(content.length === size + 1);
                     var entry = content.get(`→ ${value}`);
                     assert(entry instanceof Backbone.Model);
-                    assert(entry.get('addition') === anno);
+                    assert(entry.get('edit') === anno);
                     assert(entry.get('correctedText') === value);
                     assert(addSpy.calledOnceWith(entry));
                     assert(changeSpy.notCalled);
@@ -625,9 +625,9 @@ describe('presentableContents', function() {
                 var entry2 = content.get(contributor.value1.id2);
                 assert(val1 && cor1 && cor2 && entry1 && entry2);
                 assert(entry1.get('original') === val1);
-                assert(entry1.get('correction') === cor1);
+                assert(entry1.get('edit') === cor1);
                 assert(entry2.get('original') === val1);
-                assert(entry2.get('correction') === cor2);
+                assert(entry2.get('edit') === cor2);
                 var val3 = values.find(matchOriginalText(contributor.value2.original2));
                 var entry3 = content.get(contributor.value2.original2);
                 var cor4 = annotations.find({
@@ -637,7 +637,7 @@ describe('presentableContents', function() {
                 assert(val3 && entry3 && cor4 && entry4);
                 assert(entry3.get('original') === val3);
                 assert(!entry4.has('original'));
-                assert(entry4.get('correction') === cor4);
+                assert(entry4.get('edit') === cor4);
                 var val5 = values.find(matchOriginalText(contributor.value3.original));
                 var entry5 = content.get(contributor.value3.original);
                 assert(val5 && entry5);
@@ -649,13 +649,13 @@ describe('presentableContents', function() {
                 var entry6 = content.get(contributor.value4.id);
                 assert(val6 && cor6 && entry6);
                 assert(entry6.get('original') === val6);
-                assert(entry6.get('correction') === cor6);
+                assert(entry6.get('edit') === cor6);
                 var add7 = annotations.find({
                     'oa:hasBody': contributor.value5.addition
                 });
                 var entry7 = content.get(contributor.value5.id);
                 assert(add7 && entry7);
-                assert(entry7.get('addition') === add7);
+                assert(entry7.get('edit') === add7);
             });
 
             describe('update automatically', () => {
@@ -726,7 +726,7 @@ describe('presentableContents', function() {
                     assert(removeSpy.calledWith(entry2));
                     assert(content.length === 7);
                     assert(entry3.get('original') === val);
-                    assert(entry3.get('correction') === cor);
+                    assert(entry3.get('edit') === cor);
                     assert(entry3.get('originalText') === contributor.value2.original2);
                     assert(entry3.get('correctedText') === contributor.value2.correction);
                 });
@@ -761,7 +761,7 @@ describe('presentableContents', function() {
                     var entry = content.get(newId);
                     assert(entry instanceof Backbone.Model);
                     assert(entry.get('original') === val);
-                    assert(entry.get('correction') === cor);
+                    assert(entry.get('edit') === cor);
                     assert(entry.get('originalText') === contributor.value3.original);
                     assert(entry.get('correctedText') === newName);
                     assert(addSpy.calledOnceWith(entry));
@@ -859,7 +859,7 @@ describe('presentableContents', function() {
                     assert(changeSpy.notCalled);
                     assert(removeSpy.calledOnceWith(entry1));
                     assert(content.length === 8);
-                    assert(entry2.get('addition') === add);
+                    assert(entry2.get('edit') === add);
                     assert(entry2.get('correctedText') === newName);
                 });
 
@@ -884,7 +884,7 @@ describe('presentableContents', function() {
                     assert(entry2 !== entry1);
                     assert(entry2.get('original') === entry1.get('original'));
                     assert(entry2.get('originalText') === incorrect);
-                    assert(entry2.get('deletion') === del);
+                    assert(entry2.get('edit') === del);
                     assert(content.length === 8);
                 });
             });
