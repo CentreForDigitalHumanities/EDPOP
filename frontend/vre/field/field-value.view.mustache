@@ -1,3 +1,4 @@
+{{! Lots of standalone tags. Good news: they leave no output. }}
 {{#isFirst}}
 <!-- rowspan=0 makes the cell extend to the end of the current rowgroup -->
 <th rowspan=0
@@ -7,10 +8,9 @@
 {{/isFirst}}
 <td
 {{#edit}}
-    title="{{publishedDate}}{{#updatedDate}} (updated: {{.}}){{/updatedDate}}"
+    title="{{getPublishedDate}}{{#updatedDate}} (updated: {{.}}){{/updatedDate}}"
 {{/edit}}
 >
-{{! Lots of standalone tags. Positive: they leave no output. }}
 {{#originalText}}
     {{#uncorrected}}
         {{#linkedRecordUri}}
@@ -27,5 +27,49 @@
     <del>{{originalText}}</del>
     {{/uncorrected}}
 {{/originalText}}
-
+{{#correctedText}}
+    <ins>{{.}}</ins>
+{{/correctedText}}
+{{#edit}}
+    <span class="authored-by">@{{getAuthor}}{{/span}}
+{{/edit}}
+</td>
+<td>
+{{#field}}
+    <a class="fa-solid fa-plus comment text-decoration-none"
+       role="button"
+       title="Make addition"
+    ></a>
+{{/field}}
+{{^field}}
+    {{^dangling}}
+        {{^deletion}}
+    <a class="fa-solid fa-pen comment text-decoration-none"
+       role="button"
+       title="Edit"
+    ></a>
+        {{/deletion}}
+    {{/dangling}}
+    {{#dangling}}
+    <a class="fa-solid fa-link-slash comment text-decoration-none"
+       role="button"
+       title="Edited value no longer present on original record; relink"
+    ></a>
+    {{/dangling}}
+    <a class="fa-solid fa-xmark comment text-decoration-none"
+       role="button"
+       {{#uncorrected}}
+       title="Mark original value as deleted"
+       {{/uncorrected}}
+       {{#correction}}
+       title="Undo correction"
+       {{/correction}}
+       {{#deletion}}
+       title="Undo deletion"
+       {{/deletion}}
+       {{#Addition}}
+       title="Remove addition"
+       {{/Addition}}
+    ></a>
+{{/field}}
 </td>
