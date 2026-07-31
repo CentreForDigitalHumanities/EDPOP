@@ -1,0 +1,31 @@
+{{#isFirst}}
+<!-- rowspan=0 makes the cell extend to the end of the current rowgroup -->
+<th rowspan=0
+    scope=rowgroup
+    title="fieldInfo.description"
+>{{fieldInfo.name}}</th>
+{{/isFirst}}
+<td
+{{#edit}}
+    title="{{publishedDate}}{{#updatedDate}} (updated: {{.}}){{/updatedDate}}"
+{{/edit}}
+>
+{{! Lots of standalone tags. Positive: they leave no output. }}
+{{#originalText}}
+    {{#uncorrected}}
+        {{#linkedRecordUri}}
+    <a href="{{&.}}"
+       target=_blank
+       title="Go to linked record"
+    >{{originalText}}</a>
+        {{/linkedRecordUri}}
+        {{^linkedRecordUri}}
+    {{originalText}}
+        {{/linkedRecordUri}}
+    {{/uncorrected}}
+    {{^uncorrected}}
+    <del>{{originalText}}</del>
+    {{/uncorrected}}
+{{/originalText}}
+
+</td>
