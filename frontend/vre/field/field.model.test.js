@@ -219,6 +219,7 @@ var expectedCompoundData = [sinon.match({
         correction: sinon.match.truthy,
         order: fieldEntryTag.danglingCorrection,
         original: undefined,
+        dangling: true,
         originalText: contributor.value2.original1,
         correctedText: contributor.value2.correction
     }), sinon.match({
@@ -255,6 +256,7 @@ var expectedCompoundData = [sinon.match({
         correction: sinon.match.truthy,
         order: fieldEntryTag.danglingCorrection,
         original: undefined,
+        dangling: true,
         originalText: 'Shanghai',
         correctedText: 'Bogotá'
     }), sinon.match({
@@ -564,6 +566,7 @@ describe('presentableContents', function() {
                     assert(entry instanceof Backbone.Model);
                     assert(entry.get('edit') === anno);
                     assert(!entry.has('original'));
+                    assert(entry.get('dangling') === true);
                     assert(entry.get('originalText') === pastValue);
                     assert(entry.get('correctedText') === value);
                     assert(addSpy.calledOnceWith(entry));
@@ -716,6 +719,7 @@ describe('presentableContents', function() {
                     assert(!content.get(contributor.value2.original1));
                     var entry1 = content.get(contributor.value2.original2);
                     var entry2 = content.get(contributor.value2.id1);
+                    assert(entry2.get('dangling'));
                     var val = entry1.get('original');
                     cor.set('edpopcol:originalText', contributor.value2.original2);
                     var entry3 = content.get(contributor.value2.id2);
@@ -726,6 +730,7 @@ describe('presentableContents', function() {
                     assert(removeSpy.calledWith(entry2));
                     assert(content.length === 7);
                     assert(entry3.get('original') === val);
+                    assert(!entry3.get('dangling'));
                     assert(entry3.get('edit') === cor);
                     assert(entry3.get('originalText') === contributor.value2.original2);
                     assert(entry3.get('correctedText') === contributor.value2.correction);
@@ -812,11 +817,13 @@ describe('presentableContents', function() {
                 it('when a correction becomes unlinked', () => {
                     assert(!content.get(fullName));
                     var entry1 = content.get(contributor.value4.id);
+                    assert(!entry1.get('dangling'));
                     var entry1spy = sinon.spy(() => {
                         var changedAttributes = entry1.changedAttributes();
                         assert('original' in changedAttributes);
                         assert('order' in changedAttributes);
-                        assert(_.size(changedAttributes) === 2);
+                        assert('dangling' in changedAttributes);
+                        assert(_.size(changedAttributes) === 3);
                     });
                     entry1.on('change', entry1spy);
                     updateValue(3, contributor.value4.original, fullName);
@@ -829,6 +836,7 @@ describe('presentableContents', function() {
                     assert(removeSpy.notCalled);
                     assert(entry1spy.calledOnce);
                     assert(!entry1.has('original'));
+                    assert(entry1.get('dangling'));
                     entry1.off();
                     assert(content.length === 9);
                 });

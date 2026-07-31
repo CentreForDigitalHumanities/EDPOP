@@ -204,6 +204,7 @@ function wrapCorrection(pair) {
     if (edit.get('marksDeletion')) return {
         id: originalText + ' →',
         deletion: true,
+        dangling: !original,
         edit,
         order: (
             original ? fieldEntryTag.deletion
@@ -216,6 +217,7 @@ function wrapCorrection(pair) {
     return {
         id: originalText + ' → ' + correctedText,
         correction: true,
+        dangling: !original,
         edit,
         order: (
             original ? fieldEntryTag.correction
