@@ -141,7 +141,8 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: 'The one and only title.',
         uncorrected: true,
-        order: fieldEntryTag.originalValue
+        order: fieldEntryTag.originalValue,
+        isFirst: true,
     }), sinon.match({
         id: 'The other only title.',
         uncorrected: true,
@@ -157,7 +158,8 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: 'edpoprec:alternativeTitle',
         field: true,
-        order: fieldEntryTag.wholeField
+        order: fieldEntryTag.wholeField,
+        isFirst: true,
     })],
 }), sinon.match({
     id: 'edpoprec:genre',
@@ -168,7 +170,8 @@ var expectedCompoundData = [sinon.match({
         order: fieldEntryTag.correction,
         original: sinon.match.truthy,
         originalText: 'science fiction',
-        correctedText: 'fantasy and horror'
+        correctedText: 'fantasy and horror',
+        isFirst: true,
     }), sinon.match({
         id: 'edpoprec:genre',
         field: true,
@@ -180,7 +183,8 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: 'edpoprec:language',
         field: true,
-        order: fieldEntryTag.wholeField
+        order: fieldEntryTag.wholeField,
+        isFirst: true,
     })],
 }), sinon.match({
     id: 'edpoprec:contributor',
@@ -188,7 +192,8 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: contributor.value2.original2,
         uncorrected: true,
-        order: fieldEntryTag.originalValue
+        order: fieldEntryTag.originalValue,
+        isFirst: true,
     }), sinon.match({
         id: contributor.value3.original,
         uncorrected: true,
@@ -238,7 +243,8 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: 'edpoprec:dating',
         field: true,
-        order: fieldEntryTag.wholeField
+        order: fieldEntryTag.wholeField,
+        isFirst: true,
     })],
 }), sinon.match({
     id: 'edpoprec:publisherOrPrinter',
@@ -258,7 +264,8 @@ var expectedCompoundData = [sinon.match({
         original: undefined,
         dangling: true,
         originalText: 'Shanghai',
-        correctedText: 'Bogotá'
+        correctedText: 'Bogotá',
+        isFirst: true,
     }), sinon.match({
         id: 'edpoprec:placeOfPublication',
         field: true,
@@ -271,7 +278,8 @@ var expectedCompoundData = [sinon.match({
         id: '→ Kostunrix',
         addition: sinon.match.truthy,
         order: fieldEntryTag.addition,
-        correctedText: 'Kostunrix'
+        correctedText: 'Kostunrix',
+        isFirst: true,
     }), sinon.match({
         id: 'edpoprec:bookseller',
         field: true,
@@ -283,7 +291,8 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: 'edpoprec:location',
         field: true,
-        order: fieldEntryTag.wholeField
+        order: fieldEntryTag.wholeField,
+        isFirst: true,
     })],
 }), sinon.match({
     id: 'edpoprec:bibliographicalFormat',
@@ -299,7 +308,8 @@ var expectedCompoundData = [sinon.match({
     content: [sinon.match({
         id: 'edpoprec:collationFormula',
         field: true,
-        order: fieldEntryTag.wholeField
+        order: fieldEntryTag.wholeField,
+        isFirst: true,
     })],
 }), sinon.match({
     id: 'edpoprec:fingerprint',
@@ -526,6 +536,8 @@ describe('presentableContents', function() {
 
                 it('when the field is set in the original record', () => {
                     var size = content.length;
+                    var fieldEntry = content.get(fieldName);
+                    assert(fieldEntry.get('isFirst'));
                     record.set(fieldName, {
                         '@id': bnode(),
                         '@type': 'edpoprec:Field',
@@ -535,6 +547,8 @@ describe('presentableContents', function() {
                     var entry = content.get(value);
                     assert(entry instanceof Backbone.Model);
                     assert(entry.get('uncorrected') === true);
+                    assert(entry.get('isFirst'));
+                    assert(!fieldEntry.get('isFirst'));
                     var original = entry.get('original');
                     assert(original instanceof Backbone.Model);
                     assert(original.get('key') === fieldName);
@@ -894,6 +908,24 @@ describe('presentableContents', function() {
                     assert(entry2.get('originalText') === incorrect);
                     assert(entry2.get('edit') === del);
                     assert(content.length === 8);
+                });
+            });
+
+            it('mark the first model with an attribute', () => {
+                var first = content.first();
+                assert(first.get('isFirst'));
+                _.each(content.tail(), model => assert(!model.get('isFirst')));
+                var formerFirst = first;
+                _.each([content.values, content.annotations], collection => {
+                    _.chain(collection.models).clone().each(model => {
+                        collection.remove(model);
+                        first = content.first();
+                        if (first !== formerFirst) {
+                            assert(first.get('isFirst'));
+                            assert(!formerFirst.get('isFirst'));
+                        }
+                        formerFirst = first;
+                    });
                 });
             });
         });
