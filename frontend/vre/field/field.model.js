@@ -250,7 +250,9 @@ export var CombinedFieldValues = Backbone.Collection.extend({
         this.combineValues()
             // Why change and not just update? Because of Backbone#4306.
             .listenTo(this.values, 'update change', this.combineValues)
-            .listenTo(this.annotations, 'update change', this.combineValues);
+            .listenTo(this.annotations, 'update change', this.combineValues)
+            .trackFirst()
+            .on('update', this.trackFirst);
     },
 
     combineValues: function() {
@@ -278,6 +280,14 @@ export var CombinedFieldValues = Backbone.Collection.extend({
             _.map(additions, wrapAddition),
         );
         this.set(allAttributes);
+        return this;
+    },
+
+    trackFirst: function() {
+        if (this._first === this.first()) return this;
+        if (this._first) this._first.unset('isFirst');
+        this._first = this.first();
+        if (this._first) this._first.set('isFirst', true);
         return this;
     },
 });
