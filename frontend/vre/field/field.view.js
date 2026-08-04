@@ -1,13 +1,9 @@
-import fieldTemplate from './field.view.mustache';
-import {CommentView} from "../annotation/comment.view";
+import { AggregateView } from '../core/view.js';
 import {Annotation} from "../annotation/annotation.model";
-import {AnnotatableView} from "./annotatable.view";
-import {parent} from "@uu-cdh/backbone-collection-transformers/src/inheritance";
+import { FieldValueView } from './field-value.view.js';
+import fieldRelinkTemplate from './field.relink.options.mustache';
 
-/**
- * Displays a single model from a FlatFields or FlatAnnotations collection.
- */
-export var FieldView = AnnotatableView.extend({
+export var FieldView = AggregateView.extend({
     tagName: 'tr',
     template: fieldTemplate,
     subview: CommentView,
