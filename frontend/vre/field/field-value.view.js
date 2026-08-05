@@ -14,8 +14,7 @@ export var FieldValueView = View.extend({
     template: fieldValueTemplate,
 
     events: {
-        'click .fa-plus': bubble('addValue'),
-        'click .fa-pen': bubble('edit'),
+        'click .fa-plus, .fa-pen': bubble('edit'),
         'click .fa-link-slash': bubble('requestRelink'),
         'click .fa-xmark': bubble('discard'),
     },
