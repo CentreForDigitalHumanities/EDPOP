@@ -4,6 +4,7 @@ import fieldValueTemplate from './field-value.view.mustache';
 
 function bubble(eventName) {
     return function(event) {
+        event.preventDefault();
         this.model.trigger(eventName, this.model, this, event);
     };
 }
