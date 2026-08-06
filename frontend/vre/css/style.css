@@ -6,6 +6,10 @@ h2 {
     color: cornflowerblue;
 }
 
+.vre-record-fields ins {
+    text-decoration: none;
+}
+
 .vre-record-fields del, .authored-by {
     font-size: 0.8em;
     color: #888;
