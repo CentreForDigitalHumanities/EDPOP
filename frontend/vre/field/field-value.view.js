@@ -25,8 +25,10 @@ export var FieldValueView = View.extend({
 
     render: function() {
         var attributes = this.model.attributes,
-            fieldInfo = attributes.isFirst && this.model.getFieldInfo(),
-            linkedUri = this.model.getLinkedUri(),
+            original = attributes.original,
+            recordField = this.model.collection.recordField,
+            fieldInfo = attributes.isFirst && recordField.fieldInfo(),
+            linkedUri = original && original.getLinkedUri(),
             linkedRecordUri = linkedUri && encodeURIComponent(linkedUri),
             edit = attributes.edit,
             updatedDate = edit && edit.getUpdatedDate(),

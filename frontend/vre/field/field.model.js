@@ -246,6 +246,7 @@ export var CombinedFieldValues = Backbone.Collection.extend({
     },
 
     initialize: function(models, options) {
+        this.recordField = options.recordField;
         _.assign(this, _.pick(options.recordField, ['values', 'annotations', 'id']));
         this.combineValues()
             // Why change and not just update? Because of Backbone#4306.
