@@ -101,7 +101,6 @@ export var FieldView = AggregateView.extend({
     requestRelink: function(model, view, event) {
         this.clearRelinker();
         this.relinkPopover = $(event.target).popover({
-            trigger: 'focus',
             container: 'body',
             content: fieldRelinkTemplate(this.model),
             html: true,
