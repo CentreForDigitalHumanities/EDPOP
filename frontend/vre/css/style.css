@@ -15,6 +15,11 @@ h2 {
     font-size: 0.8em;
 }
 
+.field-value-buttons {
+    width: 7.5ex;
+    text-align: end;
+}
+
 #result_detail td {
     cursor: pointer;
 }
