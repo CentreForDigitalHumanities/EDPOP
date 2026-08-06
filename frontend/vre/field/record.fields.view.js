@@ -3,6 +3,7 @@ import fieldListTemplate from "./record.fields.view.mustache";
 import { FieldView } from "./field.view";
 
 export var RecordFieldsView = AggregateView.extend({
+    className: 'vre-record-fields',
     template: fieldListTemplate,
     subview: FieldView,
     container: 'table',
