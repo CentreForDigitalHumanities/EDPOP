@@ -14,7 +14,7 @@ export var FieldView = AggregateView.extend({
     subview: FieldValueView,
 
     initialize: function(options) {
-        this.collection || this.model && this.collection = this.model.content;
+        this.collection = this.collection || this.model && this.model.content;
         this.initItems().render().initCollectionEvents();
         this.listenTo(this.collection, _.pick(this, [
             'edit', 'requestRelink', 'discard',
