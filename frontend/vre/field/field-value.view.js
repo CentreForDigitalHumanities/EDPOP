@@ -32,11 +32,17 @@ export var FieldValueView = View.extend({
             linkedRecordUri = linkedUri && encodeURIComponent(linkedUri),
             edit = attributes.edit,
             updatedDate = edit && edit.getUpdatedDate(),
+            originalText = attributes.originalText,
             payload = _.extend({}, attributes, {
                 fieldInfo,
                 linkedRecordUri,
                 updatedDate,
             });
+        if (edit && originalText && originalText.length > 20) {
+            payload.shortOriginalText = (
+                originalText.slice(0, 9) + '…' + originalText.slice(-9)
+            );
+        }
         this.$el.html(this.template(payload));
         return this;
     },
