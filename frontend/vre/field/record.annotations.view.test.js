@@ -188,7 +188,6 @@ describe('RecordAnnotationsView', function() {
         });
 
         it('inserts a new AnnotationEditView', function() {
-            debugger;
             assert(this.view.items.length === numAnnotations);
             assert(this.view.$('tr').length === numAnnotations);
             assert(this.editor instanceof AnnotationEditView);
