@@ -17,6 +17,7 @@ export var FieldValueView = View.extend({
         'click .fa-plus, .fa-pen': bubble('edit'),
         'click .fa-link-slash': bubble('requestRelink'),
         'click .fa-xmark': bubble('discard'),
+        'click': 'mockDanglingEdit',
     },
 
     initialize: function() {
@@ -45,5 +46,12 @@ export var FieldValueView = View.extend({
         }
         this.$el.html(this.template(payload));
         return this;
+    },
+
+    mockDanglingEdit: function(event) {
+        if (!event.shiftKey) return;
+        var edit = this.model.get('edit');
+        if (!edit || !edit.has('edpopcol:originalText')) return;
+        edit.set('edpopcol:originalText', 'simulated dangle');
     },
 });
