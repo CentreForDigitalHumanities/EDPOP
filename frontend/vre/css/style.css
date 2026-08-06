@@ -6,7 +6,7 @@ h2 {
     color: cornflowerblue;
 }
 
-.authored-by {
+.vre-record-fields del, .authored-by {
     font-size: 0.8em;
     color: #888;
 }
