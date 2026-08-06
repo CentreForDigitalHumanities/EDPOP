@@ -38,6 +38,7 @@
 {{#field}}
     <a class="fa-solid fa-plus comment text-decoration-none"
        role="button"
+       tabindex=0
        title="Make addition"
     ></a>
 {{/field}}
@@ -46,6 +47,7 @@
         {{^deletion}}
     <a class="fa-solid fa-pen comment text-decoration-none"
        role="button"
+       tabindex=0
        title="Edit"
     ></a>
         {{/deletion}}
@@ -53,11 +55,13 @@
     {{#dangling}}
     <a class="fa-solid fa-link-slash comment text-decoration-none"
        role="button"
+       tabindex=0
        title="Edited value no longer present on original record; relink"
     ></a>
     {{/dangling}}
     <a class="fa-solid fa-xmark comment text-decoration-none"
        role="button"
+       tabindex=0
        {{#uncorrected}}
        title="Mark original value as deleted"
        {{/uncorrected}}
