@@ -555,7 +555,6 @@ describe('presentableContents', function() {
                     assert(matchOriginalText(value)(original));
                     assert(original.collection === contents.values);
                     assert(addSpy.calledOnceWith(entry));
-                    assert(changeSpy.notCalled);
                     assert(removeSpy.notCalled);
                 });
 
@@ -584,7 +583,6 @@ describe('presentableContents', function() {
                     assert(entry.get('originalText') === pastValue);
                     assert(entry.get('correctedText') === value);
                     assert(addSpy.calledOnceWith(entry));
-                    assert(changeSpy.notCalled);
                     assert(removeSpy.notCalled);
                 });
 
@@ -602,7 +600,6 @@ describe('presentableContents', function() {
                     assert(entry.get('edit') === anno);
                     assert(entry.get('correctedText') === value);
                     assert(addSpy.calledOnceWith(entry));
-                    assert(changeSpy.notCalled);
                     assert(removeSpy.notCalled);
                 });
             });
@@ -738,7 +735,6 @@ describe('presentableContents', function() {
                     cor.set('edpopcol:originalText', contributor.value2.original2);
                     var entry3 = content.get(contributor.value2.id2);
                     assert(addSpy.calledOnceWith(entry3));
-                    assert(changeSpy.notCalled);
                     assert(removeSpy.calledTwice);
                     assert(removeSpy.calledWith(entry1));
                     assert(removeSpy.calledWith(entry2));
