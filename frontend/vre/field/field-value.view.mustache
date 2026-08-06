@@ -24,7 +24,12 @@
         {{/linkedRecordUri}}
     {{/uncorrected}}
     {{^uncorrected}}
-    <del>{{originalText}}</del>
+        {{#shortOriginalText}}
+    <del title="{{originalText}}">{{.}}</del>
+        {{/shortOriginalText}}
+        {{^shortOriginalText}}
+    <del>{{.}}</del>
+        {{/shortOriginalText}}
     {{/uncorrected}}
 {{/originalText}}
 {{#correctedText}}
