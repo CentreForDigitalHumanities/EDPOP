@@ -4,14 +4,14 @@ import { CompositeView } from '../core/view.js';
 import { vreChannel } from '../radio';
 import { RecordFieldsView } from '../field/record.fields.view';
 import { RecordAnnotationsView } from '../field/record.annotations.view';
-import { Field, FlatterFields } from '../field/field.model';
+import { presentableContents } from '../field/field.model';
 import { AddToCollectionView } from '../collection/add-to-collection.view';
 import { RemoveFromCollectionView } from '../collection/remove-from-collection.view.js';
 import { typeTranslation } from '../utils/generic-functions.js';
 import recordDetailTemplate from './record.detail.view.mustache';
 import typeIconTemplate from './record.type.icon.mustache';
-import {DigitizationsView} from "../digitization/digitizations.view";
-import {RecordAboutView} from "./record.about.view";
+import { DigitizationsView } from "../digitization/digitizations.view";
+import { RecordAboutView } from "./record.about.view";
 
 var renderOptions = {
     partials: {
@@ -64,13 +64,14 @@ export var RecordDetailView = CompositeView.extend({
             this.previousRecord = vreChannel.request('getPreviousRecord', this.model);
             this.nextRecord = vreChannel.request('getNextRecord', this.model);
         }
-        var fields = new FlatterFields(null, {record: model});
+        var contents = presentableContents(model);
+        var fields = contents.values;
         var digitizations = new FilteredCollection(fields, {
             key: 'edpoprec:digitization'
         });
         this.fieldsView = new RecordFieldsView({
-            collection: fields,
-        }).render();
+            collection: contents,
+        });
         this.digitizationsView = new DigitizationsView({
             collection: digitizations,
         });
@@ -83,7 +84,6 @@ export var RecordDetailView = CompositeView.extend({
         this.annotationsView = new RecordAnnotationsView({
             collection: recordAnnotations,
         }).render();
-        this.annotationsView.listenTo(this.fieldsView, 'edit', this.annotationsView.edit);
         var myCollections = vreChannel.request('allcollections');
         this.addSelect = new AddToCollectionView({
             collection: myCollections,
