@@ -1,11 +1,14 @@
 import _ from 'lodash';
+import { $ } from 'backbone';
+
 import { View } from '../core/view.js';
 import fieldValueTemplate from './field-value.view.mustache';
+import fieldRelinkTemplate from './field.relink.options.mustache';
 
 function bubble(eventName) {
     return function(event) {
         event.preventDefault();
-        this.model.trigger(eventName, this.model, this, event);
+        this.model.trigger(eventName, this.model, this);
     };
 }
 
@@ -15,13 +18,30 @@ export var FieldValueView = View.extend({
 
     events: {
         'click .fa-plus, .fa-pen': bubble('edit'),
-        'click .fa-link-slash': bubble('requestRelink'),
         'click .fa-xmark': bubble('discard'),
         'click': 'mockDanglingEdit',
     },
 
-    initialize: function() {
-        this.render().listenTo(this.model, 'change', this.render);
+    initialize: function(options) {
+        this.relinkOptions = options.relinkOptions;
+        this.render()
+            .listenTo(this.model, 'change', this.render)
+            .listenTo(this.relinkOptions, 'update', this.renderRelinkOptions);
+        this.$el.popover({
+            trigger: 'focus',
+            container: 'body',
+            content: fieldRelinkTemplate(this),
+            html: true,
+            sanitize: false,
+            placement: 'bottom',
+            selector: 'a.fa-link-slash',
+            title: 'Relink edit to which original value?',
+        });
+        this.relinkPicker = $('body').on(
+            'click',
+            '#relink-' + this.cid + ' .relink-option',
+            this.pickRelinkOption.bind(this),
+        );
     },
 
     render: function() {
@@ -46,6 +66,25 @@ export var FieldValueView = View.extend({
         }
         this.$el.html(this.template(payload));
         return this;
+    },
+
+    renderRelinkOptions: function() {
+        this.$el.popover('setContent', {
+            '.popover-body': fieldRelinkTemplate(this),
+        });
+    },
+
+    remove: function() {
+        this.$el.popover('dispose');
+        this.relinkPicker.off();
+        FieldValueView.__super__.remove.call(this);
+    },
+
+    pickRelinkOption: function(event) {
+        var edit = this.model.get('edit');
+        if (!edit) return;
+        edit.set('edpopcol:originalText', event.target.textContent);
+        edit.save();
     },
 
     mockDanglingEdit: function(event) {

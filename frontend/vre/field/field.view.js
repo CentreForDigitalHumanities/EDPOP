@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import { $ } from 'backbone';
 
 import { vreChannel } from '../radio.js';
 import { AggregateView } from '../core/view.js';
@@ -7,18 +6,21 @@ import { Annotation } from '../annotation/annotation.model';
 import { AnnotationEditView } from '../annotation/annotation.edit.view';
 import { OverlayView } from '../utils/overlay.view.js';
 import { FieldValueView } from './field-value.view.js';
-import fieldRelinkTemplate from './field.relink.options.mustache';
 
 export var FieldView = AggregateView.extend({
     tagName: 'tbody',
-    subview: FieldValueView,
 
     initialize: function(options) {
         this.collection = this.collection || this.model && this.model.content;
         this.initItems().render().initCollectionEvents();
-        this.listenTo(this.collection, _.pick(this, [
-            'edit', 'requestRelink', 'discard',
-        ]));
+        this.listenTo(this.collection, _.pick(this, ['edit', 'discard']));
+    },
+
+    makeItem: function(model) {
+        return new FieldValueView({
+            model: model,
+            relinkOptions: this.model.values,
+        });
     },
 
     remove: function() {
@@ -96,38 +98,5 @@ export var FieldView = AggregateView.extend({
     dropEdit: function(model) {
         this.cancel();
         this.model.annotations.underlying.remove(model);
-    },
-
-    requestRelink: function(model, view, event) {
-        this.clearRelinker();
-        this.relinkPopover = $(event.target).popover({
-            container: 'body',
-            content: fieldRelinkTemplate(this.model),
-            html: true,
-            sanitize: false,
-            placement: 'bottom',
-            title: 'Relink edit to which original value?',
-        });
-        this.relinkPicker = $('body').one(
-            'click',
-            '.relink-option',
-            this.pickRelinkOption.bind(this, model.get('edit')),
-        );
-    },
-
-    clearRelinker: function() {
-        if (!this.relinkPopover) return;
-        this.relinkPopover.dispose();
-        delete this.relinkPopover;
-        this.relinkPicker.off();
-        delete this.relinkPicker;
-        return this;
-    },
-
-    pickRelinkOption: function(edit, event) {
-        if (!edit) return;
-        this.clearRelinker().cancel();
-        edit.set('edpopcol:originalText', event.target.textContent);
-        edit.save();
     },
 });
