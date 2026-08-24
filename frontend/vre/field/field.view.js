@@ -49,8 +49,8 @@ export var FieldView = AggregateView.extend({
             defaultText: originalText,
         }).on(_.pick(this, ['save', 'cancel', 'trash']), this);
         this.editor = new OverlayView({
-            root: this.el,
-            target: view.el,
+            root: view.el,
+            target: 'td.vre-field-value',
             guest: editor,
         });
         this.editor.cover();
