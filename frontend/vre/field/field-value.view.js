@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { $ } from 'backbone';
+import { when } from '@uu-cdh/backbone-util';
 
 import { View } from '../core/view.js';
 import fieldValueTemplate from './field-value.view.mustache';
@@ -27,6 +28,7 @@ export var FieldValueView = View.extend({
         this.render()
             .listenTo(this.model, 'change', this.render)
             .listenTo(this.relinkOptions, 'update', this.renderRelinkOptions);
+        when(this.model, 'edit', this.subscribeSubmodel, this);
         this.$el.popover({
             trigger: 'focus',
             container: 'body',
@@ -42,6 +44,11 @@ export var FieldValueView = View.extend({
             '#relink-' + this.cid + ' .relink-option',
             this.pickRelinkOption.bind(this),
         );
+    },
+
+    subscribeSubmodel: function(model, subModel) {
+        if (!subModel) return this;
+        return this.listenTo(subModel, 'change', this.render);
     },
 
     render: function() {
