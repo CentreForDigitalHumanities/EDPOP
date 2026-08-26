@@ -6,6 +6,9 @@ import { View } from '../core/view.js';
 import fieldValueTemplate from './field-value.view.mustache';
 import fieldRelinkTemplate from './field.relink.options.mustache';
 
+/**
+ * Internal helper to forward DOM events to the model.
+ */
 function bubble(eventName) {
     return function(event) {
         event.preventDefault();
@@ -13,9 +16,18 @@ function bubble(eventName) {
     };
 }
 
-export var FieldValueView = View.extend({
+/**
+ * Table row representing a single field value of a record.
+ * model: {@link module:'./field.model.js'.PresentableContents#model}.
+ * @class
+ * @extends View
+ */
+export var FieldValueView = View.extend(/**
+                                         * @lends FieldValueView.prototype
+                                         */{
     tagName: 'tr',
     template: fieldValueTemplate,
+    /** @member {module:'./field.model.js'.PresentableContents#model} model */
 
     events: {
         'click .fa-plus, .fa-pen': bubble('edit'),
