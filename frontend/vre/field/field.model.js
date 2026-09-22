@@ -469,7 +469,10 @@ export var CombinedFieldValues = Backbone.Collection.extend(/**
 
 /**
  * Presentation-oriented model representing a specific field within a specific
- * record.
+ * record, with all associated values and edits. Its `content` member is an
+ * instance of {@link CombinedFieldValues}. We have both a model and a
+ * collection at this level of representation, to cater to different use cases
+ * in the view.
  * @class
  * @extends Backbone.Model
  * @implements {RecordFieldData}
