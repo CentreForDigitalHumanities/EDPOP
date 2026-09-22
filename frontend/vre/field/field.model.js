@@ -352,8 +352,10 @@ function wrapAddition(edit) {
  */
 
 /**
- * Presentation-oriented collection with the field values and edits for a single
- * field of a given record.
+ * Presentation-oriented collection with all original field values as well as
+ * all edits for a single field of a given record. In addition, a single entry
+ * is included to represent the field as a whole. Each model in the collection
+ * has attributes according to {@link RecordFieldValueAttributes}.
  * @class
  * @extends Backbone.Collection
  * @implements {RecordFieldData}
