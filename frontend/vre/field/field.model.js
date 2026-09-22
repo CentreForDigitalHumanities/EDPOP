@@ -231,8 +231,11 @@ export const fieldEntryTag = _.chain(fieldEntryTypeOrder)
  * order to create more additions.
  * @typedef {Object} RecordFieldValueAttributes
  * @property {string} id - Composition of the original text and/or the
- * corrected/added value, if applicable. Prefixed field IRI if neither is
- * applicable, i.e., if representing the field as a whole.
+ * corrected/added value, if applicable. Original value and edited value are
+ * included in that order and separated by a right-pointing arrow glyph. In case
+ * of an addition, the id starts with this arrow; in case of an unedited value,
+ * the arrow is omitted. Prefixed field IRI if neither is applicable, i.e., if
+ * representing the field as a whole.
  * @property {string} order - String prefix from {@link fieldEntryTag} for
  * sorting purposes.
  * @property {Field} [original] - Original value in the record, either as the
