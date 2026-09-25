@@ -17,7 +17,8 @@ services:
             - bzdata:/data
         ports:
             - 127.0.0.1:9999:8080
-    backend:
+    backend: &backend
+        profiles: ['']
         build:
             context: ./backend
         environment:
@@ -37,7 +38,12 @@ services:
             - ./frontend/vre:/usr/src/app/frontend/vre
             - ./backend/edpopx-data:/root/.local/share/edpop-explorer
         ports:
-            - 127.0.0.1:8000:8000
+            - 8000:8000
+            - 5778:5778
+    backend-debug:
+        <<: *backend
+        profiles: ['debug']
+        command: python -m debugpy --listen 0.0.0.0:5778 manage.py runserver --noreload --nothreading 0.0.0.0:8000
     frontend:
         build:
             context: ./frontend
