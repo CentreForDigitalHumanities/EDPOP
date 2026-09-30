@@ -64,7 +64,7 @@ export var RecordDetailView = CompositeView.extend({
             this.previousRecord = vreChannel.request('getPreviousRecord', this.model);
             this.nextRecord = vreChannel.request('getNextRecord', this.model);
         }
-        var contents = presentableContents(model);
+        var contents = this.contents = presentableContents(model);
         var fields = contents.values;
         var digitizations = new FilteredCollection(fields, {
             key: 'edpoprec:digitization'
@@ -98,7 +98,7 @@ export var RecordDetailView = CompositeView.extend({
         this.$el.html(this.template(_.assign({
             first: !this.previousRecord,
             last: !this.nextRecord,
-            title: this.model.getMainDisplay(),
+            title: this.model.getMainDisplay(this.contents),
             uri: this.model.id,
             inContext: this.model.collection ? true : false,
         }, typeTranslation(this.model)), renderOptions));
