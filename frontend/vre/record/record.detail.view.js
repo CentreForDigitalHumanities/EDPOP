@@ -65,6 +65,7 @@ export var RecordDetailView = CompositeView.extend({
             this.nextRecord = vreChannel.request('getNextRecord', this.model);
         }
         var contents = this.contents = presentableContents(model);
+        this.mainDisplayField = model.mainDisplayField(contents);
         var fields = contents.values;
         var digitizations = new FilteredCollection(fields, {
             key: 'edpoprec:digitization'
@@ -91,14 +92,15 @@ export var RecordDetailView = CompositeView.extend({
         this.removeButton = new RemoveFromCollectionView({
             collection: myCollections,
         }).on('removeRecords', this.removeFromCollection, this);
-        this.render();
+        this.render()
+            .listenTo(this.mainDisplayField.content, 'update', this.render);
     },
 
     renderContainer: function() {
         this.$el.html(this.template(_.assign({
             first: !this.previousRecord,
             last: !this.nextRecord,
-            title: this.model.getMainDisplay(this.contents),
+            title: this.model.getMainDisplay(this.mainDisplayField),
             uri: this.model.id,
             inContext: this.model.collection ? true : false,
         }, typeTranslation(this.model)), renderOptions));
