@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 import { Annotations } from '../annotation/annotation.model';
 import { JsonLdModel, JsonLdNestedCollection} from "../utils/jsonld.model";
 import { FlatFields } from "../field/field.model";
@@ -22,27 +24,38 @@ function getRecordTags(annotations) {
     .value();
 }
 
+function displayText(fieldValue) {
+    return fieldValue.get('correctedText') || fieldValue.get('originalText')
+}
+
+var recordType2displayField = {
+    'edpoprec:BibliographicalRecord': 'edpoprec:title',
+    'edpoprec:BiographicalRecord': 'edpoprec:name',
+};
+
 export var Record = JsonLdModel.extend({
     urlRoot: '/api/records',
     /**
-     * Get the contents of the main display field, usually title or name
-     * @return {string}
+     * Get the main display field, usually title or name
+     * @param {RecordFields} contents - computed presentable contents of this record
+     * @return {RecordField|undefined}
      */
-    getMainDisplay: function() {
+    mainDisplayField: function(contents) {
         /* For now, just support edpoprec:BibliographicalRecord and
            edpoprec:BiographicalRecord with hardcoded solutions */
-        let field;
-        if (this.get("@type") === "edpoprec:BibliographicalRecord") {
-            field = this.get("edpoprec:title");
-        } else if (this.get("@type") === "edpoprec:BiographicalRecord") {
-            field = this.get("edpoprec:name");
-        }
-        if (typeof field !== "undefined") {
-            return field["edpoprec:originalText"];
-        } else {
-            // Cannot determine which field has the main text; return subject URI instead
-            return `<${this.id}>`;
-        }
+        var type = this.get("@type");
+        var fieldName = recordType2displayField[type];
+        if (fieldName) return contents.get(fieldName);
+    },
+    /**
+     * Get the contents of the main display field
+     * @param {RecordField} [field] - computed main display field of this record
+     * @return {string}
+     */
+    getMainDisplay: function(field) {
+        if (typeof field === "undefined") return `<${this.id}>`;
+        return _.chain(field.content.map(displayText))
+            .filter(_.isString).sortBy('length').first().value();
     },
     toTabularData: function() {
         const fields = new FlatFields(undefined, {record: this});

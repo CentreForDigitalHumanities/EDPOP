@@ -1,0 +1,85 @@
+{{! Lots of standalone tags. Good news: they leave no output. }}
+{{#isFirst}}
+<!-- rowspan=0 makes the cell extend to the end of the current rowgroup -->
+<th rowspan=0
+    scope=rowgroup
+    title="fieldInfo.description"
+>{{fieldInfo.name}}</th>
+{{/isFirst}}
+<td
+{{#edit}}
+    title="{{getPublishedDate}}{{#updatedDate}} (updated: {{.}}){{/updatedDate}}"
+{{/edit}}
+    class="vre-field-value"
+>
+{{#originalText}}
+    {{#uncorrected}}
+        {{#linkedRecordUri}}
+    <a href="{{&.}}"
+       target=_blank
+       title="Go to linked record"
+    >{{originalText}}</a>
+        {{/linkedRecordUri}}
+        {{^linkedRecordUri}}
+    {{originalText}}
+        {{/linkedRecordUri}}
+    {{/uncorrected}}
+    {{^uncorrected}}
+        {{#shortOriginalText}}
+    <del title="{{originalText}}">{{.}}</del>
+        {{/shortOriginalText}}
+        {{^shortOriginalText}}
+    <del>{{.}}</del>
+        {{/shortOriginalText}}
+    {{/uncorrected}}
+{{/originalText}}
+{{#correctedText}}
+    <ins>{{.}}</ins>
+{{/correctedText}}
+{{#edit}}
+    <span class="authored-by">@{{getAuthor.getUsername}}</span>
+{{/edit}}
+</td>
+<td class="field-value-buttons">
+{{#field}}
+    <a class="fa-solid fa-plus comment text-decoration-none"
+       role="button"
+       tabindex=0
+       title="Make addition"
+    ></a>
+{{/field}}
+{{^field}}
+    {{^dangling}}
+        {{^deletion}}
+    <a class="fa-solid fa-pen comment text-decoration-none"
+       role="button"
+       tabindex=0
+       title="Edit"
+    ></a>
+        {{/deletion}}
+    {{/dangling}}
+    {{#dangling}}
+    <a class="fa-solid fa-link-slash comment text-decoration-none"
+       role="button"
+       tabindex=0
+       title="Edited value no longer present on original record; relink"
+    ></a>
+    {{/dangling}}
+    <a class="fa-solid fa-xmark comment text-decoration-none"
+       role="button"
+       tabindex=0
+       {{#uncorrected}}
+       title="Mark original value as deleted"
+       {{/uncorrected}}
+       {{#correction}}
+       title="Undo correction"
+       {{/correction}}
+       {{#deletion}}
+       title="Undo deletion"
+       {{/deletion}}
+       {{#addition}}
+       title="Remove addition"
+       {{/addition}}
+    ></a>
+{{/field}}
+</td>
