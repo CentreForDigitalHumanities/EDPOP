@@ -6,13 +6,22 @@ h2 {
     color: cornflowerblue;
 }
 
-.authored-by {
+.vre-record-fields ins {
+    text-decoration: none;
+}
+
+.vre-record-fields del, .authored-by {
     font-size: 0.8em;
     color: #888;
 }
 
 .field-annotation {
     font-size: 0.8em;
+}
+
+.field-value-buttons {
+    width: 7.5ex;
+    text-align: end;
 }
 
 #result_detail td {

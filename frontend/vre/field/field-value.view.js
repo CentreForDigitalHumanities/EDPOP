@@ -1,0 +1,107 @@
+import _ from 'lodash';
+import { $ } from 'backbone';
+import { when } from '@uu-cdh/backbone-util';
+
+import { View } from '../core/view.js';
+import fieldValueTemplate from './field-value.view.mustache';
+import fieldRelinkTemplate from './field.relink.options.mustache';
+
+/**
+ * Internal helper to forward DOM events to the model.
+ */
+function bubble(eventName) {
+    return function(event) {
+        event.preventDefault();
+        this.model.trigger(eventName, this.model, this);
+    };
+}
+
+/**
+ * Table row representing a single field value of a record.
+ * model: {@link module:'./field.model.js'.PresentableContents#model}.
+ * @class
+ * @extends View
+ */
+export var FieldValueView = View.extend(/**
+                                         * @lends FieldValueView.prototype
+                                         */{
+    tagName: 'tr',
+    template: fieldValueTemplate,
+    /** @member {module:'./field.model.js'.PresentableContents#model} model */
+
+    events: {
+        'click .fa-plus, .fa-pen': bubble('edit'),
+        'click .fa-xmark': bubble('discard'),
+    },
+
+    initialize: function(options) {
+        this.relinkOptions = options.relinkOptions;
+        this.render()
+            .listenTo(this.model, 'change', this.render)
+            .listenTo(this.relinkOptions, 'update', this.renderRelinkOptions);
+        when(this.model, 'edit', this.subscribeSubmodel, this);
+        this.$el.popover({
+            trigger: 'focus',
+            container: 'body',
+            content: fieldRelinkTemplate(this),
+            html: true,
+            sanitize: false,
+            placement: 'bottom',
+            selector: 'a.fa-link-slash',
+            title: 'Relink edit to which original value?',
+        });
+        this.relinkPicker = $('body').on(
+            'click',
+            '#relink-' + this.cid + ' .relink-option',
+            this.pickRelinkOption.bind(this),
+        );
+    },
+
+    subscribeSubmodel: function(model, subModel) {
+        if (!subModel) return this;
+        return this.listenTo(subModel, 'change', this.render);
+    },
+
+    render: function() {
+        var attributes = this.model.attributes,
+            original = attributes.original,
+            recordField = this.model.collection.recordField,
+            fieldInfo = attributes.isFirst && recordField.fieldInfo(),
+            linkedUri = original && original.getLinkedUri(),
+            linkedRecordUri = linkedUri && encodeURIComponent(linkedUri),
+            edit = attributes.edit,
+            updatedDate = edit && edit.getUpdatedDate(),
+            originalText = attributes.originalText,
+            payload = _.extend({}, attributes, {
+                fieldInfo,
+                linkedRecordUri,
+                updatedDate,
+            });
+        if (edit && originalText && originalText.length > 20) {
+            payload.shortOriginalText = (
+                originalText.slice(0, 9) + '…' + originalText.slice(-9)
+            );
+        }
+        this.$el.html(this.template(payload));
+        return this;
+    },
+
+    renderRelinkOptions: function() {
+        this.$el.popover('setContent', {
+            '.popover-body': fieldRelinkTemplate(this),
+        });
+    },
+
+    remove: function() {
+        this.$el.popover('dispose');
+        this.relinkPicker.off();
+        FieldValueView.__super__.remove.call(this);
+    },
+
+    pickRelinkOption: function(event) {
+        var edit = this.model.get('edit');
+        if (!edit) return;
+        edit.set('edpopcol:originalText', event.target.textContent);
+        edit.save();
+    },
+});

@@ -5,6 +5,7 @@
 import _ from 'lodash';
 import { FilteredCollection } from './filtered.collection.js';
 import { JsonLdNestedCollection } from './jsonld.model';
+import { canonicalSort } from './generic-functions.js';
 
 /**
  * A Backbone collection to access the properties defined by the ontology.
@@ -12,6 +13,9 @@ import { JsonLdNestedCollection } from './jsonld.model';
 export var PropertyList = JsonLdNestedCollection.extend({
     url: "/static/edpop-record-ontology.json",
     targetClass: "rdf:Property",
+    comparator: function(item) {
+        return canonicalSort(item.id);
+    },
 });
 
 export var properties = new PropertyList();

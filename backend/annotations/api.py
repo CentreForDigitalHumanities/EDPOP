@@ -163,12 +163,15 @@ class AnnotationView(RDFView):
         if s3 != target:
             raise ValidationError('Source must be a property of the target')
         motivation = request_graph.value(s1, OA.motivatedBy, None, OA.commenting)
-        if motivation in (OA.commenting, OA.editing, OA.describing):
+        if motivation in (OA.commenting, OA.describing):
             if not isinstance(body, Literal):
-                raise ValidationError('Body must be a literal when commenting or editing')
+                raise ValidationError('Body must be a literal when commenting')
         elif motivation == OA.tagging:
             if not isinstance(body, URIRef):
                 raise ValidationError('Tag must be a URI')
+        elif motivation == OA.editing:
+            if not isinstance(body, Literal) and body != EDPOPCOL.incorrectFieldValue:
+                raise ValidationError('Edits must either be literal text or edpopcol:incorrectFieldValue')
         else:
             raise ValidationError('Only commenting, tagging, editing and describing are supported')
 
