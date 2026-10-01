@@ -24,6 +24,8 @@ function summaryOrOriginalText(value) {
     return value['edpoprec:summaryText'] || value['edpoprec:originalText'];
 }
 
+const namingFields = ['edpoprec:title', 'edpoprec:name'];
+
 /**
  * Original value of a field in a record.
  * @class
@@ -64,7 +66,11 @@ export var Field = Backbone.Model.extend(/**
         const corrections = relevantEdits.map('oa:hasBody')
               .filter(_.isString)
               .value();
-        return preservedValues.concat(corrections).join(' ; ');
+        const displayValues = preservedValues.concat(corrections);
+        if (_.includes(namingFields, this.id)) {
+            return _.chain(displayValues).sortBy('length').first().value();
+        }
+        return displayValues.join(' ; ');
     },
     getFieldInfo() {
         const property = properties.get(this.id);
