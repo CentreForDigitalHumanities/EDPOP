@@ -6,6 +6,7 @@ import Backbone from 'backbone';
 
 import { Record } from '../record/record.model.js';
 import { Annotations } from '../annotation/annotation.model.js';
+import { properties } from '../utils/record-ontology.js';
 import { presentableContents, fieldEntryTag } from './field.model.js';
 
 // Quick string-generating function to emulate the backend's bnode: IRIs.
@@ -432,6 +433,10 @@ function disableRecordFieldListeners(recordField) {
 
 describe('presentableContents', function() {
     var record, contents;
+
+    before(() => {
+        properties.once('update', () => done());
+    });
 
     beforeEach(() => {
         record = new Record(mockRecord);
