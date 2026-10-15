@@ -12,16 +12,16 @@
 {{/edit}}
     class="vre-field-value"
 >
-{{#originalText}}
+{{#hasOriginalText}}
     {{#uncorrected}}
         {{#linkedRecordUri}}
     <a href="{{&.}}"
        target=_blank
        title="Go to linked record"
-    >{{originalText}}</a>
+    ><span class="original-text">{{originalText}}</span></a>
         {{/linkedRecordUri}}
         {{^linkedRecordUri}}
-    {{originalText}}
+    <span class="original-text">{{originalText}}</span>
         {{/linkedRecordUri}}
     {{/uncorrected}}
     {{^uncorrected}}
@@ -29,10 +29,10 @@
     <del title="{{originalText}}">{{.}}</del>
         {{/shortOriginalText}}
         {{^shortOriginalText}}
-    <del>{{.}}</del>
+    <del><span class="original-text">{{originalText}}</span></del>
         {{/shortOriginalText}}
     {{/uncorrected}}
-{{/originalText}}
+{{/hasOriginalText}}
 {{#correctedText}}
     <ins>{{.}}</ins>
 {{/correctedText}}
