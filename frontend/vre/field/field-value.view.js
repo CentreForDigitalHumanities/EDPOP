@@ -72,10 +72,12 @@ export var FieldValueView = View.extend(/**
             edit = attributes.edit,
             updatedDate = edit && edit.getUpdatedDate(),
             originalText = attributes.originalText,
+            hasOriginalText = (originalText != null),
             payload = _.extend({}, attributes, {
                 fieldInfo,
                 linkedRecordUri,
                 updatedDate,
+                hasOriginalText,
             });
         if (edit && originalText && originalText.length > 20) {
             payload.shortOriginalText = (

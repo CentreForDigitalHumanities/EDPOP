@@ -10,6 +10,10 @@ h2 {
     text-decoration: none;
 }
 
+.vre-record-fields .original-text:empty::before {
+    content: "(empty value)";
+}
+
 .vre-record-fields del, .authored-by {
     font-size: 0.8em;
     color: #888;
