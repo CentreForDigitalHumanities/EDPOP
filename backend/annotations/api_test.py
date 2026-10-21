@@ -5,6 +5,9 @@ from triplestore.constants import EDPOPCOL, OA
 
 from .api import JSON_LD_CONTEXT
 
+SOURCE = 'http://example.com/source'
+TARGET = {'oa:hasSource': {'@id': SOURCE}}
+
 
 def annotation_exists_for_source(triplestore, source):
     return len(list(triplestore.triples((None, OA.hasSource, URIRef(source))))) == 1
@@ -26,19 +29,15 @@ def create_annotation(client, target, body, django_test_user, project) -> str:
 
 
 def test_create_delete_annotation(client, triplestore, django_test_user, project):
-    source = 'http://example.com/source'
-    target = {'oa:hasSource': {'@id': source}}
-    uri = create_annotation(client, target, 'This is an annotation',
+    uri = create_annotation(client, TARGET, 'This is an annotation',
                             django_test_user, project)
-    assert annotation_exists_for_source(triplestore, source)
+    assert annotation_exists_for_source(triplestore, SOURCE)
     client.delete(f'/api/annotation/{quote_plus(uri)}/')
-    assert not annotation_exists_for_source(triplestore, source)
+    assert not annotation_exists_for_source(triplestore, SOURCE)
 
 
 def test_edit_annotation(client, triplestore, django_test_user, project):
-    source = 'http://example.com/source'
-    target = {'oa:hasSource': {'@id': source}}
-    uri = create_annotation(client, target, 'This is an annotation',
+    uri = create_annotation(client, TARGET, 'This is an annotation',
                             django_test_user, project)
     client.put(f'/api/annotation/{quote_plus(uri)}/', {
         '@context': JSON_LD_CONTEXT,
@@ -50,14 +49,12 @@ def test_edit_annotation(client, triplestore, django_test_user, project):
 
 
 def test_list_annotations(client, triplestore, django_test_user, project):
-    source = 'http://example.com/source'
-    target = {'oa:hasSource': {'@id': source}}
-    uri = create_annotation(client, target, 'This is an annotation',
+    uri = create_annotation(client, TARGET, 'This is an annotation',
                             django_test_user, project)
-    uri2 = create_annotation(client, target, 'This is another annotation',
+    uri2 = create_annotation(client, TARGET, 'This is another annotation',
                              django_test_user, project)
-    endpoint = f'/api/record-annotations/{quote_plus(source)}/?project={quote_plus(project.uri)}'
+    endpoint = f'/api/record-annotations/{quote_plus(SOURCE)}/?project={quote_plus(project.uri)}'
     response = client.get(endpoint)
     assert response.status_code == 200
     graph = response.data
-    assert len(list(graph.triples((None, OA.hasSource, URIRef(source))))) == 2
+    assert len(list(graph.triples((None, OA.hasSource, URIRef(SOURCE))))) == 2
