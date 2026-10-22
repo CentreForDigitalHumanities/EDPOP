@@ -8,6 +8,11 @@ from .api import JSON_LD_CONTEXT
 SOURCE = 'http://example.com/source'
 TARGET = {'oa:hasSource': {'@id': SOURCE}}
 DELETION_MARK = {'@id': 'edpopcol:incorrectFieldValue'}
+COMPLEX_BODY = {
+    '@type': OA.TextualBody,
+    'rdf:value': 'Annotation with a link',
+    'edpoprec:authorityRecord': 'http://example.com/authority',
+}
 
 
 def triplestore_size(triplestore):
@@ -71,6 +76,16 @@ def test_fail_bogus_body(client, triplestore, django_test_user, project):
     assert triplestore_size(triplestore) == size_before
 
 
+def test_create_delete_complex_body(client, triplestore, django_test_user, project):
+    size_before = triplestore_size(triplestore)
+    uri = create_annotation(client, TARGET, COMPLEX_BODY,
+                            django_test_user, project, OA.editing)
+    assert annotation_exists_for_source(triplestore, SOURCE)
+    client.delete(f'/api/annotation/{quote_plus(uri)}/')
+    assert not annotation_exists_for_source(triplestore, SOURCE)
+    assert triplestore_size(triplestore) == size_before
+
+
 def test_edit_annotation(client, triplestore, django_test_user, project):
     uri = create_annotation(client, TARGET, 'This is an annotation',
                             django_test_user, project)
@@ -81,6 +96,24 @@ def test_edit_annotation(client, triplestore, django_test_user, project):
     }, content_type='application/ld+json')
     body_triple = list(triplestore.triples((URIRef(uri), OA.hasBody, None)))[0][0]
     assert body_triple[2] == Literal('This is an edited annotation')
+
+
+def test_edit_complex_body(client, triplestore, django_test_user, project):
+    uri = create_annotation(client, TARGET, COMPLEX_BODY,
+                            django_test_user, project, OA.editing)
+    size_before = triplestore_size(triplestore)
+    textual_body = list(triplestore.objects(URIRef(uri), OA.hasBody))[0]
+    client.put(f'/api/annotation/{quote_plus(uri)}/', {
+        '@context': JSON_LD_CONTEXT,
+        '@id': uri,
+        'oa:hasBody': {
+            '@id': textual_body,
+            'rdf:value': 'This is an edited annotation',
+        }
+    }, content_type='application/ld+json')
+    body_value = list(triplestore.objects(textual_body, RDF.value))[0]
+    assert body_value == Literal('This is an edited annotation')
+    assert triplestore_size(triplestore) == size_before
 
 
 def test_list_annotations(client, triplestore, django_test_user, project):

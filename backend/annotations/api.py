@@ -16,6 +16,7 @@ from triplestore.utils import (
     replace_blank_nodes_in_triples,
     replace_node,
     sparql_multivalues,
+    sparql_multituples,
     triples_to_quads,
 )
 
@@ -25,6 +26,7 @@ ANNOTATION_GRAPH_IDENTIFIER = URIRef(ANNOTATION_GRAPH_URI)
 RDF_ANNOTATION_ROOT = settings.RDF_NAMESPACE_ROOT + "annotations/"
 
 NS = {
+    'rdf': RDF,
     'rdfs': RDFS,
     'edpoprec': EDPOPREC,
     'edpopcol': EDPOPCOL,
@@ -64,6 +66,7 @@ delete_annotation_update = '''
 delete {
   graph ?annotations {
     ?annotation ?pa ?oa .
+    ?body ?pb ?ob .
     ?target ?pt ?ot .
     ?selector ?ps ?os .
   }
@@ -71,6 +74,10 @@ delete {
 where {
   graph ?annotations {
     ?annotation ?pa ?oa .
+    optional {
+      ?annotation oa:hasBody ?body .
+      ?body ?pb ?ob .
+    }
     optional {
       ?annotation oa:hasTarget ?target .
       ?target ?pt ?ot .
@@ -84,23 +91,29 @@ where {
 '''
 
 update_annotation_body = '''
-delete {
-  graph ?annotations {
+delete {{
+  graph ?annotations {{
     ?annotation oa:hasBody ?o .
-  }
-}
-insert {
-  graph ?annotations {
+    ?o ?po ?oo .
+  }}
+}}
+insert {{
+  graph ?annotations {{
     ?annotation oa:hasBody ?body ;
                 as:updated ?updated .
-  }
-}
-where {
-  graph ?annotations {
+    ?body ?pn ?on .
+  }}
+}}
+where {{
+  graph ?annotations {{
     ?annotation oa:hasBody ?o .
-  }
-}
-'''
+    optional {{
+      ?o ?po ?oo .
+    }}
+    values (?pn ?on) {{ {} }}
+  }}
+}}
+'''.format
 
 annotation_in_project_query = '''
 select ?project
@@ -171,7 +184,12 @@ class AnnotationView(RDFView):
                 raise ValidationError('Tag must be a URI')
         elif motivation == OA.editing:
             if not isinstance(body, Literal) and body != EDPOPCOL.incorrectFieldValue:
-                raise ValidationError('Edits must either be literal text or edpopcol:incorrectFieldValue')
+                body_values = list(request_graph.objects(body, RDF.value))
+                if len(body_values) != 1:
+                    raise ValidationError(
+                        'Edits must either be literal text, edpopcol:incorrectFieldValue, '
+                        'or a nested resource with exactly one rdf:value'
+                    )
         else:
             raise ValidationError('Only commenting, tagging, editing and describing are supported')
 
@@ -225,9 +243,11 @@ class AnnotationEditView(RDFView):
 
         graph = graph_from_request(request)
         body = graph.value(id_uriref, OA.hasBody, None)
+        body_parts = graph.predicate_objects(body)
+        body_parts_n3 = sparql_multituples(body_parts)
         updated = Literal(datetime.datetime.now())
         # Delete the current body
-        store.update(update_annotation_body, initBindings={
+        store.update(update_annotation_body(body_parts_n3), initBindings={
             'annotations': ANNOTATION_GRAPH_IDENTIFIER,
             'annotation': id_uriref,
             'body': body,
