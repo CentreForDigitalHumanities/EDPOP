@@ -95,3 +95,13 @@ def test_sparql_multivalues():
     formatted = sparql_multivalues(values)
     expected = '<http://example.com/uri> <https://example.com/name> "banana"'
     assert formatted == expected
+
+
+def test_sparql_multituples():
+    tuples = [
+        (URIRef('http://example.com/uri'), Literal('banana')),
+        (URIRef('https://example.com/name'), Literal(7)),
+    ]
+    formatted = sparql_multituples(tuples)
+    expected = '(<http://example.com/uri> "banana") (<https://example.com/name> 7)'
+    assert formatted == expected
