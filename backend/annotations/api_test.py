@@ -14,7 +14,7 @@ def annotation_exists_for_source(triplestore, source):
     return len(list(triplestore.triples((None, OA.hasSource, URIRef(source))))) == 1
 
 
-def post_annotation(client, target, body, django_test_user, project) -> str:
+def post_annotation(client, target, body, user, project, motivation=None) -> str:
     """Send a POST request through the API and return the response."""
     data = {
         "@context": JSON_LD_CONTEXT,
@@ -22,13 +22,15 @@ def post_annotation(client, target, body, django_test_user, project) -> str:
         "oa:hasBody": body,
         "as:context": {'@id': project.uri},
     }
-    client.force_login(django_test_user)
+    if motivation:
+        data['oa:motivatedBy'] = motivation
+    client.force_login(user)
     return client.post('/api/annotation/', data, content_type='application/ld+json')
 
 
-def create_annotation(client, target, body, django_test_user, project) -> str:
+def create_annotation(client, target, body, user, project, motivation=None) -> str:
     """Create an annotation through the API and return the URI."""
-    response = post_annotation(client, target, body, django_test_user, project)
+    response = post_annotation(client, target, body, user, project, motivation)
     assert response.status_code == 200
     uri = str(list(response.data.subjects(RDF.type, EDPOPCOL.Annotation))[0])
     return uri
@@ -44,14 +46,16 @@ def test_create_delete_annotation(client, triplestore, django_test_user, project
 
 def test_create_deletion_mark(client, triplestore, django_test_user, project):
     uri = create_annotation(
-        client, TARGET, DELETION_MARK, django_test_user, project
+        client, TARGET, DELETION_MARK, django_test_user, project, OA.editing
     )
     assert annotation_exists_for_source(triplestore, SOURCE)
 
 
 def test_fail_bogus_body(client, triplestore, django_test_user, project):
     bogus = {'@id': 'http://example.com/bogus'}
-    response = post_annotation(client, TARGET, bogus, django_test_user, project)
+    response = post_annotation(
+        client, TARGET, bogus, django_test_user, project, OA.editing
+    )
     assert response.status_code == 400
 
 
