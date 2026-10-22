@@ -91,3 +91,17 @@ n3 = methodcaller('n3')
 def sparql_multivalues(values: Iterable[Node]) -> str:
     """Format a bunch of values for insertion as x in VALUES ?v { x }."""
     return ' '.join(map(n3, values))
+
+
+def n3_tuple(values: Iterable[Node]) -> str:
+    """Like sparql_multivalues, but wrapped in ().
+
+    This is an internal helper for sparql_multituples."""
+    return '({})'.format(sparql_multivalues(values))
+
+
+def sparql_multituples(tuples: Iterable[Iterable[Node]]) -> str:
+    """
+    Format tuples of values for insertion as x in VALUES (?v1 ... ?vN) { x }.
+    """
+    return ' '.join(map(n3_tuple, tuples))
