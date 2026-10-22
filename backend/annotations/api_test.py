@@ -23,7 +23,7 @@ def post_annotation(client, target, body, user, project, motivation=None) -> str
         "as:context": {'@id': project.uri},
     }
     if motivation:
-        data['oa:motivatedBy'] = motivation
+        data['oa:motivatedBy'] = {'@id': motivation}
     client.force_login(user)
     return client.post('/api/annotation/', data, content_type='application/ld+json')
 
