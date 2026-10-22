@@ -10,6 +10,10 @@ TARGET = {'oa:hasSource': {'@id': SOURCE}}
 DELETION_MARK = {'@id': 'edpopcol:incorrectFieldValue'}
 
 
+def triplestore_size(triplestore):
+    return len(list(triplestore.triples((None, None, None))))
+
+
 def annotation_exists_for_source(triplestore, source):
     return len(list(triplestore.triples((None, OA.hasSource, URIRef(source))))) == 1
 
@@ -37,26 +41,34 @@ def create_annotation(client, target, body, user, project, motivation=None) -> s
 
 
 def test_create_delete_annotation(client, triplestore, django_test_user, project):
+    size_before = triplestore_size(triplestore)
     uri = create_annotation(client, TARGET, 'This is an annotation',
                             django_test_user, project)
     assert annotation_exists_for_source(triplestore, SOURCE)
     client.delete(f'/api/annotation/{quote_plus(uri)}/')
     assert not annotation_exists_for_source(triplestore, SOURCE)
+    assert triplestore_size(triplestore) == size_before
 
 
 def test_create_deletion_mark(client, triplestore, django_test_user, project):
+    size_before = triplestore_size(triplestore)
     uri = create_annotation(
         client, TARGET, DELETION_MARK, django_test_user, project, OA.editing
     )
     assert annotation_exists_for_source(triplestore, SOURCE)
+    client.delete(f'/api/annotation/{quote_plus(uri)}/')
+    assert not annotation_exists_for_source(triplestore, SOURCE)
+    assert triplestore_size(triplestore) == size_before
 
 
 def test_fail_bogus_body(client, triplestore, django_test_user, project):
+    size_before = triplestore_size(triplestore)
     bogus = {'@id': 'http://example.com/bogus'}
     response = post_annotation(
         client, TARGET, bogus, django_test_user, project, OA.editing
     )
     assert response.status_code == 400
+    assert triplestore_size(triplestore) == size_before
 
 
 def test_edit_annotation(client, triplestore, django_test_user, project):
