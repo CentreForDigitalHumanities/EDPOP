@@ -1,7 +1,7 @@
 from urllib.parse import quote_plus
 
 from rdflib import RDF, URIRef, Literal
-from triplestore.constants import EDPOPCOL, OA
+from triplestore.constants import EDPOPCOL, OA, AS
 
 from .api import JSON_LD_CONTEXT
 
@@ -106,14 +106,18 @@ def test_edit_complex_body(client, triplestore, django_test_user, project):
     client.put(f'/api/annotation/{quote_plus(uri)}/', {
         '@context': JSON_LD_CONTEXT,
         '@id': uri,
-        'oa:hasBody': {
+        'oa:hasBody': COMPLEX_BODY | {
             '@id': textual_body,
             'rdf:value': 'This is an edited annotation',
         }
     }, content_type='application/ld+json')
     body_value = list(triplestore.objects(textual_body, RDF.value))[0]
     assert body_value == Literal('This is an edited annotation')
-    assert triplestore_size(triplestore) == size_before
+    updated_date = list(triplestore.objects(URIRef(uri), AS.updated))
+    assert len(updated_date) == 1
+    # There was no updated date before, so we expect the annotation to have
+    # grown by one triple.
+    assert triplestore_size(triplestore) == size_before + 1
 
 
 def test_list_annotations(client, triplestore, django_test_user, project):
