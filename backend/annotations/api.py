@@ -109,8 +109,8 @@ where {{
     ?annotation oa:hasBody ?o .
     optional {{
       ?o ?po ?oo .
+      values (?pn ?on) {{ {} }}
     }}
-    values (?pn ?on) {{ {} }}
   }}
 }}
 '''.format
