@@ -109,3 +109,7 @@ def test_sparql_multituples():
         '(<https://example.com/name> "7"^^<http://www.w3.org/2001/XMLSchema#integer>)'
     )
     assert formatted == expected
+
+
+def test_sparql_multituples_empty():
+    assert sparql_multituples([]) == ''
