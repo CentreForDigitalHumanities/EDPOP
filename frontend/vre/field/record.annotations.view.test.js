@@ -28,12 +28,12 @@ var TestCollection = Collection.extend({
 
 var annotation = new Annotation({
     "@id": "http://example.org/annotations/1",
-    "oa:hasBody": "moss",
+    text: "moss",
     context: "http://example.com/me-myself-and-i",
 });
 var annotation2 = new Annotation({
     "@id": "http://example.org/annotations/2",
-    "oa:hasBody": "bright",
+    text: "bright",
     context: fakeProjectMenu.model.id,
 });
 var testAnnotations = [annotation, annotation2];

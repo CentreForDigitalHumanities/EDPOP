@@ -62,7 +62,7 @@ export var AnnotationEditView = View.extend({
             if (tag) this.$('select').val(tag);
             this.$('select').trigger('change');
         } else {
-            var text = this.model.get('oa:hasBody') || this.defaultText;
+            var text = this.model.get('text') || this.defaultText;
             this.$el.html(this.template({
                 currentText: text,
                 cid: this.cid,
@@ -93,7 +93,7 @@ export var AnnotationEditView = View.extend({
         if (this.model.get('motivation') === 'oa:tagging') {
             this.model.set("tagURL", this.$('select').val());
         } else {
-            this.model.set("oa:hasBody", this.$('textarea').val());
+            this.model.set("text", this.$('textarea').val());
         }
         this.trigger('save', this);
     },

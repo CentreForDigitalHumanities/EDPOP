@@ -63,9 +63,7 @@ export var Field = Backbone.Model.extend(/**
               .omit(correctedValues)
               .map(summaryOrOriginalText)
               .value();
-        const corrections = relevantEdits.map('oa:hasBody')
-              .filter(_.isString)
-              .value();
+        const corrections = relevantEdits.map('text').value();
         const displayValues = preservedValues.concat(corrections);
         if (_.includes(namingFields, this.id)) {
             return _.chain(displayValues).sortBy('length').first().value();
@@ -228,7 +226,7 @@ export const fieldEntryTag = _.chain(fieldEntryTypeOrder)
  * `original.get('value')['edpoprec:originalText']` if present, or
  * `edit.get('edpopcol:originalText')` in case of a dangling edit.
  * @property {string} [correctedText] - Added or corrected value if applicable.
- * Convenience copy of `edit.get('oa:hasBody')`.
+ * Convenience copy of `edit.get('text')`.
  * @property {boolean} [dangling] - `true` if the edit refers to a value that is
  * no longer present in the original record.
  * @property {boolean} [uncorrected] - `true` if the instance represents an
@@ -289,7 +287,7 @@ function wrapCorrection(pair) {
         original,
         originalText,
     };
-    const correctedText = edit.get('oa:hasBody');
+    const correctedText = edit.get('text');
     return {
         id: originalText + ' → ' + correctedText,
         correction: true,
@@ -311,7 +309,7 @@ function wrapCorrection(pair) {
  * @returns {RecordFieldValueAttributes}
  */
 function wrapAddition(edit) {
-    const addedValue = edit.get('oa:hasBody');
+    const addedValue = edit.get('text');
     return {
         id: '→ ' + addedValue,
         addition: true,

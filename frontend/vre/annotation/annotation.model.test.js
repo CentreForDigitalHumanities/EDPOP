@@ -23,7 +23,7 @@ const flatAnnotation = {
     '@id': deepAnnotation['@id'],
     context: deepAnnotation['as:context']['@id'],
     motivation: deepAnnotation['oa:motivatedBy']['@id'],
-    'oa:hasBody': deepAnnotation['oa:hasBody'],
+    'text': deepAnnotation['oa:hasBody'],
     'oa:hasSource': deepAnnotation['oa:hasTarget']['oa:hasSource']['@id'],
     'edpopcol:field': deepAnnotation['oa:hasTarget']['oa:hasSelector']['edpopcol:field']['@id'],
     'edpopcol:originalText': deepAnnotation['oa:hasTarget']['oa:hasSelector']['edpopcol:originalText'],
@@ -51,6 +51,13 @@ const clientMod = {
     'oa:hasSource': serverMod['oa:hasTarget']['oa:hasSource']['@id'],
     'edpopcol:field': serverMod['oa:hasTarget']['oa:hasSelector']['edpopcol:field']['@id'],
     'edpopcol:originalText': serverMod['oa:hasTarget']['oa:hasSelector']['edpopcol:originalText'],
+};
+
+const deepEditWithLink = {
+    'oa:hasBody': {
+        'rdf:value': 'excellent',
+        'edpoprec:authorityRecord': {'@id': 'http://example.com/authority'},
+    },
 };
 
 describe('Annotation model', () => {
