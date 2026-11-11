@@ -65,7 +65,7 @@ export var FieldView = AggregateView.extend(/**
             newEdit = edit.clone();
         } else {
             newEdit = this.makeEdit(originalText);
-            correctedText != null && newEdit.set('oa:hasBody', correctedText);
+            correctedText != null && newEdit.set('text', correctedText);
         }
         var editor = new AnnotationEditView({
             model: newEdit,
