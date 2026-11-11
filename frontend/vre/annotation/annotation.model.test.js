@@ -53,6 +53,13 @@ const clientMod = {
     'edpopcol:originalText': serverMod['oa:hasTarget']['oa:hasSelector']['edpopcol:originalText'],
 };
 
+const deepEditWithLink = {
+    'oa:hasBody': {
+        'rdf:value': 'excellent',
+        'edpoprec:authorityRecord': {'@id': 'http://example.com/authority'},
+    },
+};
+
 describe('Annotation model', () => {
     let model;
 
