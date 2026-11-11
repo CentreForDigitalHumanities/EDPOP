@@ -37,7 +37,7 @@ export var Annotation = JsonLdModel.extend({
 
     getDisplayText: function() {
         if (['oa:commenting', 'oa:editing', 'oa:describing'].includes(this.get('motivation'))) {
-            return this.get('oa:hasBody');
+            return this.get('text');
         } else if (this.get('motivation') === 'oa:tagging') {
             var id = this.get('tagURL');
             return glossary.get(id).get('skos:prefLabel');

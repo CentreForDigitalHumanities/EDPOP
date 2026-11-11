@@ -89,53 +89,53 @@ var mockAnnotations = [{
     '@type': 'edpopcol:Annotation',
     'edpopcol:field': 'edpoprec:contributor',
     'edpopcol:originalText': contributor.value1.original,
-    'oa:hasBody': contributor.value1.correction1,
+    'text': contributor.value1.correction1,
 }, {
     '@id': bnode(),
     '@type': 'edpopcol:Annotation',
     'edpopcol:field': 'edpoprec:contributor',
     'edpopcol:originalText': contributor.value1.original,
-    'oa:hasBody': contributor.value1.correction2,
+    'text': contributor.value1.correction2,
 }, {
     // single correction for another originalText of the same field
     '@id': bnode(),
     '@type': 'edpopcol:Annotation',
     'edpopcol:field': 'edpoprec:contributor',
     'edpopcol:originalText': contributor.value4.original,
-    'oa:hasBody': contributor.value4.correction,
+    'text': contributor.value4.correction,
 }, {
     // correction on the same field for an originalText no longer present
     '@id': bnode(),
     '@type': 'edpopcol:Annotation',
     'edpopcol:field': 'edpoprec:contributor',
     'edpopcol:originalText': contributor.value2.original1,
-    'oa:hasBody': contributor.value2.correction,
+    'text': contributor.value2.correction,
 }, {
     // addition, again on the same field
     '@id': bnode(),
     '@type': 'edpopcol:Annotation',
     'edpopcol:field': 'edpoprec:contributor',
-    'oa:hasBody': contributor.value5.addition,
+    'text': contributor.value5.addition,
 }, {
     // correction on a field that is no longer set in the original record
     '@id': bnode(),
     '@type': 'edpopcol:Annotation',
     'edpopcol:field': 'edpoprec:placeOfPublication',
     'edpopcol:originalText': 'Shanghai',
-    'oa:hasBody': 'Bogotá'
+    'text': 'Bogotá'
 }, {
     // addition on a field that had no value set yet
     '@id': bnode(),
     '@type': 'edpopcol:Annotation',
     'edpopcol:field': 'edpoprec:bookseller',
-    'oa:hasBody': 'Kostunrix'
+    'text': 'Kostunrix'
 }, {
     // single correction to field with single value
     '@id': bnode(),
     '@type': 'edpopcol:Annotation',
     'edpopcol:field': 'edpoprec:genre',
     'edpopcol:originalText': 'science fiction',
-    'oa:hasBody': 'fantasy and horror'
+    'text': 'fantasy and horror'
 }];
 
 var expectedCompoundData = [sinon.match({
@@ -594,7 +594,7 @@ describe('presentableContents', function() {
                         '@type': 'edpopcol:Annotation',
                         'edpopcol:field': fieldName,
                         'edpopcol:originalText': pastValue,
-                        'oa:hasBody': value
+                        'text': value
                     });
                     assert(content.length === size + 1);
                     var entry = content.get(`${pastValue} → ${value}`);
@@ -614,7 +614,7 @@ describe('presentableContents', function() {
                         '@id': bnode(),
                         '@type': 'edpopcol:Annotation',
                         'edpopcol:field': fieldName,
-                        'oa:hasBody': value
+                        'text': value
                     });
                     assert(content.length === size + 1);
                     var entry = content.get(`→ ${value}`);
@@ -652,10 +652,10 @@ describe('presentableContents', function() {
                     matchOriginalText(contributor.value1.original)
                 );
                 var cor1 = annotations.find({
-                    'oa:hasBody': contributor.value1.correction1
+                    'text': contributor.value1.correction1
                 });
                 var cor2 = annotations.find({
-                    'oa:hasBody': contributor.value1.correction2
+                    'text': contributor.value1.correction2
                 });
                 var entry1 = content.get(contributor.value1.id1);
                 var entry2 = content.get(contributor.value1.id2);
@@ -667,7 +667,7 @@ describe('presentableContents', function() {
                 var val3 = values.find(matchOriginalText(contributor.value2.original2));
                 var entry3 = content.get(contributor.value2.original2);
                 var cor4 = annotations.find({
-                    'oa:hasBody': contributor.value2.correction
+                    'text': contributor.value2.correction
                 });
                 var entry4 = content.get(contributor.value2.id1);
                 assert(val3 && entry3 && cor4 && entry4);
@@ -680,14 +680,14 @@ describe('presentableContents', function() {
                 assert(entry5.get('original') === val5);
                 var val6 = values.find(matchOriginalText(contributor.value4.original));
                 var cor6 = annotations.find({
-                    'oa:hasBody': contributor.value4.correction
+                    'text': contributor.value4.correction
                 });
                 var entry6 = content.get(contributor.value4.id);
                 assert(val6 && cor6 && entry6);
                 assert(entry6.get('original') === val6);
                 assert(entry6.get('edit') === cor6);
                 var add7 = annotations.find({
-                    'oa:hasBody': contributor.value5.addition
+                    'text': contributor.value5.addition
                 });
                 var entry7 = content.get(contributor.value5.id);
                 assert(add7 && entry7);
@@ -735,7 +735,7 @@ describe('presentableContents', function() {
 
                 it('when a correction is removed', () => {
                     var cor = model.annotations.find({
-                        'oa:hasBody': contributor.value1.correction1,
+                        'text': contributor.value1.correction1,
                     });
                     var entry = content.get(contributor.value1.id1);
                     record.annotations.remove(cor);
@@ -747,7 +747,7 @@ describe('presentableContents', function() {
 
                 it('when a dangling correction is relinked', () => {
                     var cor = model.annotations.find({
-                        'oa:hasBody': contributor.value2.correction,
+                        'text': contributor.value2.correction,
                     });
                     assert(!content.get(contributor.value2.original1));
                     var entry1 = content.get(contributor.value2.original2);
@@ -793,7 +793,7 @@ describe('presentableContents', function() {
                         '@type': 'edpopcol:Annotation',
                         'edpopcol:field': fieldName,
                         'edpopcol:originalText': contributor.value3.original,
-                        'oa:hasBody': newName,
+                        'text': newName,
                     });
                     var entry = content.get(newId);
                     assert(entry instanceof Backbone.Model);
@@ -820,10 +820,10 @@ describe('presentableContents', function() {
                     var newId = `${contributor.value4.original} → ${fullName}`;
                     assert(!content.get(newId));
                     var cor = model.annotations.find({
-                        'oa:hasBody': contributor.value4.correction,
+                        'text': contributor.value4.correction,
                     });
                     var entry1 = content.get(contributor.value4.id);
-                    cor.set('oa:hasBody', fullName);
+                    cor.set('text', fullName);
                     var entry2 = content.get(newId);
                     assert(entry2 && entry2 !== entry1);
                     assert(addSpy.calledOnceWith(entry2));
@@ -834,7 +834,7 @@ describe('presentableContents', function() {
 
                 it('when an original value becomes unmasked', () => {
                     var cor = model.annotations.find({
-                        'oa:hasBody': contributor.value4.correction,
+                        'text': contributor.value4.correction,
                     });
                     var entry1 = content.get(contributor.value4.id);
                     record.annotations.remove(cor);
@@ -875,7 +875,7 @@ describe('presentableContents', function() {
 
                 it('when an addition is removed', () => {
                     var add = model.annotations.find({
-                        'oa:hasBody': contributor.value5.addition,
+                        'text': contributor.value5.addition,
                     });
                     var entry = content.get(contributor.value5.id);
                     record.annotations.remove(add);
@@ -890,10 +890,10 @@ describe('presentableContents', function() {
                     var newId = `→ ${newName}`;
                     assert(!content.get(newId));
                     var add = model.annotations.find({
-                        'oa:hasBody': contributor.value5.addition,
+                        'text': contributor.value5.addition,
                     });
                     var entry1 = content.get(contributor.value5.id);
-                    add.set('oa:hasBody', newName);
+                    add.set('text', newName);
                     var entry2 = content.get(newId);
                     assert(addSpy.calledOnceWith(entry2));
                     assert(changeSpy.notCalled);
