@@ -65,7 +65,7 @@ export var FieldView = AggregateView.extend(/**
             newEdit = edit.clone();
         } else {
             newEdit = this.makeEdit(originalText);
-            correctedText && newEdit.set('oa:hasBody', correctedText);
+            correctedText != null && newEdit.set('oa:hasBody', correctedText);
         }
         var editor = new AnnotationEditView({
             model: newEdit,
@@ -90,7 +90,7 @@ export var FieldView = AggregateView.extend(/**
             'edpopcol:field': this.model.id,
             'motivation': 'oa:editing',
         });
-        originalText && newEdit.set('edpopcol:originalText', originalText);
+        originalText != null && newEdit.set('edpopcol:originalText', originalText);
         return newEdit;
     },
 

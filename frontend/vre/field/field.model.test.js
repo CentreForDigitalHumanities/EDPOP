@@ -6,6 +6,7 @@ import Backbone from 'backbone';
 
 import { Record } from '../record/record.model.js';
 import { Annotations } from '../annotation/annotation.model.js';
+import { properties } from '../utils/record-ontology.js';
 import { presentableContents, fieldEntryTag } from './field.model.js';
 
 // Quick string-generating function to emulate the backend's bnode: IRIs.
@@ -73,6 +74,12 @@ var mockRecord = {
         '@type': 'edpoprec:Field',
         'edpoprec:originalText': contributor.value4.original,
     }],
+    // field with empty string value
+    'edpoprec:publisherOrPrinter': {
+        '@id': bnode(),
+        '@type': 'edpoprec:Field',
+        'edpoprec:originalText': ''
+    },
     // field with just a single corrected value
     'edpoprec:genre': {
         '@id': bnode(),
@@ -253,6 +260,11 @@ var expectedCompoundData = [sinon.match({
     id: 'edpoprec:publisherOrPrinter',
     field: sinon.match.truthy,
     content: [sinon.match({
+        id: '',
+        uncorrected: true,
+        order: fieldEntryTag.originalValue,
+        isFirst: true,
+    }), sinon.match({
         id: 'edpoprec:publisherOrPrinter',
         field: true,
         order: fieldEntryTag.wholeField
@@ -421,6 +433,10 @@ function disableRecordFieldListeners(recordField) {
 
 describe('presentableContents', function() {
     var record, contents;
+
+    before(() => {
+        properties.once('update', () => done());
+    });
 
     beforeEach(() => {
         record = new Record(mockRecord);
@@ -945,6 +961,78 @@ describe('presentableContents', function() {
                         formerFirst = first;
                     });
                 });
+            });
+        });
+
+        describe('empty string original values', () => {
+            var content, fieldName = 'edpoprec:publisherOrPrinter';
+
+            beforeEach(() => {
+                model = contents.get(fieldName);
+                content = model.content;
+            });
+
+            afterEach(() => {
+                content = null;
+            });
+
+            it('can be corrected', () => {
+                model.annotations.underlying.add({
+                    '@id': bnode(),
+                    '@type': 'oa:Annotation',
+                    'edpopcol:field': fieldName,
+                    'edpopcol:originalText': '',
+                    'oa:hasBody': 'nonempty',
+                });
+                sinon.assert.match(
+                    recordField2json(model),
+                    sinon.match({
+                        id: 'edpoprec:publisherOrPrinter',
+                        field: sinon.match.truthy,
+                        content: [sinon.match({
+                            id: ' → nonempty',
+                            correction: true,
+                            order: fieldEntryTag.correction,
+                            original: sinon.match.truthy,
+                            originalText: '',
+                            correctedText: 'nonempty',
+                            isFirst: true,
+                        }), sinon.match({
+                            id: 'edpoprec:publisherOrPrinter',
+                            field: true,
+                            order: fieldEntryTag.wholeField
+                        })],
+                    })
+                );
+            });
+
+            it('can be deleted', () => {
+                model.annotations.underlying.add({
+                    '@id': bnode(),
+                    '@type': 'oa:Annotation',
+                    'edpopcol:field': fieldName,
+                    'edpopcol:originalText': '',
+                    marksDeletion: true,
+                });
+                sinon.assert.match(
+                    recordField2json(model),
+                    sinon.match({
+                        id: 'edpoprec:publisherOrPrinter',
+                        field: sinon.match.truthy,
+                        content: [sinon.match({
+                            id: ' →',
+                            deletion: true,
+                            order: fieldEntryTag.deletion,
+                            original: sinon.match.truthy,
+                            originalText: '',
+                            isFirst: true,
+                        }), sinon.match({
+                            id: 'edpoprec:publisherOrPrinter',
+                            field: true,
+                            order: fieldEntryTag.wholeField
+                        })],
+                    })
+                );
             });
         });
     });

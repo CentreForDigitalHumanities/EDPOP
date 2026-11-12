@@ -91,7 +91,7 @@ export var Annotation = JsonLdModel.extend({
                 var field = selector['edpopcol:field'],
                     text = selector['edpopcol:originalText'];
                 if (field) flat['edpopcol:field'] = field['@id'];
-                if (text) flat['edpopcol:originalText'] = text;
+                if (text != null) flat['edpopcol:originalText'] = text;
             }
         }
         return _.assign(flat, anno);
@@ -110,7 +110,7 @@ export var Annotation = JsonLdModel.extend({
             flatField = jsonld['edpopcol:field'],
             flatText = jsonld['edpopcol:originalText'];
         if (flatField) selector['edpopcol:field'] = {'@id': flatField};
-        if (flatText) selector['edpopcol:originalText'] = flatText;
+        if (flatText != null) selector['edpopcol:originalText'] = flatText;
         if (flatField || flatText) var flatSelector = true;
         if (flatSource) target['oa:hasSource'] = {'@id': flatSource};
         if (flatSelector) target['oa:hasSelector'] = selector;

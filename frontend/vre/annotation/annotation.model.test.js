@@ -118,6 +118,14 @@ describe('Annotation model', () => {
             '@id': 'edpopcol:incorrectFieldValue'
         });
     });
+
+    it('preserves empty originalText', () => {
+        model.set(flatAnnotation);
+        model.set('edpopcol:originalText', '');
+        const storedAttributes = model.toJSON();
+        model.clear().set(model.parse(storedAttributes));
+        assert(model.get('edpopcol:originalText') === '');
+    });
 });
 
 describe('Annotations collection', () => {

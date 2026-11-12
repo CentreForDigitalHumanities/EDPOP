@@ -32,6 +32,7 @@ export var FieldValueView = View.extend(/**
     events: {
         'click .fa-plus, .fa-pen': bubble('edit'),
         'click .fa-xmark': bubble('discard'),
+        'click': 'mockDanglingEdit',
     },
 
     initialize: function(options) {
@@ -72,10 +73,12 @@ export var FieldValueView = View.extend(/**
             edit = attributes.edit,
             updatedDate = edit && edit.getUpdatedDate(),
             originalText = attributes.originalText,
+            hasOriginalText = (originalText != null),
             payload = _.extend({}, attributes, {
                 fieldInfo,
                 linkedRecordUri,
                 updatedDate,
+                hasOriginalText,
             });
         if (edit && originalText && originalText.length > 20) {
             payload.shortOriginalText = (
@@ -103,5 +106,12 @@ export var FieldValueView = View.extend(/**
         if (!edit) return;
         edit.set('edpopcol:originalText', event.target.textContent);
         edit.save();
+    },
+
+    mockDanglingEdit: function(event) {
+        if (!event.shiftKey) return;
+        var edit = this.model.get('edit');
+        if (!edit || !edit.has('edpopcol:originalText')) return;
+        edit.set('edpopcol:originalText', 'simulated dangle');
     },
 });
