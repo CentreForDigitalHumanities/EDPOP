@@ -60,6 +60,25 @@ const deepEditWithLink = {
     },
 };
 
+const flatEditWithLink = {
+    text: deepEditWithLink['oa:hasBody']['rdf:value'],
+    authorityRecord: deepEditWithLink['oa:hasBody']['edpoprec:authorityRecord']['@id'],
+};
+
+const deepEditWithIIIF = {
+    'oa:hasBody': {
+        'rdf:value': 'picture of a banana',
+        'edpoprec:iiifManifest': 'http://example.com/iiifManifest',
+        'edpoprec:previewUrl': 'http://example.com/thumbnail',
+    },
+};
+
+const flatEditWithIIIF = {
+    text: deepEditWithIIIF['oa:hasBody']['rdf:value'],
+    iiifManifest: deepEditWithIIIF['oa:hasBody']['edpoprec:iiifManifest'],
+    previewUrl: deepEditWithIIIF['oa:hasBody']['edpoprec:previewUrl'],
+};
+
 describe('Annotation model', () => {
     let model;
 
@@ -124,6 +143,40 @@ describe('Annotation model', () => {
         assert.deepStrictEqual(serialized['oa:hasBody'], {
             '@id': 'edpopcol:incorrectFieldValue'
         });
+    });
+
+    it('recognizes authority records', () => {
+        const modifiedDeep = _.assign({}, deepAnnotation, deepEditWithLink);
+        const parsed = model.parse(modifiedDeep);
+        sinon.assert.match(parsed, flatEditWithLink);
+    });
+
+    it('serializes authority records', () => {
+        model.set(flatAnnotation);
+        model.set(flatEditWithLink);
+        const serialized = model.toJSON();
+        for (let key in flatEditWithLink) assert(!(key in serialized));
+        assert.deepStrictEqual(
+            serialized['oa:hasBody'],
+            deepEditWithLink['oa:hasBody']
+        );
+    });
+
+    it('recognizes digitizations', () => {
+        const modifiedDeep = _.assign({}, deepAnnotation, deepEditWithIIIF);
+        const parsed = model.parse(modifiedDeep);
+        sinon.assert.match(parsed, flatEditWithIIIF);
+    });
+
+    it('serializes digitizations', () => {
+        model.set(flatAnnotation);
+        model.set(flatEditWithIIIF);
+        const serialized = model.toJSON();
+        for (let key in flatEditWithIIIF) assert(!(key in serialized));
+        assert.deepStrictEqual(
+            serialized['oa:hasBody'],
+            deepEditWithIIIF['oa:hasBody']
+        );
     });
 });
 

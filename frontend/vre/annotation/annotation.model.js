@@ -65,6 +65,10 @@ export var Annotation = JsonLdModel.extend({
         'text',
         'tagURL',
         'marksDeletion',
+        'authorityRecord',
+        'iiifManifest',
+        'previewUrl',
+        'imageUrl',
         'oa:hasSource',
         'edpopcol:field',
         'edpopcol:originalText',
@@ -85,6 +89,12 @@ export var Annotation = JsonLdModel.extend({
                 flat.tagURL = body['@id'];
             } else if (_.isString(body)) {
                 flat.text = body;
+            } else {
+                flat.text = body['rdf:value'];
+                flat.authorityRecord = body['edpoprec:authorityRecord'];
+                flat.iiifManifest = body['edpoprec:iiifManifest'];
+                flat.previewUrl = body['edpoprec:previewUrl'];
+                flat.imageUrl = body['edpoprec:url'];
             }
         }
         if (flat.tagURL === 'edpopcol:incorrectFieldValue') {
@@ -112,6 +122,12 @@ export var Annotation = JsonLdModel.extend({
             flatText = jsonld.text,
             flatTagURL = jsonld.tagURL,
             marksDeletion = jsonld.marksDeletion,
+            flatAuthority = jsonld.authorityRecord,
+            flatIIIF = jsonld.iiifManifest,
+            flatPreview = jsonld.previewUrl,
+            flatImage = jsonld.imageUrl,
+            bodyNested = flatAuthority || flatIIIF || flatPreview || flatImage,
+            body = jsonld['oa:hasBody'] || {},
             target = jsonld['oa:hasTarget'] || {},
             selector = target['oa:hasSelector'] || {},
             flatSource = jsonld['oa:hasSource'],
@@ -123,7 +139,12 @@ export var Annotation = JsonLdModel.extend({
         if (flatSource) target['oa:hasSource'] = {'@id': flatSource};
         if (flatSelector) target['oa:hasSelector'] = selector;
         if (flatSource || flatSelector) jsonld['oa:hasTarget'] = target;
-        if (flatText) jsonld['oa:hasBody'] = flatText;
+        if (flatText) body['rdf:value'] = jsonld['oa:hasBody'] = flatText;
+        if (flatAuthority) body['edpoprec:authorityRecord'] = flatAuthority;
+        if (flatIIIF) body['edpoprec:iiifManifest'] = flatIIIF;
+        if (flatPreview) body['edpoprec:previewUrl'] = flatPreview;
+        if (flatImage) body['edpoprec:url'] = flatImage;
+        if (bodyNested) jsonld['oa:hasBody'] = body;
         if (marksDeletion) flatTagURL = 'edpopcol:incorrectFieldValue';
         if (flatTagURL) jsonld['oa:hasBody'] = {'@id': flatTagURL};
         if (flatMotivation) jsonld['oa:motivatedBy'] = {'@id': flatMotivation};
