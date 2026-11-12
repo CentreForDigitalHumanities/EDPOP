@@ -91,7 +91,8 @@ export var Annotation = JsonLdModel.extend({
                 flat.text = body;
             } else {
                 flat.text = body['rdf:value'];
-                flat.authorityRecord = body['edpoprec:authorityRecord'];
+                var authority = body['edpoprec:authorityRecord'];
+                flat.authorityRecord = authority && authority['@id'];
                 flat.iiifManifest = body['edpoprec:iiifManifest'];
                 flat.previewUrl = body['edpoprec:previewUrl'];
                 flat.imageUrl = body['edpoprec:url'];
@@ -127,7 +128,8 @@ export var Annotation = JsonLdModel.extend({
             flatPreview = jsonld.previewUrl,
             flatImage = jsonld.imageUrl,
             bodyNested = flatAuthority || flatIIIF || flatPreview || flatImage,
-            body = jsonld['oa:hasBody'] || {},
+            body = _.isObject(jsonld['oa:hasBody']) ? jsonld['oa:hasBody'] : {},
+            authority = body['edpoprec:authorityRecord'] || {},
             target = jsonld['oa:hasTarget'] || {},
             selector = target['oa:hasSelector'] || {},
             flatSource = jsonld['oa:hasSource'],
@@ -140,7 +142,12 @@ export var Annotation = JsonLdModel.extend({
         if (flatSelector) target['oa:hasSelector'] = selector;
         if (flatSource || flatSelector) jsonld['oa:hasTarget'] = target;
         if (flatText) body['rdf:value'] = jsonld['oa:hasBody'] = flatText;
-        if (flatAuthority) body['edpoprec:authorityRecord'] = flatAuthority;
+        if (flatAuthority) {
+            authority['@id'] = flatAuthority;
+            body['edpoprec:authorityRecord'] = authority;
+        } else {
+            delete body['edpoprec:authorityRecord'];
+        }
         if (flatIIIF) body['edpoprec:iiifManifest'] = flatIIIF;
         if (flatPreview) body['edpoprec:previewUrl'] = flatPreview;
         if (flatImage) body['edpoprec:url'] = flatImage;
