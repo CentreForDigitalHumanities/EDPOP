@@ -539,7 +539,7 @@ describe('presentableContents', function() {
         });
 
         describe('presentation collections', () => {
-            var content;
+            var content, value = 'KBH 1700 D2';
 
             beforeEach(() => {
                 content = model.content;
@@ -553,7 +553,7 @@ describe('presentableContents', function() {
             });
 
             describe('automatically update', () => {
-                var addSpy, changeSpy, removeSpy, value = 'KBH 1700 D2';
+                var addSpy, changeSpy, removeSpy;
 
                 beforeEach(() => {
                     addSpy = sinon.spy();
@@ -639,6 +639,91 @@ describe('presentableContents', function() {
                     assert(entry.get('correctedText') === value);
                     assert(addSpy.calledOnceWith(entry));
                     assert(removeSpy.notCalled);
+                });
+            });
+
+            var authorityUrl = 'http://example.com/authority',
+                manifestUrl = 'http://example.com/iiif',
+                previewUrl = 'http://example.com/thumbnail',
+                imageUrl = 'http://example.com/image';
+
+            function setOnRecord(value, suffix = '') {
+                record.set(fieldName, {
+                    '@id': bnode(),
+                    '@type': 'edpoprec:Field',
+                    'edpoprec:originalText': value,
+                    'edpoprec:authorityRecord': {'@id': authorityUrl + suffix},
+                    'edpoprec:iiifManifest': manifestUrl + suffix,
+                    'edpoprec:previewUrl': previewUrl + suffix,
+                    'edpoprec:url': imageUrl + suffix,
+                });
+            }
+
+            function addAnnotation(pastValue, newValue, addLinks = true) {
+                var anno = record.annotations.add({
+                    '@id': bnode(),
+                    '@type': 'edpopcol:Annotation',
+                    'edpopcol:field': fieldName,
+                    'text': newValue,
+                });
+                if (pastValue) anno.set('edpopcol:originalText', pastValue);
+                if (addLinks) anno.set({
+                    authorityRecord: authorityUrl,
+                    iiifManifest: manifestUrl,
+                    previewUrl: previewUrl,
+                    imageUrl: imageUrl,
+                });
+                return anno;
+            }
+
+            function assertLinked(entry) {
+                assert(entry instanceof Backbone.Model);
+                assert(entry.get('authorityRecord') === authorityUrl);
+                assert(entry.get('iiifManifest') === manifestUrl);
+                assert(entry.get('previewUrl') === previewUrl);
+                assert(entry.get('imageUrl') === imageUrl);
+            }
+
+            function assertNotLinked(entry) {
+                assert(entry instanceof Backbone.Model);
+                assert(!entry.has('authorityRecord'));
+                assert(!entry.has('iiifManifest'));
+                assert(!entry.has('previewUrl'));
+                assert(!entry.has('imageUrl'));
+            }
+
+            describe('original value entries', () => {
+                it('include linked information', () => {
+                    setOnRecord(value);
+                    assertLinked(content.get(value));
+                });
+            });
+
+            describe('correction entries', () => {
+                it('include edited links', () => {
+                    var anno = addAnnotation(value, value);
+                    var entry = content.get(`${value} → ${value}`);
+                    assertLinked(entry);
+                    assert(entry.get('edit') === anno);
+                });
+
+                it('prioritize edited links over original links', () => {
+                    setOnRecord(value, 'Old');
+                    addAnnotation(value, value);
+                    assertLinked(content.get(`${value} → ${value}`));
+                });
+
+                it('mask original links', () => {
+                    setOnRecord(value);
+                    addAnnotation(value, value, false);
+                    assertNotLinked(content.get(`${value} → ${value}`));
+                });
+            });
+
+            describe('addition entries', () => {
+                it('include edited links', () => {
+                    addAnnotation(null, value, true);
+                    assertLinked(content.get(`→ ${value}`));
                 });
             });
         });

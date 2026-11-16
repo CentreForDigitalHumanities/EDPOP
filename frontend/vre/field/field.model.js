@@ -227,6 +227,18 @@ export const fieldEntryTag = _.chain(fieldEntryTypeOrder)
  * `edit.get('edpopcol:originalText')` in case of a dangling edit.
  * @property {string} [correctedText] - Added or corrected value if applicable.
  * Convenience copy of `edit.get('text')`.
+ * @property {string} [authorityRecord] - Authority record URL to be used as
+ * hyperlink. Sourced from the original value if uncorrected, from the
+ * correction or the addition otherwise.
+ * @property {string} [iiifManifest] - URL of a IIIF manifest for a
+ * digitization. Sourced from the original value if uncorrected, from the
+ * correction or the addition otherwise.
+ * @property {string} [previewurl] - URL of a preview image for a digitization.
+ * Sourced from the original value if uncorrected, from the correction or the
+ * addition otherwise.
+ * @property {string} [imageUrl] - URL of a full-scale image for a digitization.
+ * Sourced from the original value if uncorrected, from the correction or the
+ * addition otherwise.
  * @property {boolean} [dangling] - `true` if the edit refers to a value that is
  * no longer present in the original record.
  * @property {boolean} [uncorrected] - `true` if the instance represents an
@@ -254,14 +266,42 @@ export const fieldEntryTag = _.chain(fieldEntryTypeOrder)
  * @returns {RecordFieldValueAttributes}
  */
 function wrapUncorrected(original) {
-    var originalText = original.get('value')['edpoprec:originalText'];
+    var value = original.get('value'),
+        originalText = value['edpoprec:originalText'],
+        authorityObj = value['edpoprec:authorityRecord'],
+        authorityRecord = authorityObj && authorityObj['@id'],
+        iiifManifest = value['edpoprec:iiifManifest'],
+        previewUrl = value['edpoprec:previewUrl'],
+        imageUrl = value['edpoprec:url'];
     return {
         id: originalText,
         uncorrected: true,
         order: fieldEntryTag.originalValue,
         original,
         originalText,
+        authorityRecord,
+        iiifManifest,
+        previewUrl,
+        imageUrl,
     };
+}
+
+/**
+ * Attributes that we want to copy from an edit to an instance of {@link
+ * RecordFieldValueAttributes} for easy access.
+ * @type {string[]}
+ */
+var linkAttributes = 'authorityRecord iiifManifest previewUrl imageUrl'.split(' ');
+
+/**
+ * Create an object that contains the {@link linkAttributes} from an edit as
+ * well as everything in `otherAttrs`.
+ * @param {Annotation} edit
+ * @param {Object} otherAttrs
+ * @returns {Object}
+ */
+function copyLinks(edit, otherAttrs) {
+    return _.assign(edit.pick(linkAttributes), otherAttrs);
 }
 
 /**
@@ -288,7 +328,7 @@ function wrapCorrection(pair) {
         originalText,
     };
     const correctedText = edit.get('text');
-    return {
+    return copyLinks(edit, {
         id: originalText + ' → ' + correctedText,
         correction: true,
         dangling: !original,
@@ -300,7 +340,7 @@ function wrapCorrection(pair) {
         original,
         originalText,
         correctedText,
-    };
+    });
 }
 
 /**
@@ -310,13 +350,13 @@ function wrapCorrection(pair) {
  */
 function wrapAddition(edit) {
     const addedValue = edit.get('text');
-    return {
+    return copyLinks(edit, {
         id: '→ ' + addedValue,
         addition: true,
         edit,
         order: fieldEntryTag.addition,
         correctedText: addedValue,
-    };
+    });
 }
 
 /**
