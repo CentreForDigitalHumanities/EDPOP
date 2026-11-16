@@ -393,7 +393,7 @@ var expectedCompoundData = [sinon.match({
 })];
 
 /**
- * Generate a callback than checks whether a given instance of {@link Field}
+ * Generate a callback that checks whether a given instance of {@link Field}
  * matches the given `edpopcol:originalText`.
  * @param {string} originalText
  * @returns {matchOriginalText~curried}
