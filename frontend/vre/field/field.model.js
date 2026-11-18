@@ -243,6 +243,8 @@ export const fieldEntryTag = _.chain(fieldEntryTypeOrder)
  * encompassing {@link CombinedFieldValues} instance.
  * @property {boolean} [dangling] - `true` if the edit refers to a value that is
  * no longer present in the original record.
+ * @property {boolean} [digitization] - `true` if the instance is associated
+ * with an `edpoprec:digitization` field.
  * @property {boolean} [uncorrected] - `true` if the instance represents an
  * unedited original value in the record. Mutually exclusive with `deletion`,
  * `correction`, `addition` and `field`.
@@ -362,6 +364,16 @@ function wrapAddition(edit) {
 }
 
 /**
+ * Modify `attributes` in place by adding a `digitization` property with the
+ * value `true`. This is an internal helper for {@link
+ * CombinedFieldValues#combineValues}.
+ * @param {Object} attributes
+ */
+function markDigitization(attributes) {
+    attributes.digitization = true;
+}
+
+/**
  * Common properties of {@link CombinedFieldValues} and {@link RecordField}.
  * Also passed in options to the `RecordField` constructor.
  * @interface RecordFieldData
@@ -466,6 +478,9 @@ export var CombinedFieldValues = Backbone.Collection.extend(/**
             _.map(correctionPairs, wrapCorrection),
             _.map(additions, wrapAddition),
         );
+        if (this.id === 'edpoprec:digitization') {
+            _.each(allAttributes, markDigitization);
+        }
         this.set(allAttributes);
         return this;
     },

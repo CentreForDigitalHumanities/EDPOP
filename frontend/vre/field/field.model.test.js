@@ -726,6 +726,30 @@ describe('presentableContents', function() {
                     assertLinked(content.get(`→ ${value}`));
                 });
             });
+
+            it('indicate digitization entries with a dedicated boolean attribute', () => {
+                var entry1 = content.first();
+                assert(!entry1.get('digitization'));
+                var fieldName2 = 'edpoprec:digitization';
+                var model2 = contents.get(fieldName2);
+                var content2 = model2.content;
+                var entry2 = content2.first();
+                assert(entry2 !== entry1);
+                assert(entry2.get('digitization'));
+                assert(model2.values.length === 0);
+                record.set(fieldName2, {
+                    '@id': bnode(),
+                    '@type': 'edpoprec:Field',
+                    'edpoprec:originalText': 'a picture of a banana',
+                    'edpoprec:iiifManifest': 'http://example.com/iiif',
+                });
+                assert(model2.values.length === 1);
+                assert(entry2 !== content2.first());
+                var entry3 = content2.first();
+                assert(entry3 !== entry2);
+                assert(entry3.get('original') === model2.values.first());
+                assert(entry3.get('digitization'));
+            });
         });
 
         describe('prepopulated presentation collections', () => {
