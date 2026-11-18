@@ -239,6 +239,8 @@ export const fieldEntryTag = _.chain(fieldEntryTypeOrder)
  * @property {string} [imageUrl] - URL of a full-scale image for a digitization.
  * Sourced from the original value if uncorrected, from the correction or the
  * addition otherwise.
+ * @property {boolean} [isFirst] - `true` if the model appears first in its
+ * encompassing {@link CombinedFieldValues} instance.
  * @property {boolean} [dangling] - `true` if the edit refers to a value that is
  * no longer present in the original record.
  * @property {boolean} [uncorrected] - `true` if the instance represents an
