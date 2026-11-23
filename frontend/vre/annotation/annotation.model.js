@@ -85,10 +85,10 @@ export var Annotation = JsonLdModel.extend({
         if (context) flat.context = context['@id'];
         if (motivation) flat.motivation = motivation['@id'];
         if (body) {
-            if (body['@id']) {
-                flat.tagURL = body['@id'];
-            } else if (_.isString(body)) {
+            if (_.isString(body)) {
                 flat.text = body;
+            } else if (body['@id'] && body['rdf:value'] == null) {
+                flat.tagURL = body['@id'];
             } else {
                 flat.text = body['rdf:value'];
                 var authority = body['edpoprec:authorityRecord'];

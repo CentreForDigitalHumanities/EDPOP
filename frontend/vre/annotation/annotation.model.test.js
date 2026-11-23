@@ -55,6 +55,7 @@ const clientMod = {
 
 const deepEditWithLink = {
     'oa:hasBody': {
+        '@id': 'http://example.com/deepBodyLink',
         'rdf:value': 'excellent',
         'edpoprec:authorityRecord': {'@id': 'http://example.com/authority'},
     },
@@ -67,6 +68,7 @@ const flatEditWithLink = {
 
 const deepEditWithIIIF = {
     'oa:hasBody': {
+        '@id': 'http://example.com/deepBodyIIIF',
         'rdf:value': 'picture of a banana',
         'edpoprec:iiifManifest': 'http://example.com/iiifManifest',
         'edpoprec:previewUrl': 'http://example.com/thumbnail',
@@ -166,7 +168,7 @@ describe('Annotation model', () => {
         for (let key in flatEditWithLink) assert(!(key in serialized));
         assert.deepStrictEqual(
             serialized['oa:hasBody'],
-            deepEditWithLink['oa:hasBody']
+            _.omit(deepEditWithLink['oa:hasBody'], '@id')
         );
     });
 
@@ -183,7 +185,7 @@ describe('Annotation model', () => {
         for (let key in flatEditWithIIIF) assert(!(key in serialized));
         assert.deepStrictEqual(
             serialized['oa:hasBody'],
-            deepEditWithIIIF['oa:hasBody']
+            _.omit(deepEditWithIIIF['oa:hasBody'], '@id')
         );
     });
 });
