@@ -32,18 +32,20 @@ describe('FieldView', function() {
 
     describe('makeEdit', () => {
         it('includes non-null originalText', () => {
-            var text = 'something'
-            var edit = view.makeEdit(text);
+            var text = 'something';
+            var target = new Model({originalText: text});
+            var edit = view.makeEdit(target);
             assert(edit.get('edpopcol:originalText') === text);
         });
 
         it('omits nullish originalText', () => {
-            var edit = view.makeEdit();
+            var edit = view.makeEdit(new Model);
             assert(!edit.has('edpopcol:originalText'));
         });
 
         it('includes non-null originalText even if empty', () => {
-            var edit = view.makeEdit('');
+            var target = new Model({originalText: ''});
+            var edit = view.makeEdit(target);
             assert(edit.get('edpopcol:originalText') === '');
         });
     });

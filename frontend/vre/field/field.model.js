@@ -299,6 +299,7 @@ function wrapUncorrected(original) {
  * RecordFieldValueAttributes} for easy access.
  * @type {string[]}
  */
+export
 var linkAttributes = 'authorityRecord iiifManifest previewUrl imageUrl'.split(' ');
 
 /**

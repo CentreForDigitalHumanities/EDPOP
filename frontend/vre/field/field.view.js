@@ -2,6 +2,7 @@ import _ from 'lodash';
 
 import { vreChannel } from '../radio.js';
 import { AggregateView } from '../core/view.js';
+import { linkAttributes } from '../field/field.model.js';
 import { Annotation } from '../annotation/annotation.model';
 import { AnnotationEditView } from '../annotation/annotation.edit.view';
 import { OverlayView } from '../utils/overlay.view.js';
@@ -54,22 +55,13 @@ export var FieldView = AggregateView.extend(/**
     edit: function(model, view) {
         this.cancel();
         var user = vreChannel.request('user'),
-            originalText = model.get('originalText'),
             edit = model.get('edit'),
-            correctedText = model.get('correctedText'),
-            newEdit;
-        if (
-            edit && user &&
-            edit.getAuthor().getUsername() === user.get('username')
-        ) {
-            newEdit = edit.clone();
-        } else {
-            newEdit = this.makeEdit(originalText);
-            correctedText != null && newEdit.set('text', correctedText);
-        }
+            newEdit = (
+                edit && user &&
+                edit.getAuthor().getUsername() === user.get('username')
+            ) ? edit.clone() :  this.makeEdit(model);
         var editor = new AnnotationEditView({
             model: newEdit,
-            defaultText: originalText,
         }).on(_.pick(this, ['save', 'cancel', 'trash']), this);
         /** @member */
         this.editor = new OverlayView({
@@ -82,15 +74,23 @@ export var FieldView = AggregateView.extend(/**
 
     /**
      * Common logic of methods that create edits.
+     * @param {module:'./field.model.js'.CombinedFieldValues#model} model
+     * @return {Annotation}
      */
-    makeEdit: function(originalText) {
+    makeEdit: function(model) {
         var newEdit = new Annotation({
             'context': vreChannel.request('projects:current').id,
             'oa:hasSource': this.model.get('record').id,
             'edpopcol:field': this.model.id,
             'motivation': 'oa:editing',
         });
+        var originalText = model.get('originalText');
         originalText != null && newEdit.set('edpopcol:originalText', originalText);
+        newEdit.set(model.pick(linkAttributes));
+        newEdit.set(
+            'text',
+            model.get('summaryText') || model.get('correctedText') || originalText
+        );
         return newEdit;
     },
 
@@ -137,9 +137,8 @@ export var FieldView = AggregateView.extend(/**
     discard: function(model) {
         var edit = model.get('edit');
         if (edit) return this.dropEdit(edit);
-        var originalText = model.get('originalText');
-        if (originalText == null) return;
-        edit = this.makeEdit(originalText);
+        if (model.get('originalText') == null) return;
+        edit = this.makeEdit(model);
         edit.set('marksDeletion', true);
         this.save({model: edit});
     },
