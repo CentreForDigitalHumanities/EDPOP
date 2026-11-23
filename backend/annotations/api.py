@@ -44,16 +44,21 @@ JSON_LD_CONTEXT = {
 record_annotations_query = '''
 construct {
   ?a ?pa ?oa .
+  ?b ?pb ?ob .
   ?t ?pt ?ot .
   ?s ?ps ?os .
 }
 where {
   graph ?annotations {
     ?a ?pa ?oa ;
+       oa:hasBody ?b ;
        oa:hasTarget ?t ;
        as:context ?project .
     ?t ?pt ?ot ;
        oa:hasSource ?record .
+    optional {
+      ?b ?pb ?ob .
+    }
     optional {
       ?t oa:hasSelector ?s .
       ?s ?ps ?os .

@@ -130,3 +130,31 @@ def test_list_annotations(client, triplestore, django_test_user, project):
     assert response.status_code == 200
     graph = response.data
     assert len(list(graph.triples((None, OA.hasSource, URIRef(SOURCE))))) == 2
+
+
+def test_retrieve_annotations_complex_body(client, triplestore, django_test_user, project):
+    uri = create_annotation(client, TARGET, COMPLEX_BODY,
+                            django_test_user, project, OA.editing)
+    response = client.get(
+        f'/api/record-annotations/{quote_plus(SOURCE)}/?project={project.uri}'
+    )
+    assert response.status_code == 200
+    response_json = response.json()
+    graph = response_json.get('@graph', [response_json])
+    assert len(graph) > 0
+    if len(graph) == 1:
+        # compact representation
+        body = graph[0]['oa:hasBody']
+    else:
+        # flat representation
+        by_id = {obj['@id']: obj for obj in graph}
+        for obj in graph:
+            if 'oa:hasBody' in obj:
+                placeholder = obj['oa:hasBody']
+                assert len(placeholder) == 1
+                body = by_id[placeholder['@id']]
+                break
+        else:
+            body = {}
+    for key in ['rdf:value', 'edpoprec:authorityRecord']:
+        assert body[key] == COMPLEX_BODY[key]
