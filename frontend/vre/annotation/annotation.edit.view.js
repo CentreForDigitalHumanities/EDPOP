@@ -65,7 +65,6 @@ export var AnnotationEditView = View.extend({
             var text = this.model.get('text') || this.defaultText;
             this.$el.html(this.template({
                 currentText: text,
-                cid: this.cid,
             }));
         }
         return this;
