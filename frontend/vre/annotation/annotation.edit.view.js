@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 import { View } from '../core/view.js';
 import annotationEditTemplate from './annotation.edit.view.mustache';
 import annotationTagEditTemplate from './annotation.tag.edit.view.mustache';
@@ -13,9 +15,12 @@ export var AnnotationEditView = View.extend({
         'submit': 'submit',
         'reset': 'reset',
         'keydown textarea': 'handleTextareaKeydown',
+        'change .edpop-select-subfield': 'switchSubfield',
+        'change textarea': 'updateSubfield',
     },
     initialize: function(options) {
         _.assign(this, _.pick(options, ['existing', 'defaultText']));
+        this.motivation = this.model.get('motivation');
         this.render().$el.popover({
             container: 'body',
             content: confirmDeletionTemplate(this),
@@ -36,7 +41,7 @@ export var AnnotationEditView = View.extend({
             confirmSelector,
             this.cancelTrash.bind(this),
         );
-        if (this.model.get('motivation') === 'oa:tagging') {
+        if (this.motivation === 'oa:tagging') {
             glossary.on('update', this.render);
         }
         // Focus on textarea, but wait for one cycle to ensure DOM is ready
@@ -49,7 +54,7 @@ export var AnnotationEditView = View.extend({
         }, 0);
     },
     render: function() {
-        if (this.model.get('motivation') === 'oa:tagging') {
+        if (this.motivation === 'oa:tagging') {
             this.$('select').select2('destroy');
             this.$el.html(this.glossaryTemplate({
                 choices: glossary.parse(glossary.toJSON()),
@@ -63,9 +68,12 @@ export var AnnotationEditView = View.extend({
             this.$('select').trigger('change');
         } else {
             var text = this.model.get('text') || this.defaultText;
-            this.$el.html(this.template({
+            var payload = _.assign({
                 currentText: text,
-            }));
+            }, this.model.attributes);
+            payload[this.motivation] = true;
+            payload[this.model.get('edpopcol:field')] = true;
+            this.$el.html(this.template(payload));
         }
         return this;
     },
@@ -74,7 +82,7 @@ export var AnnotationEditView = View.extend({
         this.$el.popover('dispose');
         this.trashConfirmer.off();
         this.trashCanceller.off();
-        if (this.model.get('motivation') === 'oa:tagging') {
+        if (this.motivation === 'oa:tagging') {
             this.$('select').select2('destroy');
         }
         var result = View.prototype.remove.call(this);
@@ -89,10 +97,12 @@ export var AnnotationEditView = View.extend({
     },
     submit: function(event) {
         event.preventDefault();
-        if (this.model.get('motivation') === 'oa:tagging') {
+        if (this.motivation === 'oa:tagging') {
             this.model.set("tagURL", this.$('select').val());
-        } else {
+        } else if (this.motivation === 'oa:commenting') {
             this.model.set("text", this.$('textarea').val());
+        } else {
+            this.updateSubfield();
         }
         this.trigger('save', this);
     },
@@ -120,5 +130,11 @@ export var AnnotationEditView = View.extend({
             event.stopPropagation();
             this.reset(event);
         }
-    }
+    },
+    switchSubfield: function() {
+        this.$('textarea').val(this.model.get(this.$('select').val()));
+    },
+    updateSubfield: function() {
+        this.model.set(this.$('select').val(), this.$('textarea').val());
+    },
 });
