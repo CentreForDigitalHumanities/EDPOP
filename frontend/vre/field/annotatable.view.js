@@ -4,8 +4,7 @@ import { vreChannel } from '../radio.js';
 import {AggregateView} from "../core/view";
 
 /**
- * Base view for displaying annotations, used for field annotations
- * (FieldView, together with the field itself) and record annotations
+ * Base view for displaying annotations, used for record annotations
  * (RecordAnnotationsView). The view's collection should be the
  * set of annotations. Editing and deletion are implemented here;
  * adding new annotations can be implemented by calling edit() with
