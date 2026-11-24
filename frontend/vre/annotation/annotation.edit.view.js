@@ -21,26 +21,29 @@ export var AnnotationEditView = View.extend({
     initialize: function(options) {
         _.assign(this, _.pick(options, ['existing', 'defaultText']));
         this.motivation = this.model.get('motivation');
-        this.render().$el.popover({
-            container: 'body',
-            content: confirmDeletionTemplate(this),
-            html: true,
-            sanitize: false,
-            placement: 'top',
-            selector: 'button[aria-label="Delete"]',
-            title: 'Really delete?',
-        });
-        var confirmSelector = '#confirm-delete-' + this.cid;
-        this.trashConfirmer = $('body').one(
-            'submit',
-            confirmSelector,
-            this.reallyTrash.bind(this)
-        );
-        this.trashCanceller = $('body').on(
-            'reset',
-            confirmSelector,
-            this.cancelTrash.bind(this),
-        );
+        this.render();
+        if (this.motivation !== 'oa:editing') {
+            this.$el.popover({
+                container: 'body',
+                content: confirmDeletionTemplate(this),
+                html: true,
+                sanitize: false,
+                placement: 'top',
+                selector: 'button[aria-label="Delete"]',
+                title: 'Really delete?',
+            });
+            var confirmSelector = '#confirm-delete-' + this.cid;
+            this.trashConfirmer = $('body').one(
+                'submit',
+                confirmSelector,
+                this.reallyTrash.bind(this)
+            );
+            this.trashCanceller = $('body').on(
+                'reset',
+                confirmSelector,
+                this.cancelTrash.bind(this),
+            );
+        }
         if (this.motivation === 'oa:tagging') {
             glossary.on('update', this.render);
         }
@@ -79,9 +82,11 @@ export var AnnotationEditView = View.extend({
     },
     remove: function() {
         var parentElement = this.el.parentElement;
-        this.$el.popover('dispose');
-        this.trashConfirmer.off();
-        this.trashCanceller.off();
+        if (this.motivation !== 'oa:editing') {
+            this.$el.popover('dispose');
+            this.trashConfirmer.off();
+            this.trashCanceller.off();
+        }
         if (this.motivation === 'oa:tagging') {
             this.$('select').select2('destroy');
         }

@@ -22,7 +22,9 @@
     >{{currentText}}</textarea>
     <button type=submit class="btn btn-primary">Save</button>
     <button type=reset class="btn btn-default">Cancel</button>
+    {{^oa:editing}}
     <button type=button class="btn btn-danger" aria-label=Delete>
         <span class="fa fa-trash" aria-hidden=true></span>
     </button>
+    {{/oa:editing}}
 </form>
