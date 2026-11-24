@@ -6,13 +6,13 @@
         {{#summaryText}}
             <p class="card-text">{{ summaryText }}</p>
         {{/summaryText}}
-        {{#iiif}}
-            <p class="card-text"><a href="{{manifestUrl}}" target="_blank">Get IIIF manifest</a></p>
+        {{#iiifManifest}}
+            <p class="card-text"><a href="{{iiifManifest}}" target="_blank">Get IIIF manifest</a></p>
             <p><a href="/mirador?manifest={{encodedManifestUrl}}" target="_blank">Show in Mirador</a></p>
-        {{/iiif}}
-        {{#externalUrl}}
-            <p class="card-text"><a href="{{externalUrl}}" target="_blank">Show digitization</a></p>
-        {{/externalUrl}}
+        {{/iiifManifest}}
+        {{#imageUrl}}
+            <p class="card-text"><a href="{{imageUrl}}" target="_blank">Show digitization</a></p>
+        {{/imageUrl}}
         {{#empty}}
             <p class="card-text">No digitization available</p>
         {{/empty}}

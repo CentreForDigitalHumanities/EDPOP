@@ -66,10 +66,7 @@ export var RecordDetailView = CompositeView.extend({
         }
         var contents = this.contents = presentableContents(model);
         this.mainDisplayField = model.mainDisplayField(contents);
-        var fields = contents.values;
-        var digitizations = new FilteredCollection(fields, {
-            key: 'edpoprec:digitization'
-        });
+        var digitizations = contents.get('edpoprec:digitization').content;
         this.fieldsView = new RecordFieldsView({
             collection: contents,
         });
