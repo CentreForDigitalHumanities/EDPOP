@@ -230,6 +230,9 @@ export const fieldEntryTag = _.chain(fieldEntryTypeOrder)
  * @property {string} [authorityRecord] - Authority record URL to be used as
  * hyperlink. Sourced from the original value if uncorrected, from the
  * correction or the addition otherwise.
+ * @property {string} [summaryText] - Convenience copy of either
+ * `edit.get('text')` or `original.get('value')['edpoprec:summaryText']`, if
+ * present.
  * @property {string} [iiifManifest] - URL of a IIIF manifest for a
  * digitization. Sourced from the original value if uncorrected, from the
  * correction or the addition otherwise.
@@ -274,6 +277,7 @@ function wrapUncorrected(original) {
         originalText = value['edpoprec:originalText'],
         authorityObj = value['edpoprec:authorityRecord'],
         authorityRecord = authorityObj && authorityObj['@id'],
+        summaryText = value['edpoprec:summaryText'],
         iiifManifest = value['edpoprec:iiifManifest'],
         previewUrl = value['edpoprec:previewUrl'],
         imageUrl = value['edpoprec:url'];
@@ -344,6 +348,7 @@ function wrapCorrection(pair) {
         original,
         originalText,
         correctedText,
+        summaryText: correctedText,
     });
 }
 
@@ -360,6 +365,7 @@ function wrapAddition(edit) {
         edit,
         order: fieldEntryTag.addition,
         correctedText: addedValue,
+        summaryText: addedValue,
     });
 }
 
