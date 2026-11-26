@@ -102,15 +102,14 @@ def test_edit_complex_body(client, triplestore, django_test_user, project):
     uri = create_annotation(client, TARGET, COMPLEX_BODY,
                             django_test_user, project, OA.editing)
     size_before = triplestore_size(triplestore)
-    textual_body = list(triplestore.objects(URIRef(uri), OA.hasBody))[0]
     client.put(f'/api/annotation/{quote_plus(uri)}/', {
         '@context': JSON_LD_CONTEXT,
         '@id': uri,
         'oa:hasBody': COMPLEX_BODY | {
-            '@id': textual_body,
             'rdf:value': 'This is an edited annotation',
         }
     }, content_type='application/ld+json')
+    textual_body = list(triplestore.objects(URIRef(uri), OA.hasBody))[0]
     body_value = list(triplestore.objects(textual_body, RDF.value))[0]
     assert body_value == Literal('This is an edited annotation')
     updated_date = list(triplestore.objects(URIRef(uri), AS.updated))

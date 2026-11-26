@@ -246,7 +246,8 @@ class AnnotationEditView(RDFView):
         store = settings.RDFLIB_STORE
         check_user_annotation_authorization(request.user, id_uriref)
 
-        graph = graph_from_request(request)
+        raw_graph = graph_from_request(request)
+        graph = graph_from_triples(replace_blank_nodes_in_triples(raw_graph))
         body = graph.value(id_uriref, OA.hasBody, None)
         body_parts = graph.predicate_objects(body)
         body_parts_n3 = sparql_multituples(body_parts)
