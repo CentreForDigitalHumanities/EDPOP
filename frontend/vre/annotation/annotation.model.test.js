@@ -23,7 +23,7 @@ const flatAnnotation = {
     '@id': deepAnnotation['@id'],
     context: deepAnnotation['as:context']['@id'],
     motivation: deepAnnotation['oa:motivatedBy']['@id'],
-    'oa:hasBody': deepAnnotation['oa:hasBody'],
+    'text': deepAnnotation['oa:hasBody'],
     'oa:hasSource': deepAnnotation['oa:hasTarget']['oa:hasSource']['@id'],
     'edpopcol:field': deepAnnotation['oa:hasTarget']['oa:hasSelector']['edpopcol:field']['@id'],
     'edpopcol:originalText': deepAnnotation['oa:hasTarget']['oa:hasSelector']['edpopcol:originalText'],
@@ -51,6 +51,34 @@ const clientMod = {
     'oa:hasSource': serverMod['oa:hasTarget']['oa:hasSource']['@id'],
     'edpopcol:field': serverMod['oa:hasTarget']['oa:hasSelector']['edpopcol:field']['@id'],
     'edpopcol:originalText': serverMod['oa:hasTarget']['oa:hasSelector']['edpopcol:originalText'],
+};
+
+const deepEditWithLink = {
+    'oa:hasBody': {
+        '@id': 'http://example.com/deepBodyLink',
+        'rdf:value': 'excellent',
+        'edpoprec:authorityRecord': {'@id': 'http://example.com/authority'},
+    },
+};
+
+const flatEditWithLink = {
+    text: deepEditWithLink['oa:hasBody']['rdf:value'],
+    authorityRecord: deepEditWithLink['oa:hasBody']['edpoprec:authorityRecord']['@id'],
+};
+
+const deepEditWithIIIF = {
+    'oa:hasBody': {
+        '@id': 'http://example.com/deepBodyIIIF',
+        'rdf:value': 'picture of a banana',
+        'edpoprec:iiifManifest': 'http://example.com/iiifManifest',
+        'edpoprec:previewUrl': 'http://example.com/thumbnail',
+    },
+};
+
+const flatEditWithIIIF = {
+    text: deepEditWithIIIF['oa:hasBody']['rdf:value'],
+    iiifManifest: deepEditWithIIIF['oa:hasBody']['edpoprec:iiifManifest'],
+    previewUrl: deepEditWithIIIF['oa:hasBody']['edpoprec:previewUrl'],
 };
 
 describe('Annotation model', () => {
@@ -125,6 +153,52 @@ describe('Annotation model', () => {
         const storedAttributes = model.toJSON();
         model.clear().set(model.parse(storedAttributes));
         assert(model.get('edpopcol:originalText') === '');
+    });
+
+    it('recognizes authority records', () => {
+        const modifiedDeep = _.assign({}, deepAnnotation, deepEditWithLink);
+        const parsed = model.parse(modifiedDeep);
+        sinon.assert.match(parsed, flatEditWithLink);
+    });
+
+    it('serializes authority records', () => {
+        model.set(flatAnnotation);
+        model.set(flatEditWithLink);
+        const serialized = model.toJSON();
+        for (let key in flatEditWithLink) assert(!(key in serialized));
+        assert.deepStrictEqual(
+            serialized['oa:hasBody'],
+            _.omit(deepEditWithLink['oa:hasBody'], '@id')
+        );
+    });
+
+    it('recognizes digitizations', () => {
+        const modifiedDeep = _.assign({}, deepAnnotation, deepEditWithIIIF);
+        const parsed = model.parse(modifiedDeep);
+        sinon.assert.match(parsed, flatEditWithIIIF);
+    });
+
+    it('serializes digitizations', () => {
+        model.set(flatAnnotation);
+        model.set(flatEditWithIIIF);
+        const serialized = model.toJSON();
+        for (let key in flatEditWithIIIF) assert(!(key in serialized));
+        assert.deepStrictEqual(
+            serialized['oa:hasBody'],
+            _.omit(deepEditWithIIIF['oa:hasBody'], '@id')
+        );
+    });
+
+    it('does not resurrect unset subfields', () => {
+        const modifiedDeep = _.assign({}, deepAnnotation, deepEditWithIIIF);
+        model.set(model.parse(modifiedDeep));
+        model.unset('previewUrl');
+        const serialized = model.toJSON();
+        assert('oa:hasBody' in serialized);
+        const body = serialized['oa:hasBody'];
+        assert('rdf:value' in body);
+        assert('edpoprec:iiifManifest' in body);
+        assert(!('edpoprec:previewUrl' in body));
     });
 });
 

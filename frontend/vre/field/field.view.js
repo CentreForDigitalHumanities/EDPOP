@@ -2,6 +2,7 @@ import _ from 'lodash';
 
 import { vreChannel } from '../radio.js';
 import { AggregateView } from '../core/view.js';
+import { linkAttributes } from '../field/field.model.js';
 import { Annotation } from '../annotation/annotation.model';
 import { AnnotationEditView } from '../annotation/annotation.edit.view';
 import { OverlayView } from '../utils/overlay.view.js';
@@ -54,22 +55,13 @@ export var FieldView = AggregateView.extend(/**
     edit: function(model, view) {
         this.cancel();
         var user = vreChannel.request('user'),
-            originalText = model.get('originalText'),
             edit = model.get('edit'),
-            correctedText = model.get('correctedText'),
-            newEdit;
-        if (
-            edit && user &&
-            edit.getAuthor().getUsername() === user.get('username')
-        ) {
-            newEdit = edit.clone();
-        } else {
-            newEdit = this.makeEdit(originalText);
-            correctedText != null && newEdit.set('oa:hasBody', correctedText);
-        }
+            newEdit = (
+                edit && user &&
+                edit.getAuthor().getUsername() === user.get('username')
+            ) ? edit.clone() :  this.makeEdit(model);
         var editor = new AnnotationEditView({
             model: newEdit,
-            defaultText: originalText,
         }).on(_.pick(this, ['save', 'cancel', 'trash']), this);
         /** @member */
         this.editor = new OverlayView({
@@ -82,15 +74,23 @@ export var FieldView = AggregateView.extend(/**
 
     /**
      * Common logic of methods that create edits.
+     * @param {module:'./field.model.js'.CombinedFieldValues#model} model
+     * @return {Annotation}
      */
-    makeEdit: function(originalText) {
+    makeEdit: function(model) {
         var newEdit = new Annotation({
             'context': vreChannel.request('projects:current').id,
             'oa:hasSource': this.model.get('record').id,
             'edpopcol:field': this.model.id,
             'motivation': 'oa:editing',
         });
+        var originalText = model.get('originalText');
         originalText != null && newEdit.set('edpopcol:originalText', originalText);
+        newEdit.set(model.pick(linkAttributes));
+        newEdit.set(
+            'text',
+            model.get('summaryText') || model.get('correctedText') || originalText
+        );
         return newEdit;
     },
 
@@ -113,9 +113,15 @@ export var FieldView = AggregateView.extend(/**
      * @param {AnnotationEditView} editor
      */
     save: function(editor) {
-        var model = editor.model;
+        var model = editor.model, collection = this.model.annotations.underlying;
         this.cancel();
-        model = this.model.annotations.underlying.add(model, {merge: true});
+        // Instead of a `collection.add(model, {merge: true})`, we first remove
+        // any pre-existing copy (which may be a no-op if there was none) and
+        // then (re)add the annotation. We choose this approach because merging
+        // the copies might bring back subfield values that the user just
+        // removed.
+        collection.remove(model);
+        collection.add(model);
         model.save();
     },
 
@@ -137,9 +143,8 @@ export var FieldView = AggregateView.extend(/**
     discard: function(model) {
         var edit = model.get('edit');
         if (edit) return this.dropEdit(edit);
-        var originalText = model.get('originalText');
-        if (originalText == null) return;
-        edit = this.makeEdit(originalText);
+        if (model.get('originalText') == null) return;
+        edit = this.makeEdit(model);
         edit.set('marksDeletion', true);
         this.save({model: edit});
     },
@@ -150,6 +155,6 @@ export var FieldView = AggregateView.extend(/**
      */
     dropEdit: function(model) {
         this.cancel();
-        this.model.annotations.underlying.remove(model);
+        model.destroy();
     },
 });

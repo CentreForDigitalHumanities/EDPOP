@@ -6,8 +6,13 @@ import { AnnotationEditView } from './annotation.edit.view';
 import {Annotation} from "./annotation.model";
 
 describe('AnnotationEditView', function() {
+    // This somewhat outdated test suite is currently specialized for the
+    // commenting variant of the AnnotationEditView, which is closest to the
+    // original version of the view. The other two modes (tagging and editing)
+    // have quite different logic nowadays. We don't have separate tests for
+    // those modes, yet.
     beforeEach(function() {
-        this.model = new Annotation();
+        this.model = new Annotation({motivation: 'oa:commenting'});
         this.view = new AnnotationEditView({model: this.model});
         this.view.render().$el.appendTo('body');
     });
@@ -50,7 +55,7 @@ describe('AnnotationEditView', function() {
         });
 
         it('saves input data to the model', function() {
-            assert(this.model.get('oa:hasBody') === 'green');
+            assert(this.model.get('text') === 'green');
         });
 
         it('triggers a "save" event', function() {

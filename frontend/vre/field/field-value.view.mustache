@@ -12,30 +12,32 @@
 {{/edit}}
     class="vre-field-value"
 >
-{{#hasOriginalText}}
-    {{#uncorrected}}
-        {{#linkedRecordUri}}
-    <a href="/record/{{&.}}"
-       target=_blank
-       title="Go to linked record"
-    ><span class="original-text">{{originalText}}</span></a>
-        {{/linkedRecordUri}}
-        {{^linkedRecordUri}}
-    <span class="original-text">{{originalText}}</span>
-        {{/linkedRecordUri}}
-    {{/uncorrected}}
-    {{^uncorrected}}
-        {{#shortOriginalText}}
+{{#outdatedText}}
+    {{#shortOriginalText}}
     <del title="{{originalText}}">{{.}}</del>
-        {{/shortOriginalText}}
-        {{^shortOriginalText}}
+    {{/shortOriginalText}}
+    {{^shortOriginalText}}
     <del><span class="original-text">{{originalText}}</span></del>
-        {{/shortOriginalText}}
-    {{/uncorrected}}
-{{/hasOriginalText}}
-{{#correctedText}}
-    <ins>{{.}}</ins>
-{{/correctedText}}
+    {{/shortOriginalText}}
+{{/outdatedText}}
+{{#hasCurrentText}}
+    {{#edit}}
+    <ins>
+    {{/edit}}
+    {{#authorityRecord}}
+        <a href="/record/{{&.}}" target=_blank title="Go to linked record">
+    {{/authorityRecord}}
+            <span class="original-text">{{currentText}}</span>
+    {{#authorityRecord}}
+        </a>
+    {{/authorityRecord}}
+    {{#edit}}
+    </ins>
+    {{/edit}}
+{{/hasCurrentText}}
+{{#hasImage}}
+    <span class="fa-solid fa-image" role=img aria-label="with image"></span>
+{{/hasImage}}
 {{#edit}}
     <span class="authored-by">@{{getAuthor.getUsername}}</span>
 {{/edit}}

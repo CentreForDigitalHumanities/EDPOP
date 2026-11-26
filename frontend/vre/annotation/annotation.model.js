@@ -37,7 +37,7 @@ export var Annotation = JsonLdModel.extend({
 
     getDisplayText: function() {
         if (['oa:commenting', 'oa:editing', 'oa:describing'].includes(this.get('motivation'))) {
-            return this.get('oa:hasBody');
+            return this.get('text');
         } else if (this.get('motivation') === 'oa:tagging') {
             var id = this.get('tagURL');
             return glossary.get(id).get('skos:prefLabel');
@@ -62,8 +62,13 @@ export var Annotation = JsonLdModel.extend({
     flatFields: [
         'context',
         'motivation',
+        'text',
         'tagURL',
         'marksDeletion',
+        'authorityRecord',
+        'iiifManifest',
+        'previewUrl',
+        'imageUrl',
         'oa:hasSource',
         'edpopcol:field',
         'edpopcol:originalText',
@@ -79,7 +84,20 @@ export var Annotation = JsonLdModel.extend({
             target = anno['oa:hasTarget'];
         if (context) flat.context = context['@id'];
         if (motivation) flat.motivation = motivation['@id'];
-        if (body && body['@id']) flat.tagURL = body['@id'];
+        if (body) {
+            if (_.isString(body)) {
+                flat.text = body;
+            } else if (body['@id'] && body['rdf:value'] == null) {
+                flat.tagURL = body['@id'];
+            } else {
+                flat.text = body['rdf:value'];
+                var authority = body['edpoprec:authorityRecord'];
+                flat.authorityRecord = authority && authority['@id'];
+                flat.iiifManifest = body['edpoprec:iiifManifest'];
+                flat.previewUrl = body['edpoprec:previewUrl'];
+                flat.imageUrl = body['edpoprec:url'];
+            }
+        }
         if (flat.tagURL === 'edpopcol:incorrectFieldValue') {
             flat.marksDeletion = true;
         }
@@ -89,9 +107,9 @@ export var Annotation = JsonLdModel.extend({
             if (source) flat['oa:hasSource'] = source['@id'];
             if (selector) {
                 var field = selector['edpopcol:field'],
-                    text = selector['edpopcol:originalText'];
+                    original = selector['edpopcol:originalText'];
                 if (field) flat['edpopcol:field'] = field['@id'];
-                if (text != null) flat['edpopcol:originalText'] = text;
+                if (original != null) flat['edpopcol:originalText'] = original;
             }
         }
         return _.assign(flat, anno);
@@ -102,19 +120,36 @@ export var Annotation = JsonLdModel.extend({
             .toJSON.call(this, options),
             flatContext = jsonld.context,
             flatMotivation = jsonld.motivation,
+            flatText = jsonld.text,
             flatTagURL = jsonld.tagURL,
             marksDeletion = jsonld.marksDeletion,
+            flatAuthority = jsonld.authorityRecord,
+            flatIIIF = jsonld.iiifManifest,
+            flatPreview = jsonld.previewUrl,
+            flatImage = jsonld.imageUrl,
+            bodyNested = flatAuthority || flatIIIF || flatPreview || flatImage,
+            body = {},
+            authority = {},
             target = jsonld['oa:hasTarget'] || {},
             selector = target['oa:hasSelector'] || {},
             flatSource = jsonld['oa:hasSource'],
             flatField = jsonld['edpopcol:field'],
-            flatText = jsonld['edpopcol:originalText'];
+            flatOriginal = jsonld['edpopcol:originalText'];
         if (flatField) selector['edpopcol:field'] = {'@id': flatField};
-        if (flatText != null) selector['edpopcol:originalText'] = flatText;
-        if (flatField || flatText) var flatSelector = true;
+        if (flatOriginal != null) selector['edpopcol:originalText'] = flatOriginal;
+        if (flatField || flatOriginal) var flatSelector = true;
         if (flatSource) target['oa:hasSource'] = {'@id': flatSource};
         if (flatSelector) target['oa:hasSelector'] = selector;
         if (flatSource || flatSelector) jsonld['oa:hasTarget'] = target;
+        if (flatText) body['rdf:value'] = jsonld['oa:hasBody'] = flatText;
+        if (flatAuthority) {
+            authority['@id'] = flatAuthority;
+            body['edpoprec:authorityRecord'] = authority;
+        }
+        if (flatIIIF) body['edpoprec:iiifManifest'] = flatIIIF;
+        if (flatPreview) body['edpoprec:previewUrl'] = flatPreview;
+        if (flatImage) body['edpoprec:url'] = flatImage;
+        if (bodyNested) jsonld['oa:hasBody'] = body;
         if (marksDeletion) flatTagURL = 'edpopcol:incorrectFieldValue';
         if (flatTagURL) jsonld['oa:hasBody'] = {'@id': flatTagURL};
         if (flatMotivation) jsonld['oa:motivatedBy'] = {'@id': flatMotivation};
@@ -143,11 +178,6 @@ export var Annotations = JsonLdNestedCollection.extend({
 
     initialize: function(model, options) {
         _.assign(this, _.pick(options, ['target']));
-        this.on('remove', this.deleteAnnotation);
-    },
-
-    deleteAnnotation: function(annotation) {
-        annotation.destroy();
     },
 
     url: function() {

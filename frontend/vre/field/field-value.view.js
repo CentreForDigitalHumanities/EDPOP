@@ -64,22 +64,29 @@ export var FieldValueView = View.extend(/**
 
     render: function() {
         var attributes = this.model.attributes,
-            original = attributes.original,
             recordField = this.model.collection.recordField,
             fieldInfo = attributes.isFirst && recordField.fieldInfo(),
-            linkedUri = original && original.getLinkedUri(),
-            linkedRecordUri = linkedUri && encodeURIComponent(linkedUri),
             edit = attributes.edit,
             updatedDate = edit && edit.getUpdatedDate(),
             originalText = attributes.originalText,
-            hasOriginalText = (originalText != null),
+            outdatedText = edit && (originalText != null),
+            correctedText = attributes.correctedText,
+            summaryText = attributes.summaryText,
+            currentText = summaryText || (edit ? correctedText : originalText),
+            hasCurrentText = (currentText != null),
+            hasImage = (
+                attributes.iiifManifest || attributes.previewUrl ||
+                attributes.imageUrl
+            ),
             payload = _.extend({}, attributes, {
                 fieldInfo,
-                linkedRecordUri,
                 updatedDate,
-                hasOriginalText,
+                outdatedText,
+                currentText,
+                hasCurrentText,
+                hasImage,
             });
-        if (edit && originalText && originalText.length > 20) {
+        if (outdatedText && originalText.length > 20) {
             payload.shortOriginalText = (
                 originalText.slice(0, 9) + '…' + originalText.slice(-9)
             );

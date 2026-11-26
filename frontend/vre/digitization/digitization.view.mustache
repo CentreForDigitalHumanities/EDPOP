@@ -1,18 +1,18 @@
 <div class="card mb-2">
     {{#previewUrl}}
-        <img src="{{previewUrl}}" alt="Digitization preview" class="card-img-top">
+        <img src="{{.}}" alt="Digitization preview" class="card-img-top">
     {{/previewUrl}}
     <div class="card-body">
         {{#summaryText}}
-            <p class="card-text">{{ summaryText }}</p>
+            <p class="card-text">{{.}}</p>
         {{/summaryText}}
-        {{#iiif}}
-            <p class="card-text"><a href="{{manifestUrl}}" target="_blank">Get IIIF manifest</a></p>
+        {{#iiifManifest}}
+            <p class="card-text"><a href="{{.}}" target="_blank">Get IIIF manifest</a></p>
             <p><a href="/mirador?manifest={{encodedManifestUrl}}" target="_blank">Show in Mirador</a></p>
-        {{/iiif}}
-        {{#externalUrl}}
-            <p class="card-text"><a href="{{externalUrl}}" target="_blank">Show digitization</a></p>
-        {{/externalUrl}}
+        {{/iiifManifest}}
+        {{#imageUrl}}
+            <p class="card-text"><a href="{{.}}" target="_blank">Show digitization</a></p>
+        {{/imageUrl}}
         {{#empty}}
             <p class="card-text">No digitization available</p>
         {{/empty}}

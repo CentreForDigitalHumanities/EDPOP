@@ -1,14 +1,30 @@
-<div><textarea
-    type=text
-    name=value
-    form=form-{{cid}}
-    class=form-control
-    title="Comment"
-    required
->{{currentText}}</textarea><form id=form-{{cid}} class="mt-2">
+<form class="mt-2">
+    {{#oa:editing}}
+    <select name=subfield class="form-select edpop-select-subfield">
+        <option value=text selected>text</option>
+        {{^edpoprec:digitization}}
+        <option value=authorityRecord>authority</option>
+        {{/edpoprec:digitization}}
+        {{#edpoprec:digitization}}
+        <option value=iiifManifest>manifest</option>
+        <option value=imageUrl>image</option>
+        <option value=previewUrl>thumbnail</option>
+        {{/edpoprec:digitization}}
+    </select>
+    {{/oa:editing}}
+    <textarea
+        type=text
+        name=value
+        class=form-control
+        title="{{#oa:commenting}}Comment{{/oa:commenting
+             }}{{#oa:editing}}Correction{{/oa:editing}}"
+        required
+    >{{currentText}}</textarea>
     <button type=submit class="btn btn-primary">Save</button>
     <button type=reset class="btn btn-default">Cancel</button>
+    {{^oa:editing}}
     <button type=button class="btn btn-danger" aria-label=Delete>
         <span class="fa fa-trash" aria-hidden=true></span>
     </button>
-</form></div>
+    {{/oa:editing}}
+</form>
