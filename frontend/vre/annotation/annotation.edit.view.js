@@ -137,9 +137,18 @@ export var AnnotationEditView = View.extend({
         }
     },
     switchSubfield: function() {
-        this.$('textarea').val(this.model.get(this.$('select').val()));
+        var textarea = this.$('textarea'),
+            fieldName = this.$('select').val();
+        textarea.val(this.model.get(fieldName))
+            .attr('required', fieldName === 'text');
     },
     updateSubfield: function() {
-        this.model.set(this.$('select').val(), this.$('textarea').val());
+        var input = this.$('textarea').val(),
+            fieldName = this.$('select').val();
+        if (input) {
+            this.model.set(fieldName, input);
+        } else {
+            this.model.unset(fieldName);
+        }
     },
 });
