@@ -140,7 +140,8 @@ export var AnnotationEditView = View.extend({
         var textarea = this.$('textarea'),
             fieldName = this.$('select').val();
         textarea.val(this.model.get(fieldName))
-            .attr('required', fieldName === 'text');
+            .attr('required', fieldName === 'text')
+            .focus();
     },
     updateSubfield: function() {
         var input = this.$('textarea').val(),
