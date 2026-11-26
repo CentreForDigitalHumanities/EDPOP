@@ -188,6 +188,18 @@ describe('Annotation model', () => {
             _.omit(deepEditWithIIIF['oa:hasBody'], '@id')
         );
     });
+
+    it('does not resurrect unset subfields', () => {
+        const modifiedDeep = _.assign({}, deepAnnotation, deepEditWithIIIF);
+        model.set(model.parse(modifiedDeep));
+        model.unset('previewUrl');
+        const serialized = model.toJSON();
+        assert('oa:hasBody' in serialized);
+        const body = serialized['oa:hasBody'];
+        assert('rdf:value' in body);
+        assert('edpoprec:iiifManifest' in body);
+        assert(!('edpoprec:previewUrl' in body));
+    });
 });
 
 describe('Annotations collection', () => {
