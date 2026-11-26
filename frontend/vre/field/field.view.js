@@ -113,9 +113,15 @@ export var FieldView = AggregateView.extend(/**
      * @param {AnnotationEditView} editor
      */
     save: function(editor) {
-        var model = editor.model;
+        var model = editor.model, collection = this.model.annotations.underlying;
         this.cancel();
-        model = this.model.annotations.underlying.add(model, {merge: true});
+        // Instead of a `collection.add(model, {merge: true})`, we first remove
+        // any pre-existing copy (which may be a no-op if there was none) and
+        // then (re)add the annotation. We choose this approach because merging
+        // the copies might bring back subfield values that the user just
+        // removed.
+        collection.remove(model);
+        collection.add(model);
         model.save();
     },
 
