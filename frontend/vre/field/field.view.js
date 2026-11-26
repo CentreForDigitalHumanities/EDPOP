@@ -149,6 +149,6 @@ export var FieldView = AggregateView.extend(/**
      */
     dropEdit: function(model) {
         this.cancel();
-        this.model.annotations.underlying.remove(model);
+        model.destroy();
     },
 });

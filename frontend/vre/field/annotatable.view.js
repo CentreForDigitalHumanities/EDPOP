@@ -60,7 +60,7 @@ export var AnnotatableView = AggregateView.extend({
 
     trash: function(editRow) {
         if (editRow.existing) {
-            this.collection.underlying.remove(editRow.model);
+            editRow.model.destroy();
         } else {
             this.cancel(editRow);
         }

@@ -178,11 +178,6 @@ export var Annotations = JsonLdNestedCollection.extend({
 
     initialize: function(model, options) {
         _.assign(this, _.pick(options, ['target']));
-        this.on('remove', this.deleteAnnotation);
-    },
-
-    deleteAnnotation: function(annotation) {
-        annotation.destroy();
     },
 
     url: function() {
